@@ -16,6 +16,7 @@ import { sentinelRouter } from './routes/sentinel.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { notificationsRouter } from './routes/notifications.js';
 import { settingsRouter } from './routes/settings.js';
+import { loansRouter } from './routes/loans.js';
 
 dotenv.config();
 
@@ -52,6 +53,7 @@ app.use('/api/sentinel', sentinelRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/settings', settingsRouter);
+app.use('/api/loans', loansRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
