@@ -20,6 +20,8 @@ import {
 } from '@tabler/icons-react';
 import { payrollService } from '../services/payrollService';
 
+import { UserAvatar } from '../../../components/ui';
+
 export const PayrunView = ({ payruns, onRefresh }) => {
   const [computingId, setComputingId] = useState(null);
   const [selectedPayslips, setSelectedPayslips] = useState(null);
@@ -31,15 +33,29 @@ export const PayrunView = ({ payruns, onRefresh }) => {
       await payrollService.computePayrun(payrunId);
       if (onRefresh) onRefresh();
     } catch (err) {
-      console.error('Computation failed:', err);
+      console.error('Computation error:', err);
     } finally {
       setComputingId(null);
     }
   };
 
-  const handleViewPayslips = (slips) => {
-    setSelectedPayslips(slips);
-    setPayslipModalOpen(true);
+  const handleValidate = async (payrunId) => {
+    try {
+      await payrollService.validatePayrun(payrunId);
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      console.error('Validation error:', err);
+    }
+  };
+
+  const handleViewPayslips = async (payrunId) => {
+    try {
+      const res = await payrollService.fetchPayslips(payrunId);
+      setSelectedPayslips(res.data);
+      setPayslipModalOpen(true);
+    } catch (err) {
+      console.error('Fetch payslips error:', err);
+    }
   };
 
   return (
@@ -56,27 +72,24 @@ export const PayrunView = ({ payruns, onRefresh }) => {
         <Group justify="space-between" mb="md">
           <div>
             <Text fw={700} size="sm" c="#09090B">
-              PAYROLL BATCH RUNS & SETTLEMENTS
+              PAYROLL BATCHES & DISBURSEMENTS
             </Text>
             <Text size="xs" c="#71717A">
-              Deterministic AST salary formula calculation engine with period-correct contract resolution
+              Manage scheduled cycles, statutory computations, and direct bank transfers
             </Text>
           </div>
-          <Badge size="sm" color="teal" variant="light">
-            Formula Engine: Active
-          </Badge>
         </Group>
 
         <Table verticalSpacing="sm" highlightOnHover>
           <Table.Thead>
             <Table.Tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-              <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>PAY PERIOD</Table.Th>
+              <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>PAYRUN</Table.Th>
               <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>CYCLE</Table.Th>
               <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>STATUS</Table.Th>
-              <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>TOTAL GROSS</Table.Th>
-              <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>TOTAL NET</Table.Th>
+              <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>GROSS PAY</Table.Th>
+              <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>NET DISBURSED</Table.Th>
               <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>SLIPS</Table.Th>
-              <Table.Th style={{ color: '#71717A', fontSize: '11px', textAlign: 'right' }}>ACTIONS</Table.Th>
+              <Table.Th style={{ textAlign: 'right', color: '#71717A', fontSize: '11px' }}>ACTIONS</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -140,23 +153,29 @@ export const PayrunView = ({ payruns, onRefresh }) => {
                         leftSection={<IconPlayerPlay size={12} />}
                         loading={computingId === pr.id}
                         onClick={() => handleCompute(pr.id)}
-                        styles={{
-                          root: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0', color: '#09090B' },
-                        }}
                       >
                         Recompute
                       </Button>
 
-                      {pr.payslips && pr.payslips.length > 0 && (
-                        <ActionIcon
-                          size="sm"
-                          variant="subtle"
-                          color="blue"
-                          onClick={() => handleViewPayslips(pr.payslips)}
-                          title="View Payslips"
+                      <Button
+                        size="xs"
+                        variant="light"
+                        color="dark"
+                        leftSection={<IconEye size={12} />}
+                        onClick={() => handleViewPayslips(pr.id)}
+                      >
+                        Payslips
+                      </Button>
+
+                      {pr.status === 'COMPUTED' && (
+                        <Button
+                          size="xs"
+                          color="teal"
+                          leftSection={<IconCheck size={12} />}
+                          onClick={() => handleValidate(pr.id)}
                         >
-                          <IconEye size={16} />
-                        </ActionIcon>
+                          Validate
+                        </Button>
                       )}
 
                       <ActionIcon
@@ -211,15 +230,23 @@ export const PayrunView = ({ payruns, onRefresh }) => {
               radius="sm"
               style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}
             >
-              <Group justify="space-between" mb="xs">
-                <div>
-                  <Text size="xs" fw={700} c="#09090B">
-                    {slip.employee?.firstName} {slip.employee?.lastName} ({slip.employee?.employeeNumber})
-                  </Text>
-                  <Text size="10px" c="#71717A">
-                    {slip.employee?.department} • {slip.employee?.jobTitle}
-                  </Text>
-                </div>
+              <Group justify="space-between" mb="xs" align="center">
+                <Group gap="xs" wrap="nowrap">
+                  <UserAvatar
+                    size={32}
+                    radius="xl"
+                    name={`${slip.employee?.firstName || ''} ${slip.employee?.lastName || ''}`}
+                    id={slip.employee?.employeeNumber || slip.employeeId}
+                  />
+                  <div>
+                    <Text size="xs" fw={700} c="#09090B">
+                      {slip.employee?.firstName} {slip.employee?.lastName} ({slip.employee?.employeeNumber})
+                    </Text>
+                    <Text size="10px" c="#71717A">
+                      {slip.employee?.department} • {slip.employee?.jobTitle}
+                    </Text>
+                  </div>
+                </Group>
                 <div style={{ textAlign: 'right' }}>
                   <Text size="11px" fw={700} c="#0D9488" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                     Net: ₹{Number(slip.netPay).toLocaleString('en-IN')}

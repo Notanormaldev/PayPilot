@@ -19,6 +19,8 @@ import {
 } from '@tabler/icons-react';
 import { sentinelService } from '../services/sentinelService';
 
+import { UserAvatar } from '../../../components/ui';
+
 export const SentinelDrawer = ({ flags = [], onFlagResolved }) => {
   const [resolvingId, setResolvingId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
@@ -38,7 +40,8 @@ export const SentinelDrawer = ({ flags = [], onFlagResolved }) => {
   const getSeverityBadge = (sev) => {
     if (sev === 'CRITICAL') return <Badge color="red" size="xs" variant="filled">CRITICAL</Badge>;
     if (sev === 'HIGH') return <Badge color="orange" size="xs" variant="light">HIGH</Badge>;
-    return <Badge color="yellow" size="xs" variant="light">MEDIUM</Badge>;
+    if (sev === 'MEDIUM') return <Badge color="yellow" size="xs" variant="light">MEDIUM</Badge>;
+    return <Badge color="gray" size="xs" variant="light">INFO</Badge>;
   };
 
   return (
@@ -98,11 +101,16 @@ export const SentinelDrawer = ({ flags = [], onFlagResolved }) => {
             >
               <Group justify="space-between" align="flex-start" wrap="nowrap">
                 <Group gap="xs" align="flex-start" wrap="nowrap" style={{ flex: 1 }}>
-                  <IconAlertTriangle size={16} color="#DC2626" style={{ marginTop: 2, flexShrink: 0 }} />
+                  <UserAvatar
+                    size={32}
+                    radius="xl"
+                    name={flag.employeeName || 'Staff Member'}
+                    id={flag.employeeNumber || flag.id}
+                  />
                   <div style={{ flex: 1 }}>
                     <Group gap="xs" mb={2}>
                       <Text size="xs" fw={700} c="#09090B">
-                        {flag.ruleCode}
+                        {flag.employeeName ? `${flag.employeeName} (${flag.employeeNumber || 'STAFF'})` : flag.ruleCode}
                       </Text>
                       {getSeverityBadge(flag.severity)}
                     </Group>

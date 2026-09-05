@@ -80,23 +80,26 @@ export const EmployeeTable = ({ employees = [] }) => {
               : null;
             const hasBank = !!(emp.bankAccountNo && emp.bankIfsc);
 
+            const fullName = emp.name || `${emp.firstName || ''} ${emp.lastName || ''}`.trim() || 'Employee';
+            const empNumber = emp.employeeNumber || `EMP-${(emp.id || '').slice(-4).toUpperCase()}`;
+
             return (
               <Table.Tr key={emp.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
                 <Table.Td>
-                  <Group gap="xs">
+                  <Group gap="xs" wrap="nowrap">
                     <UserAvatar
                       size={32}
                       radius="xl"
                       src={emp.avatarUrl}
-                      name={`${emp.firstName} ${emp.lastName}`}
-                      id={emp.id || emp.employeeNumber}
+                      name={fullName}
+                      id={emp.id || empNumber}
                     />
                     <div>
                       <Text size="xs" fw={700} c="#09090B">
-                        {emp.firstName} {emp.lastName}
+                        {fullName}
                       </Text>
                       <Text size="10px" c="#71717A">
-                        {emp.employeeNumber}
+                        {empNumber}
                       </Text>
                     </div>
                   </Group>

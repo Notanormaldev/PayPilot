@@ -23,6 +23,7 @@ import {
 } from '@tabler/icons-react';
 import { BrandLogo } from '../../../../components/BrandLogo';
 import { useAuthUser } from '../../../auth/hooks/useAuthUser';
+import { UserAvatar } from '../../../../components/ui';
 
 export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSuccess }) => {
   const { login, register } = useAuthUser();
@@ -129,9 +130,14 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                 onClick={() => handleFastLogin('meera.krishnan@paypilot.internal', 'ADMIN')}
                 styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
               >
-                <Badge size="xs" color="blue" variant="light" mb={4}>ADMIN</Badge>
-                <Text size="11px" fw={700} c="#09090B">Meera Krishnan</Text>
-                <Text size="9px" c="#71717A">Chief Executive</Text>
+                <Group gap="xs" wrap="nowrap" align="center">
+                  <UserAvatar size={34} radius="xl" name="Meera Krishnan" id="meera" />
+                  <div style={{ minWidth: 0 }}>
+                    <Badge size="xs" color="blue" variant="light" mb={2}>ADMIN</Badge>
+                    <Text size="11px" fw={700} c="#09090B" truncate>Meera Krishnan</Text>
+                    <Text size="9px" c="#71717A" truncate>Chief Executive</Text>
+                  </div>
+                </Group>
               </Paper>
 
               <Paper
@@ -139,10 +145,16 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                 radius="md"
                 style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease' }}
                 onClick={() => handleFastLogin('neha.gupta@paypilot.internal', 'HR_PAYROLL_MANAGER')}
+                styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
               >
-                <Badge size="xs" color="indigo" variant="light" mb={4}>PAYROLL LEAD</Badge>
-                <Text size="11px" fw={700} c="#09090B">Neha Gupta</Text>
-                <Text size="9px" c="#71717A">Payroll Specialist</Text>
+                <Group gap="xs" wrap="nowrap" align="center">
+                  <UserAvatar size={34} radius="xl" name="Neha Gupta" id="neha" />
+                  <div style={{ minWidth: 0 }}>
+                    <Badge size="xs" color="indigo" variant="light" mb={2}>PAYROLL LEAD</Badge>
+                    <Text size="11px" fw={700} c="#09090B" truncate>Neha Gupta</Text>
+                    <Text size="9px" c="#71717A" truncate>Payroll Specialist</Text>
+                  </div>
+                </Group>
               </Paper>
 
               <Paper
@@ -150,10 +162,16 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                 radius="md"
                 style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease' }}
                 onClick={() => handleFastLogin('tanvi.kapoor@paypilot.internal', 'HR_MANAGER')}
+                styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
               >
-                <Badge size="xs" color="teal" variant="light" mb={4}>HR MANAGER</Badge>
-                <Text size="11px" fw={700} c="#09090B">Tanvi Kapoor</Text>
-                <Text size="9px" c="#71717A">People Operations</Text>
+                <Group gap="xs" wrap="nowrap" align="center">
+                  <UserAvatar size={34} radius="xl" name="Tanvi Kapoor" id="tanvi" />
+                  <div style={{ minWidth: 0 }}>
+                    <Badge size="xs" color="teal" variant="light" mb={2}>HR MANAGER</Badge>
+                    <Text size="11px" fw={700} c="#09090B" truncate>Tanvi Kapoor</Text>
+                    <Text size="9px" c="#71717A" truncate>People Operations</Text>
+                  </div>
+                </Group>
               </Paper>
 
               <Paper
@@ -161,10 +179,16 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                 radius="md"
                 style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease' }}
                 onClick={() => handleFastLogin('kartik.kumar@paypilot.internal', 'EMPLOYEE')}
+                styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
               >
-                <Badge size="xs" color="gray" variant="light" mb={4}>EMPLOYEE</Badge>
-                <Text size="11px" fw={700} c="#09090B">Kartik Kumar</Text>
-                <Text size="9px" c="#71717A">Staff Member</Text>
+                <Group gap="xs" wrap="nowrap" align="center">
+                  <UserAvatar size={34} radius="xl" name="Kartik Kumar" id="kartik" />
+                  <div style={{ minWidth: 0 }}>
+                    <Badge size="xs" color="gray" variant="light" mb={2}>EMPLOYEE</Badge>
+                    <Text size="11px" fw={700} c="#09090B" truncate>Kartik Kumar</Text>
+                    <Text size="9px" c="#71717A" truncate>Staff Member</Text>
+                  </div>
+                </Group>
               </Paper>
             </SimpleGrid>
             <Divider label="OR SIGN IN WITH CREDENTIALS" labelPosition="center" color="#E2E8F0" my="sm" />

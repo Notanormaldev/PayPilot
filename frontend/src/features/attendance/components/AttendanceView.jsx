@@ -12,6 +12,7 @@ import {
 import { IconFingerprint, IconCalendarCheck, IconClock, IconX } from '@tabler/icons-react';
 import { attendanceService } from '../services/attendanceService';
 import { fetchApi } from '../../../lib/api';
+import { UserAvatar } from '../../../components/ui';
 
 export const AttendanceView = ({
   attendances = [],
@@ -99,10 +100,10 @@ export const AttendanceView = ({
             <IconFingerprint size={20} color="#2563EB" />
             <div>
               <Text fw={700} size="sm" c="#09090B">
-                Live RFID / Biometric Punch Simulator
+                PUNCH CLOCK TERMINAL SIMULATOR
               </Text>
               <Text size="xs" c="#71717A">
-                Record real-time check-in and check-out events with instant hours computation
+                Record real-time RFID/Biometric check-in/out telemetry
               </Text>
             </div>
           </Group>
@@ -162,46 +163,55 @@ export const AttendanceView = ({
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {attendances.slice(0, 8).map((att) => (
-                  <Table.Tr key={att.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <Table.Td>
-                      <Text size="xs" fw={600} c="#09090B">
-                        {att.employee?.firstName || att.employee?.name || 'Aarav Sharma'}
-                      </Text>
-                      <Text size="10px" c="#71717A">
-                        {att.employee?.employeeNumber || 'EMP-2024-001'}
-                      </Text>
-                    </Table.Td>
+                {attendances.slice(0, 8).map((att) => {
+                  const empName = att.employee?.firstName || att.employee?.name || 'Aarav Sharma';
+                  const empNum = att.employee?.employeeNumber || 'EMP-2024-001';
+                  return (
+                    <Table.Tr key={att.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                      <Table.Td>
+                        <Group gap="xs" wrap="nowrap">
+                          <UserAvatar size={28} radius="xl" name={empName} id={empNum} />
+                          <div>
+                            <Text size="xs" fw={600} c="#09090B">
+                              {empName}
+                            </Text>
+                            <Text size="10px" c="#71717A">
+                              {empNum}
+                            </Text>
+                          </div>
+                        </Group>
+                      </Table.Td>
 
-                    <Table.Td>
-                      <Text size="xs" c="#09090B">
-                        {new Date(att.date).toLocaleDateString()}
-                      </Text>
-                    </Table.Td>
+                      <Table.Td>
+                        <Text size="xs" c="#09090B">
+                          {new Date(att.date).toLocaleDateString()}
+                        </Text>
+                      </Table.Td>
 
-                    <Table.Td>
-                      <Text size="xs" fw={700} c="#09090B" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                        {Number(att.workedHours || 8).toFixed(1)} hrs
-                      </Text>
-                    </Table.Td>
+                      <Table.Td>
+                        <Text size="xs" fw={700} c="#09090B" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                          {Number(att.workedHours || 8).toFixed(1)} hrs
+                        </Text>
+                      </Table.Td>
 
-                    <Table.Td>
-                      <Badge
-                        size="xs"
-                        color={
-                          att.status === 'PRESENT'
-                            ? 'teal'
-                            : att.status === 'HALF_DAY'
-                            ? 'orange'
-                            : 'red'
-                        }
-                        variant="light"
-                      >
-                        {att.status || 'PRESENT'}
-                      </Badge>
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
+                      <Table.Td>
+                        <Badge
+                          size="xs"
+                          color={
+                            att.status === 'PRESENT'
+                              ? 'teal'
+                              : att.status === 'HALF_DAY'
+                              ? 'orange'
+                              : 'red'
+                          }
+                          variant="light"
+                        >
+                          {att.status || 'PRESENT'}
+                        </Badge>
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
               </Table.Tbody>
             </Table>
           </Paper>
@@ -249,29 +259,32 @@ export const AttendanceView = ({
                       style={{ backgroundColor: isPending ? '#FFFBEB' : '#F8FAFC', border: isPending ? '1px solid #FDE68A' : '1px solid #E2E8F0' }}
                     >
                       <Group justify="space-between" align="flex-start" wrap="nowrap">
-                        <div>
-                          <Group gap="xs" mb={2}>
-                            <Text size="xs" fw={700} c="#09090B">
-                              {empName}
+                        <Group gap="xs" align="flex-start" wrap="nowrap">
+                          <UserAvatar size={30} radius="xl" name={empName} id={lr.employeeId || empName} />
+                          <div>
+                            <Group gap="xs" mb={2}>
+                              <Text size="xs" fw={700} c="#09090B">
+                                {empName}
+                              </Text>
+                              {isPending && (
+                                <Badge size="9px" color="orange">
+                                  Needs Approval
+                                </Badge>
+                              )}
+                            </Group>
+                            <Text size="10px" c="#475569" fw={500}>
+                              {leaveName} • {Number(lr.duration || lr.numberOfDays || 1)} day(s)
                             </Text>
-                            {isPending && (
-                              <Badge size="9px" color="orange">
-                                Needs Approval
-                              </Badge>
+                            <Text size="10px" c="#71717A">
+                              {lr.startDate || '2026-09-12'} to {lr.endDate || '2026-09-14'}
+                            </Text>
+                            {lr.reason && (
+                              <Text size="10px" c="#64748B" fs="italic" mt={2}>
+                                "{lr.reason}"
+                              </Text>
                             )}
-                          </Group>
-                          <Text size="10px" c="#475569" fw={500}>
-                            {leaveName} • {Number(lr.duration || lr.numberOfDays || 1)} day(s)
-                          </Text>
-                          <Text size="10px" c="#71717A">
-                            {lr.startDate || '2026-09-12'} to {lr.endDate || '2026-09-14'}
-                          </Text>
-                          {lr.reason && (
-                            <Text size="10px" c="#64748B" fs="italic" mt={2}>
-                              "{lr.reason}"
-                            </Text>
-                          )}
-                        </div>
+                          </div>
+                        </Group>
 
                         {isPending ? (
                           <Group gap={4}>

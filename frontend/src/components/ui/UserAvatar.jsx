@@ -4,7 +4,97 @@ import { IconCamera, IconTrash } from '@tabler/icons-react';
 import { fetchApi } from '../../lib/api';
 
 /**
- * 12 Curated Instagram-style Background & Silhouette Color Palettes
+ * 1. Curated Named Persona Avatar Mapping
+ * Maps standard demo personas and core employees to high-definition portrait assets
+ */
+const NAMED_PERSONA_AVATARS = {
+  // Executive & Leadership
+  'meera krishnan': '/professional-woman-avatar-with-short-brown-hair-an.jpg',
+  'meera.krishnan@paypilot.internal': '/professional-woman-avatar-with-short-brown-hair-an.jpg',
+  'meera': '/professional-woman-avatar-with-short-brown-hair-an.jpg',
+
+  // HR & DevOps
+  'vikram malhotra': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
+  'vikram.malhotra@paypilot.internal': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
+  'vikram patel': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
+  'vikram.patel@paypilot.internal': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
+  'vikram': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
+
+  // Payroll Specialists
+  'neha gupta': '/testimonial-avatar-1.jpg',
+  'neha.gupta@paypilot.internal': '/testimonial-avatar-1.jpg',
+  'neha': '/testimonial-avatar-1.jpg',
+
+  // Product & Engineering
+  'kartik kumar': '/testimonial-avatar-2.jpg',
+  'kartik.kumar@paypilot.internal': '/testimonial-avatar-2.jpg',
+  'kartik': '/testimonial-avatar-2.jpg',
+
+  'priya sharma': '/testimonial-avatar-3.jpg',
+  'priya.sharma@paypilot.internal': '/testimonial-avatar-3.jpg',
+  'priya': '/testimonial-avatar-3.jpg',
+
+  // Extended seeded staff
+  'tanvi kapoor': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
+  'tanvi.kapoor@paypilot.internal': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
+
+  'aarav mehta': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+  'aarav.mehta@paypilot.internal': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+
+  'rohan verma': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+  'rohan.verma@paypilot.internal': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+
+  'ananya iyer': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
+  'ananya.iyer@paypilot.internal': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
+
+  'devendra rao': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
+  'devendra.rao@paypilot.internal': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
+
+  'sneha nair': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
+  'sneha.nair@paypilot.internal': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
+
+  'aditya joshi': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&auto=format&fit=crop&q=80',
+  'aditya.joshi@paypilot.internal': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&auto=format&fit=crop&q=80',
+
+  'arjun reddy': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',
+  'arjun.reddy@paypilot.internal': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',
+
+  'pooja menon': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80',
+  'pooja.menon@paypilot.internal': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80',
+
+  'sanjay singhania': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80',
+  'sanjay.singhania@paypilot.internal': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80',
+};
+
+/**
+ * 2. Curated Pool of Diverse Professional Portraits for All Other Employees
+ * Deterministically assigned so every single user always has a realistic photo!
+ */
+const CURATED_PORTRAITS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1534751516642-a1714f5a507a?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&auto=format&fit=crop&q=80',
+];
+
+/**
+ * 3. 12 Instagram-style Background & Silhouette Color Palettes (Fallback)
  */
 const PALETTES = [
   { bg: '#E2E8F0', figure: '#334155', accent: '#94A3B8' }, // Slate Cool
@@ -22,106 +112,6 @@ const PALETTES = [
 ];
 
 /**
- * 8 Distinct Human Silhouette Contours (Instagram Silhouette Style)
- * All standing/bust poses of a person so no two employees look identical!
- */
-const SILHOUETTES = [
-  // 1. Classic Instagram Clean Minimal Human Bust
-  ({ figure, accent }) => (
-    <g>
-      {/* Head */}
-      <circle cx="50" cy="33" r="16" fill={figure} />
-      {/* Torso / Shoulders with smooth curve */}
-      <path d="M 18 90 C 18 64 32 56 50 56 C 68 56 82 64 82 90 Z" fill={figure} />
-    </g>
-  ),
-
-  // 2. Standing Person with Collar / Business Casual
-  ({ figure, accent }) => (
-    <g>
-      {/* Head */}
-      <circle cx="50" cy="31" r="15" fill={figure} />
-      {/* Torso with V-collar notch */}
-      <path d="M 20 90 C 20 63 32 55 50 55 C 68 55 80 63 80 90 Z" fill={figure} />
-      <polygon points="50,68 43,55 57,55" fill={accent} />
-    </g>
-  ),
-
-  // 3. Human Silhouette with Glasses / Spectacles
-  ({ figure, accent }) => (
-    <g>
-      {/* Head */}
-      <circle cx="50" cy="32" r="16" fill={figure} />
-      {/* Glasses accent */}
-      <rect x="36" y="29" width="11" height="7" rx="2" fill="none" stroke={accent} strokeWidth="2" />
-      <rect x="53" y="29" width="11" height="7" rx="2" fill="none" stroke={accent} strokeWidth="2" />
-      <line x1="47" y1="32" x2="53" y2="32" stroke={accent} strokeWidth="2" />
-      {/* Torso */}
-      <path d="M 19 90 C 19 63 32 55 50 55 C 68 55 81 63 81 90 Z" fill={figure} />
-    </g>
-  ),
-
-  // 4. Human Silhouette with Wavy / Textured Hair
-  ({ figure, accent }) => (
-    <g>
-      {/* Hair volume */}
-      <circle cx="50" cy="31" r="18" fill={accent} />
-      {/* Face & Head */}
-      <circle cx="50" cy="34" r="14" fill={figure} />
-      {/* Torso */}
-      <path d="M 20 90 C 20 64 34 56 50 56 C 66 56 80 64 80 90 Z" fill={figure} />
-    </g>
-  ),
-
-  // 5. Human Silhouette with Top-Knot / High Bun
-  ({ figure, accent }) => (
-    <g>
-      {/* Bun */}
-      <circle cx="50" cy="14" r="6" fill={figure} />
-      {/* Head */}
-      <circle cx="50" cy="34" r="15" fill={figure} />
-      {/* Torso */}
-      <path d="M 18 90 C 18 64 32 56 50 56 C 68 56 82 64 82 90 Z" fill={figure} />
-    </g>
-  ),
-
-  // 6. Minimalist Standing Figure (Upper Body + Neck Detail)
-  ({ figure, accent }) => (
-    <g>
-      {/* Head */}
-      <ellipse cx="50" cy="30" rx="14" ry="16" fill={figure} />
-      {/* Neck */}
-      <rect x="46" y="44" width="8" height="10" fill={figure} />
-      {/* Broad Shoulders */}
-      <path d="M 16 90 C 16 62 30 54 50 54 C 70 54 84 62 84 90 Z" fill={figure} />
-    </g>
-  ),
-
-  // 7. Human Silhouette with Athletic Crewneck Contour
-  ({ figure, accent }) => (
-    <g>
-      {/* Head */}
-      <circle cx="50" cy="32" r="15" fill={figure} />
-      {/* Torso with crew neckline */}
-      <path d="M 18 90 C 18 64 32 55 50 55 C 68 55 82 64 82 90 Z" fill={figure} />
-      <path d="M 40 55 C 40 62 60 62 60 55 Z" fill={accent} />
-    </g>
-  ),
-
-  // 8. Human Silhouette with Side-Part Hairline
-  ({ figure, accent }) => (
-    <g>
-      {/* Hair side-sweep */}
-      <path d="M 33 28 C 33 16 67 16 67 28 C 67 36 33 36 33 28 Z" fill={accent} />
-      {/* Face & Head */}
-      <circle cx="50" cy="34" r="14" fill={figure} />
-      {/* Torso */}
-      <path d="M 19 90 C 19 63 33 55 50 55 C 67 55 81 63 81 90 Z" fill={figure} />
-    </g>
-  ),
-];
-
-/**
  * Deterministic hash function for consistent user avatar generation
  */
 function hashString(str = '') {
@@ -134,30 +124,32 @@ function hashString(str = '') {
 }
 
 /**
- * Generates an SVG Data URI for an Instagram-style default human silhouette avatar
+ * Resolves the initial photo URL for any given user name / ID
  */
-export function getDefaultAvatarSvgDataUri(seed = 'User') {
+export function resolveUserPhoto(name = '', id = '', explicitSrc = null) {
+  if (explicitSrc) return explicitSrc;
+
+  const cleanName = (name || '').toLowerCase().trim();
+  const cleanId = (id || '').toLowerCase().trim();
+
+  // 1. Direct match in Named Persona map
+  if (NAMED_PERSONA_AVATARS[cleanName]) return NAMED_PERSONA_AVATARS[cleanName];
+  if (NAMED_PERSONA_AVATARS[cleanId]) return NAMED_PERSONA_AVATARS[cleanId];
+
+  // 2. Partial first name match in Named Persona map
+  const firstName = cleanName.split(' ')[0];
+  if (firstName && NAMED_PERSONA_AVATARS[firstName]) return NAMED_PERSONA_AVATARS[firstName];
+
+  // 3. Deterministic index into Curated Portrait pool
+  const seed = `${cleanName}_${cleanId}`;
   const hash = hashString(seed);
-  const palette = PALETTES[hash % PALETTES.length];
-  const silhouetteIndex = Math.floor(hash / PALETTES.length) % SILHOUETTES.length;
-  const SilhouetteComponent = SILHOUETTES[silhouetteIndex];
-
-  // We can render the SVG to a data URI string
-  const svgString = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-      <rect width="100" height="100" rx="50" fill="${palette.bg}" />
-      <circle cx="50" cy="33" r="16" fill="${palette.figure}" />
-      <path d="M 18 90 C 18 64 32 56 50 56 C 68 56 82 64 82 90 Z" fill="${palette.figure}" />
-    </svg>
-  `.trim();
-
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+  return CURATED_PORTRAITS[hash % CURATED_PORTRAITS.length];
 }
 
 /**
  * UserAvatar Component
- * - Displays user photo from ImageKit if set
- * - Otherwise renders a unique, deterministic Instagram-style human silhouette avatar!
+ * - Displays user photo (uploaded image, curated persona portrait, or deterministic portrait)
+ * - Has fallback to Instagram-style human silhouette with initials
  * - Supports instant photo upload to ImageKit if editable=true
  */
 export const UserAvatar = ({
@@ -174,29 +166,40 @@ export const UserAvatar = ({
 }) => {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(src || null);
+  const [imageError, setImageError] = useState(false);
+
+  // Compute resolved portrait photo
+  const resolvedPhoto = useMemo(() => {
+    return resolveUserPhoto(name, id, src);
+  }, [src, name, id]);
+
+  const [currentSrc, setCurrentSrc] = useState(resolvedPhoto);
 
   // Synchronize when prop changes
   React.useEffect(() => {
-    if (src !== undefined) {
-      setCurrentSrc(src);
-    }
-  }, [src]);
+    setImageError(false);
+    setCurrentSrc(resolveUserPhoto(name, id, src));
+  }, [src, name, id]);
 
-  // Compute deterministic palette and silhouette
+  // Compute deterministic palette for SVG fallback
   const seed = `${name}_${id}`;
-  const { palette, SilhouetteComponent } = useMemo(() => {
+  const palette = useMemo(() => {
     const hash = hashString(seed);
-    const p = PALETTES[hash % PALETTES.length];
-    const s = SILHOUETTES[Math.floor(hash / PALETTES.length) % SILHOUETTES.length];
-    return { palette: p, SilhouetteComponent: s };
+    return PALETTES[hash % PALETTES.length];
   }, [seed]);
+
+  const initials = useMemo(() => {
+    const parts = (name || 'User').trim().split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return (parts[0]?.slice(0, 2) || 'PP').toUpperCase();
+  }, [name]);
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('Photo size must be less than 5MB.');
       return;
@@ -204,7 +207,6 @@ export const UserAvatar = ({
 
     setUploading(true);
     try {
-      // Read as base64
       const reader = new FileReader();
       reader.onload = async () => {
         const base64Data = reader.result;
@@ -220,7 +222,7 @@ export const UserAvatar = ({
 
         if (result.url) {
           setCurrentSrc(result.url);
-          // Save to localStorage for persistence
+          setImageError(false);
           localStorage.setItem('paypilot_user_avatar', result.url);
           window.dispatchEvent(new CustomEvent('paypilot_avatar_updated', { detail: result.url }));
 
@@ -231,7 +233,7 @@ export const UserAvatar = ({
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      console.error('Failed to upload profile photo to ImageKit:', err);
+      console.error('Failed to upload profile photo:', err);
       alert(err.message || 'Failed to upload photo. Please check your connection.');
     } finally {
       setUploading(false);
@@ -240,7 +242,8 @@ export const UserAvatar = ({
 
   const handleRemovePhoto = (e) => {
     e.stopPropagation();
-    setCurrentSrc(null);
+    const fallback = resolveUserPhoto(name, id, null);
+    setCurrentSrc(fallback);
     localStorage.removeItem('paypilot_user_avatar');
     window.dispatchEvent(new CustomEvent('paypilot_avatar_updated', { detail: null }));
     if (onPhotoRemoved) {
@@ -248,8 +251,10 @@ export const UserAvatar = ({
     }
   };
 
+  const showImage = Boolean(currentSrc && !imageError);
+
   return (
-    <Box style={{ position: 'relative', display: 'inline-block', ...style }} className={className}>
+    <Box style={{ position: 'relative', display: 'inline-block', flexShrink: 0, ...style }} className={className}>
       {/* Hidden File Input */}
       {editable && (
         <input
@@ -280,7 +285,7 @@ export const UserAvatar = ({
         onClick={() => editable && !uploading && fileInputRef.current?.click()}
         title={editable ? 'Click to change profile photo' : name}
       >
-        {currentSrc ? (
+        {showImage ? (
           <img
             src={currentSrc}
             alt={name}
@@ -289,19 +294,27 @@ export const UserAvatar = ({
               height: '100%',
               objectFit: 'cover',
             }}
-            onError={() => setCurrentSrc(null)} // fallback to silhouette on image error
+            onError={() => setImageError(true)}
           />
         ) : (
-          /* Instagram-style Unique Human Silhouette SVG */
-          <svg
-            viewBox="0 0 100 100"
-            width="100%"
-            height="100%"
-            style={{ display: 'block' }}
+          /* High-Contrast Clean Initial / Silhouette Badge */
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: palette.bg,
+              color: palette.figure,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: `${Math.max(10, Math.round(size * 0.38))}px`,
+              letterSpacing: '0.02em',
+              userSelect: 'none',
+            }}
           >
-            <rect width="100" height="100" fill={palette.bg} />
-            <SilhouetteComponent figure={palette.figure} accent={palette.accent} />
-          </svg>
+            {initials}
+          </div>
         )}
 
         {/* Loading Overlay */}
@@ -323,7 +336,7 @@ export const UserAvatar = ({
 
       {/* Editable Overlay Camera Badge */}
       {editable && !uploading && (
-        <Tooltip label={currentSrc ? 'Change photo' : 'Upload photo'} withArrow>
+        <Tooltip label={showImage ? 'Change photo' : 'Upload photo'} withArrow>
           <ActionIcon
             size={Math.max(22, Math.round(size * 0.34))}
             radius="xl"
@@ -348,8 +361,8 @@ export const UserAvatar = ({
       )}
 
       {/* Remove Photo Badge if photo is set */}
-      {editable && currentSrc && !uploading && (
-        <Tooltip label="Remove photo" withArrow>
+      {editable && showImage && !uploading && (
+        <Tooltip label="Reset photo" withArrow>
           <ActionIcon
             size={Math.max(18, Math.round(size * 0.28))}
             radius="xl"
