@@ -169,6 +169,7 @@ export const App = () => {
                   <AttendanceView
                     attendances={attendances}
                     leaveRequests={leaveRequests}
+                    employees={employees}
                     onRefresh={handleRefreshAll}
                   />
                 </Stack>

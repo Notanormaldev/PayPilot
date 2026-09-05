@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Modal,
   Paper,
@@ -32,6 +32,7 @@ import {
   IconAdjustments,
 } from '@tabler/icons-react';
 import { attendanceService } from '../services/attendanceService';
+import { fetchApi } from '../../../lib/api';
 import { UserAvatar } from '../../../components/ui';
 
 const REASON_PRESETS = [
@@ -60,6 +61,7 @@ export const AttendanceCorrectionModal = ({
 }) => {
   const isNewEntry = !attendance?.id;
 
+  const [allEmployeesList, setAllEmployeesList] = useState([]);
   const [selectedEmpId, setSelectedEmpId] = useState('');
   const [dateStr, setDateStr] = useState(new Date().toISOString().split('T')[0]);
   const [status, setStatus] = useState('PRESENT');
@@ -73,6 +75,45 @@ export const AttendanceCorrectionModal = ({
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Fetch full employee directory if needed
+  useEffect(() => {
+    if (opened) {
+      const loadAllEmployees = async () => {
+        try {
+          const res = await fetchApi('/employees');
+          if (res?.data && Array.isArray(res.data)) {
+            setAllEmployeesList(res.data);
+          }
+        } catch (e) {
+          console.warn('Employees fetch fallback:', e.message);
+        }
+      };
+      loadAllEmployees();
+    }
+  }, [opened]);
+
+  // Guaranteed strictly deduplicated employee list
+  const uniqueEmployees = useMemo(() => {
+    const map = new Map();
+    const combined = [...(employees || []), ...(allEmployeesList || [])];
+    combined.forEach((emp) => {
+      if (emp && emp.id) {
+        const idKey = String(emp.id);
+        if (!map.has(idKey)) {
+          map.set(idKey, emp);
+        }
+      }
+    });
+    return Array.from(map.values());
+  }, [employees, allEmployeesList]);
+
+  const employeeSelectData = useMemo(() => {
+    return uniqueEmployees.map((e) => ({
+      value: String(e.id),
+      label: `${e.firstName || e.name || 'Employee'} (${e.employeeNumber || e.department || 'Staff'})`,
+    }));
+  }, [uniqueEmployees]);
 
   useEffect(() => {
     if (opened) {
@@ -102,7 +143,8 @@ export const AttendanceCorrectionModal = ({
         setReason(attendance.correctionReason || 'Biometric failure');
         setCustomNote('');
       } else {
-        setSelectedEmpId(employees[0]?.id || '');
+        const firstEmp = uniqueEmployees[0]?.id || employees[0]?.id || '';
+        setSelectedEmpId(firstEmp);
         setDateStr(new Date().toISOString().split('T')[0]);
         setStatus('PRESENT');
         setCheckInTime('09:00');
@@ -114,7 +156,7 @@ export const AttendanceCorrectionModal = ({
       }
       setDeclaration(true);
     }
-  }, [opened, attendance, employees]);
+  }, [opened, attendance, uniqueEmployees, employees]);
 
   // Handle Preset Click
   const handleApplyPreset = (preset) => {
@@ -258,12 +300,9 @@ export const AttendanceCorrectionModal = ({
               <Select
                 label="Select Employee"
                 placeholder="Search employee name or ID..."
-                data={employees.map((e) => ({
-                  value: e.id,
-                  label: `${e.firstName || e.name || 'Employee'} (${e.employeeNumber || e.department || 'Staff'})`,
-                }))}
+                data={employeeSelectData}
                 value={selectedEmpId}
-                onChange={setSelectedEmpId}
+                onChange={(val) => setSelectedEmpId(val || '')}
                 searchable
                 required
                 size="xs"

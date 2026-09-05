@@ -29,6 +29,7 @@ import { AttendanceCorrectionModal } from './AttendanceCorrectionModal';
 export const AttendanceView = ({
   attendances = [],
   leaveRequests: initialLeaveRequests = [],
+  employees: propEmployees = [],
   onRefresh,
 }) => {
   const [selectedEmp, setSelectedEmp] = useState('');
@@ -422,7 +423,7 @@ export const AttendanceView = ({
         opened={correctionModalOpen}
         onClose={() => setCorrectionModalOpen(false)}
         attendance={selectedAttendanceForCorrection}
-        employees={attendances.map((a) => a.employee).filter(Boolean)}
+        employees={propEmployees && propEmployees.length > 0 ? propEmployees : attendances.map((a) => a.employee).filter(Boolean)}
         onSuccess={() => {
           if (onRefresh) onRefresh();
         }}
