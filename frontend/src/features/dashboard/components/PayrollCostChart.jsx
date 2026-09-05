@@ -308,8 +308,17 @@ export const PayrollCostChart = ({ data }) => {
             leftSection={<IconCalendar size={15} stroke={1.7} style={{ color: '#2563EB' }} />}
             placeholder="Pick month & year"
             value={selectedDate}
-            onChange={setSelectedDate}
-            maxDate={new Date(2027, 11, 31)}
+            onChange={(date) => {
+              if (date) {
+                const maxAllowed = new Date(2026, 8, 30);
+                if (date > maxAllowed) {
+                  setSelectedDate(new Date(2026, 8, 1));
+                  return;
+                }
+                setSelectedDate(date);
+              }
+            }}
+            maxDate={new Date(2026, 8, 30)}
             minDate={new Date(2024, 0, 1)}
             size="xs"
             radius="sm"
