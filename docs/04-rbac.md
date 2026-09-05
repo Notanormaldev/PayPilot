@@ -1,10 +1,11 @@
-# HRMS OXP — RBAC (Role-Based Access Control)
+# PayPilot — RBAC (Role-Based Access Control)
 
-> Defines the five roles, their permissions per resource, and the implementation strategy using **Clerk** for identity and a custom **Express middleware** for enforcement.
+> Defines the five roles, their permissions per resource, and the implementation strategy using **Pure JWT Access & Refresh Tokens** and Express `authenticate` & `requireRole` middleware.
 
 ---
 
 ## 1. The Five Roles
+
 
 Exact names from the hackathon brief — used everywhere (database, UI, middleware, seed data).
 
