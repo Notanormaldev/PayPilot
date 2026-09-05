@@ -67,11 +67,7 @@ sentinelRouter.get('/flags', authenticate, async (req, res) => {
         include: {
           payslip: {
             include: {
-              employee: {
-                include: {
-                  documents: true,
-                },
-              },
+              employee: true,
               payrun: true,
             },
           },
@@ -116,7 +112,7 @@ sentinelRouter.get('/flags', authenticate, async (req, res) => {
           bankVerificationStatus: emp?.bankVerificationStatus || 'PENDING',
           bankProofDocUrl: emp?.bankProofDocUrl || f.documentUrl,
           bankProofDocType: emp?.bankProofDocType,
-          documents: emp?.documents || [],
+          documents: [],
           status: f.status,
           overrideNote: f.overrideNote,
           resolvedAt: f.resolvedAt,
@@ -135,7 +131,6 @@ sentinelRouter.get('/flags', authenticate, async (req, res) => {
           ],
         },
         include: {
-          documents: true,
           user: true,
         },
       });
