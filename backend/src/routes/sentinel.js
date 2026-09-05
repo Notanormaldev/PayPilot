@@ -125,19 +125,18 @@ sentinelRouter.get('/flags', authenticate, async (req, res) => {
         };
       });
 
-    // Dynamic Employee Registry Audit: Check all employees with missing banking details
+    // Dynamic Employee Registry Audit: Check existing employees in database with missing banking details
     try {
       const missingBankEmployees = await prisma.employee.findMany({
         where: {
           OR: [
             { bankAccount: null },
             { bankAccount: '' },
-            { ifscCode: null },
-            { ifscCode: '' },
           ],
         },
         include: {
           documents: true,
+          user: true,
         },
       });
 
