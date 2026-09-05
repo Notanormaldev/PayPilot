@@ -31,7 +31,7 @@ export const PayrollChart: React.FC<PayrollChartProps> = ({ data }) => {
     <Paper p="md" radius="sm" style={{ height: '340px' }}>
       <Group justify="space-between" mb="md">
         <div>
-          <Text size="xs" fw={700} c="#94A3B8" style={{ letterSpacing: '0.05em' }}>
+          <Text size="xs" fw={700} c="#71717A" style={{ letterSpacing: '0.04em' }}>
             PAYROLL DISBURSEMENT RUNTIME (LAST 6 MONTHS)
           </Text>
           <Text size="xs" c="#64748B">
@@ -43,25 +43,26 @@ export const PayrollChart: React.FC<PayrollChartProps> = ({ data }) => {
       <div style={{ width: '100%', height: '250px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#262A36" vertical={false} />
-            <XAxis dataKey="month" stroke="#64748B" fontSize={11} tickLine={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+            <XAxis dataKey="month" stroke="#71717A" fontSize={11} tickLine={false} />
             <YAxis
-              stroke="#64748B"
+              stroke="#71717A"
               fontSize={11}
               tickLine={false}
               tickFormatter={(v) => `₹${(v / 100000).toFixed(1)}L`}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#14161F',
-                borderColor: '#262A36',
-                borderRadius: '4px',
-                color: '#F1F5F9',
+                backgroundColor: '#FFFFFF',
+                borderColor: '#E2E8F0',
+                borderRadius: '6px',
+                color: '#09090B',
                 fontSize: '12px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
               }}
               formatter={(value: any) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Net Spend']}
             />
-            <Bar dataKey="payroll" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={45} />
+            <Bar dataKey="payroll" fill="#09090B" radius={[4, 4, 0, 0]} maxBarSize={45} />
           </BarChart>
         </ResponsiveContainer>
       </div>

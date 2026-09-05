@@ -69,7 +69,7 @@ export const SentinelDrawer: React.FC<SentinelDrawerProps> = ({ flags, onFlagRes
             <Text size="sm" fw={600} c="#10B981">
               Zero Active Sentinel Anomaly Flags
             </Text>
-            <Text size="xs" c="#94A3B8">
+            <Text size="xs" c="#64748B">
               All payroll records, contracts, and attendance logs conform to regulatory standards.
             </Text>
           </div>
@@ -81,7 +81,7 @@ export const SentinelDrawer: React.FC<SentinelDrawerProps> = ({ flags, onFlagRes
   return (
     <Stack gap="sm">
       <Group justify="space-between">
-        <Text size="xs" fw={700} c="#94A3B8" style={{ letterSpacing: '0.05em' }}>
+        <Text size="xs" fw={700} c="#71717A" style={{ letterSpacing: '0.04em' }}>
           SENTINEL ANOMALY DETECTION ENGINE ({openFlags.length} BLOCKING FLAGS)
         </Text>
       </Group>
@@ -97,14 +97,14 @@ export const SentinelDrawer: React.FC<SentinelDrawerProps> = ({ flags, onFlagRes
             radius="sm"
             style={{
               borderLeft: isHigh ? '3px solid #EF4444' : '3px solid #F59E0B',
-              backgroundColor: '#14161F',
+              backgroundColor: '#FFFFFF',
             }}
           >
             <Stack gap="xs">
               <Group justify="space-between">
                 <Group gap="xs">
-                  {isHigh ? <IconShieldX size={16} color="#EF4444" /> : <IconAlertTriangle size={16} color="#F59E0B" />}
-                  <Text size="sm" fw={700} c="#F1F5F9">
+                  {isHigh ? <IconShieldX size={16} color="#EF4444" /> : <IconAlertTriangle size={16} color="#D97706" />}
+                  <Text size="sm" fw={700} c="#09090B">
                     {flag.flagType.replace(/_/g, ' ')}
                   </Text>
                 </Group>
@@ -114,26 +114,26 @@ export const SentinelDrawer: React.FC<SentinelDrawerProps> = ({ flags, onFlagRes
                 </Badge>
               </Group>
 
-              <Text size="xs" c="#E2E8F0">
+              <Text size="xs" c="#3F3F46">
                 Target: <Text span fw={600} c="blue">{empName}</Text> ({flag.payslip?.employee?.department || 'Staff'})
               </Text>
 
               {/* AI & Deterministic Explanation */}
               <div
                 style={{
-                  backgroundColor: '#0D0E12',
-                  border: '1px solid #262A36',
+                  backgroundColor: '#F8FAFC',
+                  border: '1px solid #E2E8F0',
                   padding: '8px 12px',
                   borderRadius: '4px',
                 }}
               >
                 <Group gap={6} mb={4}>
-                  <IconSparkles size={12} color="#60A5FA" />
-                  <Text size="11px" fw={600} c="#60A5FA">
+                  <IconSparkles size={12} color="#2563EB" />
+                  <Text size="11px" fw={600} c="#2563EB">
                     Sentinel AI Audit Insight
                   </Text>
                 </Group>
-                <Text size="xs" c="#94A3B8">
+                <Text size="xs" c="#52525B">
                   {flag.aiExplanation || JSON.stringify(flag.deterministicReasonJson?.reason || 'Verification needed')}
                 </Text>
               </div>
@@ -154,7 +154,7 @@ export const SentinelDrawer: React.FC<SentinelDrawerProps> = ({ flags, onFlagRes
 
                 <Button
                   size="xs"
-                  color="blue"
+                  color="dark"
                   loading={resolvingId === flag.id}
                   onClick={() => handleResolve(flag.id)}
                 >
@@ -171,10 +171,10 @@ export const SentinelDrawer: React.FC<SentinelDrawerProps> = ({ flags, onFlagRes
         opened={overrideModalOpen}
         onClose={() => setOverrideModalOpen(false)}
         title="Document Override Justification"
-        styles={{ content: { backgroundColor: '#14161F', color: '#F1F5F9' }, header: { backgroundColor: '#14161F' } }}
+        styles={{ content: { backgroundColor: '#FFFFFF', color: '#09090B' }, header: { backgroundColor: '#FFFFFF' } }}
       >
         <Stack gap="md">
-          <Text size="xs" c="#94A3B8">
+          <Text size="xs" c="#64748B">
             An audit log event will be created documenting who authorized this override and why.
           </Text>
           <TextInput

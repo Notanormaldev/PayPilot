@@ -12,9 +12,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCopilot, currentRole, onSe
   return (
     <header
       style={{
-        height: '64px',
-        backgroundColor: '#0D0E12',
-        borderBottom: '1px solid #262A36',
+        height: '60px',
+        backgroundColor: '#FFFFFF',
+        borderBottom: '1px solid #E2E8F0',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -22,17 +22,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCopilot, currentRole, onSe
         position: 'sticky',
         top: 0,
         zIndex: 100,
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.02)',
       }}
     >
       {/* Brand & Wordmark */}
       <Group gap="sm">
-        <img src="/logo.svg" alt="PayPilot" style={{ width: 32, height: 32 }} />
+        <img src="/logo.svg" alt="PayPilot" style={{ width: 30, height: 30 }} />
         <div>
           <Group gap={6} align="center">
-            <Text fw={800} size="md" c="#F1F5F9" style={{ letterSpacing: '-0.02em' }}>
+            <Text fw={800} size="md" c="#09090B" style={{ letterSpacing: '-0.02em' }}>
               PayPilot
             </Text>
-            <Badge size="xs" variant="outline" color="blue" radius="xs" style={{ textTransform: 'uppercase', fontSize: 10 }}>
+            <Badge size="xs" variant="outline" color="dark" radius="xs" style={{ textTransform: 'uppercase', fontSize: 10 }}>
               HRMS OXP
             </Badge>
           </Group>
@@ -43,12 +44,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCopilot, currentRole, onSe
       <Group gap="md">
         <TextInput
           placeholder="Search employees, payslips, contracts (⌘K)..."
-          leftSection={<IconSearch size={14} color="#64748B" />}
+          leftSection={<IconSearch size={14} color="#71717A" />}
           styles={{
             input: {
-              backgroundColor: '#14161F',
-              borderColor: '#262A36',
-              color: '#F1F5F9',
+              backgroundColor: '#F8FAFC',
+              borderColor: '#E2E8F0',
+              color: '#09090B',
               width: '320px',
               fontSize: '13px',
               fontFamily: 'Plus Jakarta Sans',
@@ -63,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCopilot, currentRole, onSe
             variant="dot"
             color="teal"
             styles={{
-              root: { backgroundColor: '#14161F', borderColor: '#262A36', border: '1px solid', color: '#94A3B8' },
+              root: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0', border: '1px solid', color: '#52525B' },
             }}
           >
             Render Postgres
@@ -73,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCopilot, currentRole, onSe
             variant="dot"
             color="teal"
             styles={{
-              root: { backgroundColor: '#14161F', borderColor: '#262A36', border: '1px solid', color: '#94A3B8' },
+              root: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0', border: '1px solid', color: '#52525B' },
             }}
           >
             Redis Cloud
@@ -86,15 +87,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCopilot, currentRole, onSe
         <Button
           size="xs"
           variant="outline"
-          color="blue"
-          leftSection={<IconSparkles size={14} color="#60A5FA" />}
+          color="dark"
+          leftSection={<IconSparkles size={14} color="#2563EB" />}
           onClick={onOpenCopilot}
           styles={{
             root: {
-              backgroundColor: '#14161F',
-              borderColor: '#262A36',
-              color: '#F1F5F9',
-              '&:hover': { borderColor: '#3B82F6' },
+              backgroundColor: '#FFFFFF',
+              borderColor: '#E2E8F0',
+              color: '#09090B',
+              '&:hover': { borderColor: '#09090B' },
             },
           }}
         >
@@ -102,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCopilot, currentRole, onSe
         </Button>
 
         {/* Interactive Role Switcher for Judges */}
-        <Menu shadow="md" width={200}>
+        <Menu shadow="sm" width={220}>
           <Menu.Target>
             <Button
               size="xs"
@@ -110,33 +111,33 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCopilot, currentRole, onSe
               rightSection={<IconChevronDown size={12} />}
               styles={{
                 root: {
-                  backgroundColor: '#14161F',
-                  borderColor: '#262A36',
-                  color: '#F1F5F9',
+                  backgroundColor: '#FFFFFF',
+                  borderColor: '#E2E8F0',
+                  color: '#09090B',
                 },
               }}
             >
               Role: <Text span fw={700} c="blue" ml={4}>{currentRole}</Text>
             </Button>
           </Menu.Target>
-          <Menu.Dropdown bg="#14161F" style={{ borderColor: '#262A36' }}>
-            <Menu.Label c="#94A3B8">Simulate RBAC Role</Menu.Label>
-            <Menu.Item onClick={() => onSelectRole('ADMIN')} c="#F1F5F9">
+          <Menu.Dropdown bg="#FFFFFF" style={{ borderColor: '#E2E8F0' }}>
+            <Menu.Label c="#71717A">Simulate RBAC Role</Menu.Label>
+            <Menu.Item onClick={() => onSelectRole('ADMIN')} c="#09090B">
               ADMIN (Full Access)
             </Menu.Item>
-            <Menu.Item onClick={() => onSelectRole('PAYROLL_OFFICER')} c="#F1F5F9">
+            <Menu.Item onClick={() => onSelectRole('PAYROLL_OFFICER')} c="#09090B">
               PAYROLL_OFFICER (Runs & Sentinel)
             </Menu.Item>
-            <Menu.Item onClick={() => onSelectRole('HR_OFFICER')} c="#F1F5F9">
+            <Menu.Item onClick={() => onSelectRole('HR_OFFICER')} c="#09090B">
               HR_OFFICER (Employees & Leaves)
             </Menu.Item>
-            <Menu.Item onClick={() => onSelectRole('EMPLOYEE')} c="#F1F5F9">
+            <Menu.Item onClick={() => onSelectRole('EMPLOYEE')} c="#09090B">
               EMPLOYEE (Self-Service)
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
 
-        <Avatar color="blue" radius="xl" size="sm">
+        <Avatar color="dark" radius="xl" size="sm">
           AD
         </Avatar>
       </Group>

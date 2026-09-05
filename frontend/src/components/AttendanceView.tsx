@@ -66,10 +66,10 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
       <Paper p="md" radius="sm">
         <Group justify="space-between" align="center">
           <div>
-            <Text size="md" fw={700} c="#F1F5F9">
+            <Text size="md" fw={700} c="#09090B">
               Today's Attendance Terminal
             </Text>
-            <Text size="xs" c="#94A3B8">
+            <Text size="xs" c="#71717A">
               Live RFID / Biometric punch emulator for employee Aarav Mehta
             </Text>
           </div>
@@ -102,10 +102,10 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
       <Grid>
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Paper p="md" radius="sm" style={{ minHeight: '350px' }}>
-            <Text size="xs" fw={700} c="#94A3B8" mb="md" style={{ letterSpacing: '0.05em' }}>
+            <Text size="xs" fw={700} c="#71717A" mb="md" style={{ letterSpacing: '0.04em' }}>
               RECENT ATTENDANCE LOGS
             </Text>
-            <Table verticalSpacing="xs" styles={{ th: { color: '#64748B', borderColor: '#262A36' }, td: { borderColor: '#262A36' } }}>
+            <Table verticalSpacing="xs">
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>EMPLOYEE</Table.Th>
@@ -118,12 +118,12 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                 {attendances.slice(0, 8).map((a) => (
                   <Table.Tr key={a.id}>
                     <Table.Td>
-                      <Text size="xs" fw={600} c="#F1F5F9">
+                      <Text size="xs" fw={600} c="#09090B">
                         {a.employee?.name || 'Staff Member'}
                       </Text>
                     </Table.Td>
                     <Table.Td>
-                      <Text size="xs" c="#94A3B8">
+                      <Text size="xs" c="#71717A">
                         {new Date(a.date).toLocaleDateString()}
                       </Text>
                     </Table.Td>
@@ -133,7 +133,7 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                       </Badge>
                     </Table.Td>
                     <Table.Td>
-                      <Text size="xs" c="#E2E8F0" style={{ fontFamily: 'JetBrains Mono' }}>
+                      <Text size="xs" c="#3F3F46" style={{ fontFamily: 'JetBrains Mono' }}>
                         {a.workedHours ? `${a.workedHours}h` : '8.0h'}
                       </Text>
                     </Table.Td>
@@ -146,23 +146,23 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
 
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Paper p="md" radius="sm" style={{ minHeight: '350px' }}>
-            <Text size="xs" fw={700} c="#94A3B8" mb="md" style={{ letterSpacing: '0.05em' }}>
+            <Text size="xs" fw={700} c="#71717A" mb="md" style={{ letterSpacing: '0.04em' }}>
               PENDING TIME OFF REQUESTS ({leaveRequests.length})
             </Text>
             {leaveRequests.length === 0 ? (
-              <Text size="xs" c="#64748B">
+              <Text size="xs" c="#71717A">
                 No pending requests. All allocations balanced.
               </Text>
             ) : (
               <Stack gap="xs">
                 {leaveRequests.map((req) => (
-                  <Paper key={req.id} p="sm" bg="#0D0E12" radius="xs" style={{ border: '1px solid #262A36' }}>
+                  <Paper key={req.id} p="sm" bg="#F8FAFC" radius="xs" style={{ border: '1px solid #E2E8F0' }}>
                     <Group justify="space-between">
                       <div>
-                        <Text size="xs" fw={700} c="#F1F5F9">
+                        <Text size="xs" fw={700} c="#09090B">
                           {req.employee?.name} — {req.timeOffType?.name}
                         </Text>
-                        <Text size="xs" c="#94A3B8">
+                        <Text size="xs" c="#71717A">
                           {new Date(req.startDate).toLocaleDateString()} ({req.duration} days)
                         </Text>
                       </div>

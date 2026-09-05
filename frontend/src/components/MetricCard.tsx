@@ -21,7 +21,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   return (
     <Paper p="md" radius="sm">
       <Group justify="space-between" align="flex-start" mb="xs">
-        <Text size="xs" fw={700} c="#94A3B8" style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <Text size="xs" fw={700} c="#71717A" style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           {label}
         </Text>
         {icon}
@@ -31,7 +31,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         <Text
           size="28px"
           fw={700}
-          c="#F1F5F9"
+          c="#09090B"
           style={{ fontFamily: 'JetBrains Mono, monospace', letterSpacing: '-0.03em' }}
         >
           {value}

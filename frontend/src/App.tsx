@@ -67,11 +67,11 @@ export const App: React.FC = () => {
 
   if (loading) {
     return (
-      <Center style={{ height: '100vh', backgroundColor: '#0D0E12', color: '#F1F5F9' }}>
+      <Center style={{ height: '100vh', backgroundColor: '#F8FAFC', color: '#09090B' }}>
         <Stack align="center" gap="sm">
-          <img src="/logo.svg" alt="PayPilot" style={{ width: 48, height: 48 }} />
-          <Loader size="sm" color="blue" />
-          <Text size="xs" c="#94A3B8">
+          <img src="/logo.svg" alt="PayPilot" style={{ width: 44, height: 44 }} />
+          <Loader size="sm" color="dark" />
+          <Text size="xs" c="#71717A">
             Initializing PayPilot Sentinel telemetry...
           </Text>
         </Stack>
@@ -80,7 +80,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0D0E12', color: '#F1F5F9', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC', color: '#09090B', display: 'flex', flexDirection: 'column' }}>
       <Header
         onOpenCopilot={() => setCopilotOpen(true)}
         currentRole={currentRole}
@@ -94,7 +94,7 @@ export const App: React.FC = () => {
           openSentinelFlagsCount={flags.length}
         />
 
-        <main style={{ flex: 1, padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+        <main style={{ flex: 1, padding: '24px', maxWidth: '1440px', margin: '0 auto' }}>
           {activeTab === 'dashboard' && (
             <Stack gap="lg">
               {/* Top Row Mathematical KPIs */}

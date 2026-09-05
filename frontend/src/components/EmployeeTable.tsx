@@ -24,7 +24,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, onSelec
     <Paper p="md" radius="sm">
       <Group justify="space-between" mb="md">
         <div>
-          <Text size="xs" fw={700} c="#94A3B8" style={{ letterSpacing: '0.05em' }}>
+          <Text size="xs" fw={700} c="#71717A" style={{ letterSpacing: '0.04em' }}>
             EMPLOYEE HUB & CONTRACT REGISTRY ({filtered.length})
           </Text>
         </div>
@@ -32,16 +32,16 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, onSelec
         <TextInput
           size="xs"
           placeholder="Filter by name, department, title..."
-          leftSection={<IconSearch size={14} color="#64748B" />}
+          leftSection={<IconSearch size={14} color="#71717A" />}
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
           styles={{
-            input: { backgroundColor: '#0D0E12', borderColor: '#262A36', color: '#F1F5F9' },
+            input: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0', color: '#09090B' },
           }}
         />
       </Group>
 
-      <Table highlightOnHover verticalSpacing="sm" styles={{ th: { color: '#64748B', borderColor: '#262A36' }, td: { borderColor: '#262A36' } }}>
+      <Table highlightOnHover verticalSpacing="sm">
         <Table.Thead>
           <Table.Tr>
             <Table.Th>EMPLOYEE</Table.Th>
@@ -61,10 +61,10 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, onSelec
             return (
               <Table.Tr key={emp.id}>
                 <Table.Td>
-                  <Text size="sm" fw={600} c="#F1F5F9">
+                  <Text size="sm" fw={600} c="#09090B">
                     {emp.name}
                   </Text>
-                  <Text size="xs" c="#64748B">
+                  <Text size="xs" c="#71717A">
                     {emp.workEmail}
                   </Text>
                 </Table.Td>
@@ -76,7 +76,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, onSelec
                 </Table.Td>
 
                 <Table.Td>
-                  <Text size="xs" c="#E2E8F0">
+                  <Text size="xs" c="#3F3F46">
                     {emp.jobPosition}
                   </Text>
                 </Table.Td>
@@ -91,7 +91,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, onSelec
                   {hasBank ? (
                     <Group gap={4}>
                       <IconCheck size={14} color="#10B981" />
-                      <Text size="xs" c="#94A3B8" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                      <Text size="xs" c="#52525B" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                         {emp.bankAccount.slice(-4).padStart(emp.bankAccount.length, '•')}
                       </Text>
                     </Group>

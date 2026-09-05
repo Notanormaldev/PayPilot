@@ -56,14 +56,14 @@ export const PayrunView: React.FC<PayrunViewProps> = ({ payruns, onRefresh }) =>
         <Group justify="space-between" align="center">
           <div>
             <Group gap="xs" mb={4}>
-              <Text size="lg" fw={700} c="#F1F5F9">
+              <Text size="lg" fw={700} c="#09090B">
                 {currentPayrun?.name || 'Monthly Payrun'}
               </Text>
               <Badge color="blue" variant="filled">
                 {currentPayrun?.status || 'COMPUTED'}
               </Badge>
             </Group>
-            <Text size="xs" c="#94A3B8">
+            <Text size="xs" c="#71717A">
               Period: {currentPayrun ? `${new Date(currentPayrun.periodStart).toLocaleDateString()} – ${new Date(currentPayrun.periodEnd).toLocaleDateString()}` : 'Current Month'}
             </Text>
           </div>
@@ -71,7 +71,7 @@ export const PayrunView: React.FC<PayrunViewProps> = ({ payruns, onRefresh }) =>
           <Group gap="sm">
             <Button
               size="sm"
-              color="teal"
+              color="dark"
               leftSection={<IconPlayerPlay size={14} />}
               loading={computing}
               onClick={handleCompute}
@@ -84,11 +84,11 @@ export const PayrunView: React.FC<PayrunViewProps> = ({ payruns, onRefresh }) =>
 
       {/* Payslips Table */}
       <Paper p="md" radius="sm">
-        <Text size="xs" fw={700} c="#94A3B8" mb="md" style={{ letterSpacing: '0.05em' }}>
+        <Text size="xs" fw={700} c="#71717A" mb="md" style={{ letterSpacing: '0.04em' }}>
           INDIVIDUAL PAYSLIPS & LINE BREAKDOWNS ({payrunDetail?.payslips?.length || 0})
         </Text>
 
-        <Table highlightOnHover verticalSpacing="sm" styles={{ th: { color: '#64748B', borderColor: '#262A36' }, td: { borderColor: '#262A36' } }}>
+        <Table highlightOnHover verticalSpacing="sm">
           <Table.Thead>
             <Table.Tr>
               <Table.Th>EMPLOYEE</Table.Th>
@@ -114,40 +114,40 @@ export const PayrunView: React.FC<PayrunViewProps> = ({ payruns, onRefresh }) =>
               return (
                 <Table.Tr key={slip.id}>
                   <Table.Td>
-                    <Text size="sm" fw={600} c="#F1F5F9">
+                    <Text size="sm" fw={600} c="#09090B">
                       {slip.employee.name}
                     </Text>
-                    <Text size="xs" c="#64748B">
+                    <Text size="xs" c="#71717A">
                       {slip.employee.department}
                     </Text>
                   </Table.Td>
 
                   <Table.Td>
-                    <Text size="xs" c="#94A3B8" style={{ fontFamily: 'JetBrains Mono' }}>
+                    <Text size="xs" c="#52525B" style={{ fontFamily: 'JetBrains Mono' }}>
                       {slip.workedDays} days
                     </Text>
                   </Table.Td>
 
                   <Table.Td>
-                    <Text size="xs" c="#E2E8F0" style={{ fontFamily: 'JetBrains Mono' }}>
+                    <Text size="xs" c="#3F3F46" style={{ fontFamily: 'JetBrains Mono' }}>
                       ₹{basicLine ? Number(basicLine.amount).toLocaleString('en-IN') : '0'}
                     </Text>
                   </Table.Td>
 
                   <Table.Td>
-                    <Text size="xs" c="#E2E8F0" style={{ fontFamily: 'JetBrains Mono' }}>
+                    <Text size="xs" c="#3F3F46" style={{ fontFamily: 'JetBrains Mono' }}>
                       ₹{grossLine ? Number(grossLine.amount).toLocaleString('en-IN') : '0'}
                     </Text>
                   </Table.Td>
 
                   <Table.Td>
-                    <Text size="xs" c="#EF4444" style={{ fontFamily: 'JetBrains Mono' }}>
+                    <Text size="xs" c="#DC2626" style={{ fontFamily: 'JetBrains Mono' }}>
                       -₹{totalDeductions.toLocaleString('en-IN')}
                     </Text>
                   </Table.Td>
 
                   <Table.Td>
-                    <Text size="sm" fw={700} c="#10B981" style={{ fontFamily: 'JetBrains Mono' }}>
+                    <Text size="sm" fw={700} c="#059669" style={{ fontFamily: 'JetBrains Mono' }}>
                       ₹{netLine ? Number(netLine.amount).toLocaleString('en-IN') : '0'}
                     </Text>
                   </Table.Td>

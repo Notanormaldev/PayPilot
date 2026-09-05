@@ -1,46 +1,49 @@
 import { createTheme, MantineColorsTuple } from '@mantine/core';
 
-const obsidianDark: MantineColorsTuple = [
-  '#F1F5F9',
-  '#E2E8F0',
-  '#94A3B8',
-  '#64748B',
-  '#475569',
-  '#334155',
-  '#262A36', // border
-  '#1C1F2B', // overlay
-  '#14161F', // card surface
-  '#0D0E12', // background base
+// Executive Precision - Linear/Apple Fintech Light Scale
+const executiveSlate: MantineColorsTuple = [
+  '#09090B', // deep ink
+  '#18181B',
+  '#27272A',
+  '#52525B',
+  '#71717A',
+  '#A1A1AA',
+  '#E4E4E7', // border hover
+  '#E2E8F0', // primary border
+  '#F1F5F9', // secondary surface
+  '#FFFFFF', // pure white surface
 ];
 
 export const theme = createTheme({
-  primaryColor: 'blue',
-  colors: {
-    dark: obsidianDark,
-  },
+  primaryColor: 'dark',
   fontFamily: 'Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, sans-serif',
   fontFamilyMonospace: 'JetBrains Mono, Menlo, monospace',
-  defaultRadius: 6,
+  defaultRadius: 'sm',
+  colors: {
+    gray: executiveSlate,
+  },
   components: {
     Card: {
       defaultProps: {
-        bg: '#14161F',
+        bg: '#FFFFFF',
         withBorder: true,
       },
       styles: {
         root: {
-          borderColor: '#262A36',
+          borderColor: '#E2E8F0',
+          boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.04)',
         },
       },
     },
     Paper: {
       defaultProps: {
-        bg: '#14161F',
+        bg: '#FFFFFF',
         withBorder: true,
       },
       styles: {
         root: {
-          borderColor: '#262A36',
+          borderColor: '#E2E8F0',
+          boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.04)',
         },
       },
     },
@@ -48,6 +51,21 @@ export const theme = createTheme({
       styles: {
         root: {
           fontWeight: 600,
+        },
+      },
+    },
+    Table: {
+      styles: {
+        th: {
+          color: '#64748B',
+          borderColor: '#E2E8F0',
+          backgroundColor: '#F8FAFC',
+          fontSize: '11px',
+          letterSpacing: '0.04em',
+        },
+        td: {
+          borderColor: '#E2E8F0',
+          fontSize: '13px',
         },
       },
     },
