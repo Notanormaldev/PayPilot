@@ -10,6 +10,9 @@ import {
   ActionIcon,
   Modal,
   Divider,
+  Alert,
+  Tooltip,
+  Box,
 } from '@mantine/core';
 import {
   IconPlayerPlay,
@@ -17,15 +20,20 @@ import {
   IconEye,
   IconReceipt2,
   IconCheck,
+  IconAlertTriangle,
+  IconShieldExclamation,
+  IconBuildingBank,
 } from '@tabler/icons-react';
 import { payrollService } from '../services/payrollService';
-
 import { UserAvatar } from '../../../components/ui';
 
 export const PayrunView = ({ payruns, onRefresh }) => {
   const [computingId, setComputingId] = useState(null);
+  const [validatingId, setValidatingId] = useState(null);
   const [selectedPayslips, setSelectedPayslips] = useState(null);
   const [payslipModalOpen, setPayslipModalOpen] = useState(false);
+  const [warningModalOpen, setWarningModalOpen] = useState(false);
+  const [warningData, setWarningData] = useState(null);
 
   const handleCompute = async (payrunId) => {
     setComputingId(payrunId);
@@ -39,19 +47,40 @@ export const PayrunView = ({ payruns, onRefresh }) => {
     }
   };
 
-  const handleValidate = async (payrunId) => {
+  const handleValidate = async (payrunId, options = {}) => {
+    setValidatingId(payrunId);
     try {
-      await payrollService.validatePayrun(payrunId);
-      if (onRefresh) onRefresh();
+      const res = await payrollService.validatePayrun(payrunId, options);
+      if (res.warning || res.code === 'MISSING_BANK_CREDENTIALS') {
+        setWarningData({ payrunId, ...res });
+        setWarningModalOpen(true);
+      } else {
+        if (onRefresh) onRefresh();
+      }
     } catch (err) {
-      console.error('Validation error:', err);
+      if (err.data && (err.data.warning || err.data.code === 'MISSING_BANK_CREDENTIALS')) {
+        setWarningData({ payrunId, ...err.data });
+        setWarningModalOpen(true);
+      } else {
+        console.error('Validation error:', err);
+      }
+    } finally {
+      setValidatingId(null);
     }
+  };
+
+  const handleConfirmPartialValidation = async () => {
+    if (!warningData?.payrunId) return;
+    const pid = warningData.payrunId;
+    setWarningModalOpen(false);
+    await handleValidate(pid, { processVerifiedOnly: true });
+    if (onRefresh) onRefresh();
   };
 
   const handleViewPayslips = async (payrunId) => {
     try {
       const res = await payrollService.fetchPayslips(payrunId);
-      setSelectedPayslips(res.data);
+      setSelectedPayslips(res.data || []);
       setPayslipModalOpen(true);
     } catch (err) {
       console.error('Fetch payslips error:', err);
@@ -117,13 +146,15 @@ export const PayrunView = ({ payruns, onRefresh }) => {
                       color={
                         pr.status === 'PAID'
                           ? 'teal'
+                          : pr.status === 'PARTIALLY_VALIDATED'
+                          ? 'orange'
                           : pr.status === 'COMPUTED'
                           ? 'blue'
                           : 'gray'
                       }
                       variant="light"
                     >
-                      {pr.status}
+                      {pr.status?.replace('_', ' ')}
                     </Badge>
                   </Table.Td>
 
@@ -167,14 +198,15 @@ export const PayrunView = ({ payruns, onRefresh }) => {
                         Payslips
                       </Button>
 
-                      {pr.status === 'COMPUTED' && (
+                      {(pr.status === 'COMPUTED' || pr.status === 'PARTIALLY_VALIDATED') && (
                         <Button
                           size="xs"
                           color="teal"
                           leftSection={<IconCheck size={12} />}
+                          loading={validatingId === pr.id}
                           onClick={() => handleValidate(pr.id)}
                         >
-                          Validate
+                          {pr.status === 'PARTIALLY_VALIDATED' ? 'Validate Remaining' : 'Validate'}
                         </Button>
                       )}
 
@@ -204,7 +236,7 @@ export const PayrunView = ({ payruns, onRefresh }) => {
         </Table>
       </Paper>
 
-      {/* Payslip Modal */}
+      {/* Payslip Modal - Detailed Earnings & Deductions Breakdown */}
       <Modal
         opened={payslipModalOpen}
         onClose={() => setPayslipModalOpen(false)}
@@ -223,58 +255,171 @@ export const PayrunView = ({ payruns, onRefresh }) => {
         }}
       >
         <Stack gap="md">
-          {selectedPayslips?.map((slip) => (
-            <Paper
-              key={slip.id}
-              p="sm"
-              radius="sm"
-              style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}
-            >
-              <Group justify="space-between" mb="xs" align="center">
-                <Group gap="xs" wrap="nowrap">
-                  <UserAvatar
-                    size={32}
-                    radius="xl"
-                    name={`${slip.employee?.firstName || ''} ${slip.employee?.lastName || ''}`}
-                    id={slip.employee?.employeeNumber || slip.employeeId}
-                  />
-                  <div>
-                    <Text size="xs" fw={700} c="#09090B">
-                      {slip.employee?.firstName} {slip.employee?.lastName} ({slip.employee?.employeeNumber})
-                    </Text>
-                    <Text size="10px" c="#71717A">
-                      {slip.employee?.department} • {slip.employee?.jobTitle}
-                    </Text>
-                  </div>
-                </Group>
-                <div style={{ textAlign: 'right' }}>
-                  <Text size="11px" fw={700} c="#0D9488" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                    Net: ₹{Number(slip.netPay).toLocaleString('en-IN')}
-                  </Text>
-                  <Text size="9px" c="#71717A">
-                    Gross: ₹{Number(slip.grossPay).toLocaleString('en-IN')} | Ded: ₹{Number(slip.totalDeductions).toLocaleString('en-IN')}
-                  </Text>
-                </div>
-              </Group>
+          {selectedPayslips && selectedPayslips.length > 0 ? (
+            selectedPayslips.map((slip) => {
+              const nameDisplay = slip.employee?.name || `${slip.employee?.firstName || ''} ${slip.employee?.lastName || ''}`.trim() || 'Employee';
+              const empIdDisplay = slip.employee?.employeeNumber || `EMP-${(slip.employeeId || '').slice(-4).toUpperCase()}`;
 
-              <Divider my={6} color="#E2E8F0" />
+              return (
+                <Paper
+                  key={slip.id}
+                  p="sm"
+                  radius="sm"
+                  style={{
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                  }}
+                >
+                  <Group justify="space-between" mb="xs" align="center">
+                    <Group gap="xs" wrap="nowrap">
+                      <UserAvatar
+                        size={34}
+                        radius="xl"
+                        name={nameDisplay}
+                        id={empIdDisplay}
+                      />
+                      <div>
+                        <Group gap="xs">
+                          <Text size="xs" fw={700} c="#09090B">
+                            {nameDisplay} ({empIdDisplay})
+                          </Text>
+                          <Badge
+                            size="xs"
+                            color={slip.status === 'PAID' ? 'teal' : slip.status === 'BLOCKED_MISSING_BANK' ? 'red' : 'blue'}
+                            variant="light"
+                          >
+                            {slip.status?.replace('_', ' ')}
+                          </Badge>
+                        </Group>
+                        <Text size="10px" c="#71717A">
+                          {slip.employee?.department} • {slip.employee?.jobTitle}
+                        </Text>
+                      </div>
+                    </Group>
 
-              <Group gap="xs" wrap="wrap">
-                {slip.lines?.map((line, idx) => (
-                  <Badge
-                    key={idx}
-                    size="xs"
-                    variant="outline"
-                    color={line.category === 'DEDUCTION' ? 'red' : 'teal'}
+                    <div style={{ textAlign: 'right' }}>
+                      <Text size="11px" fw={700} c="#0D9488" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                        Net: ₹{Number(slip.netPay || 0).toLocaleString('en-IN')}
+                      </Text>
+                      <Text size="9px" c="#71717A">
+                        Gross: ₹{Number(slip.grossPay || 0).toLocaleString('en-IN')} | Ded: ₹{Number(slip.totalDeductions || 0).toLocaleString('en-IN')}
+                      </Text>
+                    </div>
+                  </Group>
+
+                  {/* Bank Details Status Banner */}
+                  <Paper
+                    p="xs"
+                    mb="xs"
+                    radius="xs"
+                    style={{
+                      backgroundColor: slip.hasBank ? '#F0FDF4' : '#FEF2F2',
+                      border: `1px solid ${slip.hasBank ? '#BBF7D0' : '#FECACA'}`,
+                    }}
                   >
-                    {line.code}: ₹{Number(line.total).toLocaleString('en-IN')}
+                    <Group justify="space-between" wrap="nowrap">
+                      <Group gap={6}>
+                        {slip.hasBank ? (
+                          <IconBuildingBank size={14} color="#16A34A" />
+                        ) : (
+                          <IconAlertTriangle size={14} color="#DC2626" />
+                        )}
+                        <Text size="11px" fw={600} c={slip.hasBank ? '#166534' : '#991B1B'}>
+                          {slip.hasBank
+                            ? `Verified Bank: ${slip.employee?.bankAccount}`
+                            : 'Missing Banking Credentials (Blocked in Direct Deposit)'}
+                        </Text>
+                      </Group>
+                      <Badge size="xs" color={slip.hasBank ? 'teal' : 'red'} variant="filled">
+                        {slip.hasBank ? 'Direct Deposit Verified' : 'Missing Bank Info'}
+                      </Badge>
+                    </Group>
+                  </Paper>
+
+                  <Divider my={6} color="#E2E8F0" />
+
+                  <Group gap="xs" wrap="wrap">
+                    {slip.lines?.map((line, idx) => (
+                      <Badge
+                        key={idx}
+                        size="xs"
+                        variant="outline"
+                        color={line.category === 'DEDUCTION' || line.amount < 0 ? 'red' : 'teal'}
+                      >
+                        {line.code}: ₹{Number(Math.abs(line.amount || line.total || 0)).toLocaleString('en-IN')}
+                      </Badge>
+                    ))}
+                  </Group>
+                </Paper>
+              );
+            })
+          ) : (
+            <Text size="xs" c="#71717A" style={{ textAlign: 'center', padding: '24px' }}>
+              No payslip details available for this payrun.
+            </Text>
+          )}
+        </Stack>
+      </Modal>
+
+      {/* Partial Validation Warning Modal */}
+      <Modal
+        opened={warningModalOpen}
+        onClose={() => setWarningModalOpen(false)}
+        title={
+          <Group gap="xs">
+            <IconShieldExclamation size={20} color="#DC2626" />
+            <Text fw={700} size="sm" c="#991B1B">
+              Bank Verification Warning: Unregistered Employee Accounts
+            </Text>
+          </Group>
+        }
+        size="md"
+        styles={{
+          content: { backgroundColor: '#FFFFFF', borderColor: '#FECACA' },
+          header: { backgroundColor: '#FEF2F2', borderBottom: '1px solid #FECACA' },
+        }}
+      >
+        <Stack gap="md">
+          <Alert color="red" icon={<IconAlertTriangle size={18} />} title="Direct Deposit Disbursal Warning">
+            <Text size="xs" c="#991B1B" fw={600}>
+              {warningData?.message || 'Some employees in this batch do not have registered banking credentials.'}
+            </Text>
+          </Alert>
+
+          <Paper p="sm" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+            <Text size="xs" fw={700} c="#09090B" mb={4}>
+              Employees Lacking Bank Details ({warningData?.unverifiedCount || 0}):
+            </Text>
+            <Stack gap={4}>
+              {warningData?.missingEmployees?.map((emp, idx) => (
+                <Group key={idx} justify="space-between">
+                  <Text size="xs" c="#3F3F46" fw={600}>
+                    • {emp.name} ({emp.department})
+                  </Text>
+                  <Badge size="xs" color="red" variant="filled">
+                    Missing Bank Details
                   </Badge>
-                ))}
-              </Group>
-            </Paper>
-          ))}
+                </Group>
+              ))}
+            </Stack>
+          </Paper>
+
+          <Text size="xs" c="#71717A">
+            Would you like to process and validate payroll for the <b>{warningData?.verifiedCount || 0} employee(s)</b> whose bank details are ready? Unverified employee payslips will remain pending until resolved in Sentinel.
+          </Text>
+
+          <Group justify="flex-end" gap="xs" mt="xs">
+            <Button size="xs" variant="default" onClick={() => setWarningModalOpen(false)}>
+              Cancel & Resolve in Sentinel
+            </Button>
+            <Button size="xs" color="teal" onClick={handleConfirmPartialValidation} leftSection={<IconCheck size={14} />}>
+              Process Verified Payslips ({warningData?.verifiedCount || 0})
+            </Button>
+          </Group>
         </Stack>
       </Modal>
     </Stack>
   );
 };
+
+export default PayrunView;

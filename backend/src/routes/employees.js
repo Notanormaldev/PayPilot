@@ -326,4 +326,65 @@ employeesRouter.post('/avatar', async (req, res) => {
   }
 });
 
+// PUT /api/employees/:id/status - update employee status (ACTIVE, ON_LEAVE, INACTIVE)
+employeesRouter.put('/:id/status', authenticate, requireRole('ADMIN', 'HR_MANAGER'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const allowedStatuses = ['ACTIVE', 'ON_LEAVE', 'INACTIVE', 'OFFBOARDED'];
+    if (!status || !allowedStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status value. Must be ACTIVE, ON_LEAVE, INACTIVE, or OFFBOARDED' });
+    }
+
+    const updated = await prisma.employee.update({
+      where: { id },
+      data: { status },
+    });
+
+    res.json({
+      success: true,
+      message: `Employee ${updated.name} status updated to ${status}`,
+      data: updated,
+    });
+  } catch (err) {
+    console.error('Error updating employee status:', err);
+    res.status(500).json({ error: 'Failed to update employee status', details: err.message });
+  }
+});
+
+// DELETE /api/employees/:id - offboard/delete employee record
+employeesRouter.delete('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER'), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const emp = await prisma.employee.findUnique({ where: { id } });
+    if (!emp) {
+      return res.status(404).json({ error: 'Employee record not found' });
+    }
+
+    // Safely cleanup contracts/payslips if needed or delete employee record
+    try {
+      await prisma.contract.deleteMany({ where: { employeeId: id } });
+      await prisma.payslip.deleteMany({ where: { employeeId: id } });
+      await prisma.employee.delete({ where: { id } });
+    } catch (e) {
+      // Soft-delete fallback if foreign key constraints exist
+      await prisma.employee.update({
+        where: { id },
+        data: { status: 'OFFBOARDED' },
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Employee ${emp.name} has been offboarded and deleted from active registry.`,
+      id,
+    });
+  } catch (err) {
+    console.error('Error deleting employee:', err);
+    res.status(500).json({ error: 'Failed to delete employee record', details: err.message });
+  }
+});
+
 export default employeesRouter;

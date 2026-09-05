@@ -29,16 +29,15 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) 
     { id: 'my-contract', label: 'My Contract', icon: IconFileText },
     { id: 'my-payslips', label: 'My Payslips', icon: IconReceipt2 },
     { id: 'my-taxes', label: 'My Tax Summary', icon: IconReceiptTax },
-    { id: 'loans', label: 'My Loans & Advances', icon: IconPigMoney },
     { id: 'notifications', label: 'Notifications', icon: IconBell, badge: '2 New', badgeColor: 'blue' },
     { id: 'settings', label: 'Settings', icon: IconSettings },
   ];
 
   // Administrative Navigation Items
   const adminRoleNavPermissions = {
-    ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'loans', 'reports', 'settings'],
-    HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'loans', 'reports', 'settings'],
-    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'loans', 'reports', 'settings'],
+    ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'reports', 'settings'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
   };
 
   const adminNavItems = [
@@ -55,7 +54,6 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) 
       badgeColor: 'red',
     },
     { id: 'taxes', label: 'Taxes & Forms', icon: IconFileText },
-    { id: 'loans', label: 'Loans', icon: IconPigMoney },
     { id: 'reports', label: 'Reports', icon: IconChartBar },
     { id: 'settings', label: 'Settings', icon: IconSettings },
   ];
