@@ -1,4 +1,5 @@
 import React from 'react';
+import { UserAvatar } from '../../../../components/ui';
 
 export const YourWorkInSync = ({ width = 400, height = 250, className = '' }) => {
   return (
@@ -25,11 +26,7 @@ export const YourWorkInSync = ({ width = 400, height = 250, className = '' }) =>
       >
         {/* Message 1 */}
         <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-          <img
-            src="/professional-woman-avatar-with-short-brown-hair-an.jpg"
-            alt="Meera"
-            style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
-          />
+          <UserAvatar name="Meera Krishnan" id="meera" size={32} radius="xl" />
           <div
             style={{
               background: '#FFFFFF',
@@ -60,16 +57,12 @@ export const YourWorkInSync = ({ width = 400, height = 250, className = '' }) =>
               boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
             }}
           >
-            <div style={{ fontWeight: 600, fontSize: '10px', color: '#CBD5E1', marginBottom: '2px' }}>
-              Neha Gupta (Payroll Lead)
+            <div style={{ fontWeight: 700, fontSize: '10px', color: '#94A3B8', marginBottom: '2px' }}>
+              Vikram Patel (HR)
             </div>
-            Direct deposits disbursed and Form 16 projections dispatched to self-service.
+            Tax proofs verified for 96 employees. TDS reports generated.
           </div>
-          <img
-            src="/professional-man-avatar-with-beard-and-glasses-loo.jpg"
-            alt="Neha"
-            style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
-          />
+          <UserAvatar name="Vikram Patel" id="vikram" size={32} radius="xl" />
         </div>
       </div>
     </div>

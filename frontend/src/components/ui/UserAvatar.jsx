@@ -1,118 +1,28 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { Avatar, ActionIcon, Loader, Box, Tooltip } from '@mantine/core';
+import { ActionIcon, Loader, Box, Tooltip } from '@mantine/core';
 import { IconCamera, IconTrash } from '@tabler/icons-react';
 import { fetchApi } from '../../lib/api';
 
 /**
- * 1. Curated Named Persona Avatar Mapping
- * Maps standard demo personas and core employees to high-definition portrait assets
- */
-const NAMED_PERSONA_AVATARS = {
-  // Executive & Leadership
-  'meera krishnan': '/professional-woman-avatar-with-short-brown-hair-an.jpg',
-  'meera.krishnan@paypilot.internal': '/professional-woman-avatar-with-short-brown-hair-an.jpg',
-  'meera': '/professional-woman-avatar-with-short-brown-hair-an.jpg',
-
-  // HR & DevOps
-  'vikram malhotra': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
-  'vikram.malhotra@paypilot.internal': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
-  'vikram patel': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
-  'vikram.patel@paypilot.internal': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
-  'vikram': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
-
-  // Payroll Specialists
-  'neha gupta': '/professional-person-avatar-with-curly-hair-and-war.jpg',
-  'neha.gupta@paypilot.internal': '/professional-person-avatar-with-curly-hair-and-war.jpg',
-  'neha': '/professional-person-avatar-with-curly-hair-and-war.jpg',
-
-  // Product & Engineering
-  'kartik kumar': '/testimonial-avatar-1.jpg',
-  'kartik.kumar@paypilot.internal': '/testimonial-avatar-1.jpg',
-  'kartik': '/testimonial-avatar-1.jpg',
-
-  'priya sharma': '/testimonial-avatar-3.jpg',
-  'priya.sharma@paypilot.internal': '/testimonial-avatar-3.jpg',
-  'priya': '/testimonial-avatar-3.jpg',
-
-  // Extended seeded staff
-  'tanvi kapoor': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
-  'tanvi.kapoor@paypilot.internal': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
-
-  'aarav mehta': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-  'aarav.mehta@paypilot.internal': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-
-  'rohan verma': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
-  'rohan.verma@paypilot.internal': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
-
-  'ananya iyer': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
-  'ananya.iyer@paypilot.internal': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
-
-  'devendra rao': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
-  'devendra.rao@paypilot.internal': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
-
-  'sneha nair': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
-  'sneha.nair@paypilot.internal': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
-
-  'aditya joshi': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&auto=format&fit=crop&q=80',
-  'aditya.joshi@paypilot.internal': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&auto=format&fit=crop&q=80',
-
-  'arjun reddy': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',
-  'arjun.reddy@paypilot.internal': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',
-
-  'pooja menon': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80',
-  'pooja.menon@paypilot.internal': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80',
-
-  'sanjay singhania': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80',
-  'sanjay.singhania@paypilot.internal': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80',
-};
-
-/**
- * 2. Curated Pool of Diverse Professional Portraits for All Other Employees
- * Deterministically assigned so every single user always has a realistic photo!
- */
-const CURATED_PORTRAITS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1534751516642-a1714f5a507a?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&auto=format&fit=crop&q=80',
-];
-
-/**
- * 3. 12 Instagram-style Background & Silhouette Color Palettes (Fallback)
+ * 12 Modern Background & Silhouette Color Palettes for Dummy Placeholder Avatars
  */
 const PALETTES = [
-  { bg: '#E2E8F0', figure: '#334155', accent: '#94A3B8' }, // Slate Cool
-  { bg: '#E0E7FF', figure: '#3730A3', accent: '#818CF8' }, // Royal Indigo
-  { bg: '#D1FAE5', figure: '#065F46', accent: '#34D399' }, // Fresh Emerald
-  { bg: '#FFEDD5', figure: '#9A3412', accent: '#FB923C' }, // Warm Terracotta
-  { bg: '#CCFBF1', figure: '#115E59', accent: '#2DD4BF' }, // Nordic Teal
-  { bg: '#FFE4E6', figure: '#9F1239', accent: '#FB7185' }, // Soft Rose
-  { bg: '#DBEAFE', figure: '#1E40AF', accent: '#60A5FA' }, // Classic Cobalt
-  { bg: '#FEF08A', figure: '#854D0E', accent: '#CA8A04' }, // Golden Amber
-  { bg: '#F3E8FF', figure: '#6B21A8', accent: '#C084FC' }, // Regal Violet
-  { bg: '#CFFAFE', figure: '#155E75', accent: '#22D3EE' }, // Ocean Cyan
-  { bg: '#FCE7F3', figure: '#9D174D', accent: '#F472B6' }, // Modern Magenta
-  { bg: '#D9F99D', figure: '#3F6212', accent: '#84CC16' }, // Crisp Lime
+  { bg: '#E2E8F0', figure: '#475569', accent: '#94A3B8' }, // Slate Cool
+  { bg: '#E0E7FF', figure: '#4338CA', accent: '#818CF8' }, // Royal Indigo
+  { bg: '#D1FAE5', figure: '#047857', accent: '#34D399' }, // Fresh Emerald
+  { bg: '#FFEDD5', figure: '#C2410C', accent: '#FB923C' }, // Warm Terracotta
+  { bg: '#CCFBF1', figure: '#0F766E', accent: '#2DD4BF' }, // Nordic Teal
+  { bg: '#FFE4E6', figure: '#BE123C', accent: '#FB7185' }, // Soft Rose
+  { bg: '#DBEAFE', figure: '#1D4ED8', accent: '#60A5FA' }, // Classic Cobalt
+  { bg: '#FEF08A', figure: '#A16207', accent: '#CA8A04' }, // Golden Amber
+  { bg: '#F3E8FF', figure: '#7E22CE', accent: '#C084FC' }, // Regal Violet
+  { bg: '#CFFAFE', figure: '#0E7490', accent: '#22D3EE' }, // Ocean Cyan
+  { bg: '#FCE7F3', figure: '#BE185D', accent: '#F472B6' }, // Modern Magenta
+  { bg: '#D9F99D', figure: '#4D7C0F', accent: '#84CC16' }, // Crisp Lime
 ];
 
 /**
- * Deterministic hash function for consistent user avatar generation
+ * Deterministic hash function for consistent user avatar color palette
  */
 function hashString(str = '') {
   let hash = 0;
@@ -124,33 +34,41 @@ function hashString(str = '') {
 }
 
 /**
- * Resolves the initial photo URL for any given user name / ID
+ * Resolves user photo:
+ * 1. Checks explicitSrc (e.g. ImageKit URL https://ik.imagekit.io/...)
+ * 2. Checks localStorage for uploaded ImageKit avatars for this user/id
+ * 3. Otherwise returns null (renders clean dummy placeholder avatar)
  */
 export function resolveUserPhoto(name = '', id = '', explicitSrc = null) {
-  if (explicitSrc) return explicitSrc;
+  if (explicitSrc && typeof explicitSrc === 'string' && explicitSrc.trim() !== '') {
+    // Only allow real uploaded URLs or ImageKit URLs, not old hardcoded unsplash or mock files
+    if (!explicitSrc.includes('unsplash.com') && !explicitSrc.startsWith('/professional-') && !explicitSrc.startsWith('/testimonial-')) {
+      return explicitSrc;
+    }
+  }
 
   const cleanName = (name || '').toLowerCase().trim();
   const cleanId = (id || '').toLowerCase().trim();
 
-  // 1. Direct match in Named Persona map
-  if (NAMED_PERSONA_AVATARS[cleanName]) return NAMED_PERSONA_AVATARS[cleanName];
-  if (NAMED_PERSONA_AVATARS[cleanId]) return NAMED_PERSONA_AVATARS[cleanId];
+  // Check if there's a stored ImageKit upload for this user in localStorage
+  if (cleanId) {
+    const storedForId = localStorage.getItem(`paypilot_avatar_${cleanId}`);
+    if (storedForId) return storedForId;
+  }
+  if (cleanName) {
+    const storedForName = localStorage.getItem(`paypilot_avatar_${cleanName}`);
+    if (storedForName) return storedForName;
+  }
 
-  // 2. Partial first name match in Named Persona map
-  const firstName = cleanName.split(' ')[0];
-  if (firstName && NAMED_PERSONA_AVATARS[firstName]) return NAMED_PERSONA_AVATARS[firstName];
-
-  // 3. Deterministic index into Curated Portrait pool
-  const seed = `${cleanName}_${cleanId}`;
-  const hash = hashString(seed);
-  return CURATED_PORTRAITS[hash % CURATED_PORTRAITS.length];
+  // Fallback to null (Clean Dummy Placeholder Avatar)
+  return null;
 }
 
 /**
  * UserAvatar Component
- * - Displays user photo (uploaded image, curated persona portrait, or deterministic portrait)
- * - Has fallback to Instagram-style human silhouette with initials
- * - Supports instant photo upload to ImageKit if editable=true
+ * - Displays user photo if uploaded to ImageKit
+ * - If no photo uploaded, renders a clean, professional dummy SVG silhouette avatar
+ * - Supports photo upload to ImageKit when editable=true or when triggered
  */
 export const UserAvatar = ({
   src,
@@ -159,6 +77,7 @@ export const UserAvatar = ({
   size = 40,
   radius = 'xl',
   editable = false,
+  showInitials = false,
   onPhotoUploaded,
   onPhotoRemoved,
   className = '',
@@ -168,20 +87,47 @@ export const UserAvatar = ({
   const [uploading, setUploading] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Compute resolved portrait photo
+  // Compute resolved photo URL
   const resolvedPhoto = useMemo(() => {
     return resolveUserPhoto(name, id, src);
   }, [src, name, id]);
 
   const [currentSrc, setCurrentSrc] = useState(resolvedPhoto);
 
-  // Synchronize when prop changes
+  // Synchronize when prop changes or avatar is updated globally
   React.useEffect(() => {
     setImageError(false);
     setCurrentSrc(resolveUserPhoto(name, id, src));
   }, [src, name, id]);
 
-  // Compute deterministic palette for SVG fallback
+  React.useEffect(() => {
+    const handleGlobalUpdate = (e) => {
+      const cleanName = (name || '').toLowerCase().trim();
+      const cleanId = (id || '').toLowerCase().trim();
+      const currentLoggedInName = (localStorage.getItem('paypilot_user_name') || '').toLowerCase().trim();
+      const currentLoggedInEmail = (localStorage.getItem('paypilot_user_email') || '').toLowerCase().trim();
+
+      if (
+        cleanName === currentLoggedInName ||
+        cleanId === currentLoggedInEmail ||
+        cleanName.includes('tanvi') ||
+        cleanName.includes('meera') ||
+        !cleanId
+      ) {
+        if (e.detail) {
+          setCurrentSrc(e.detail);
+          setImageError(false);
+        } else {
+          setCurrentSrc(null);
+        }
+      }
+    };
+
+    window.addEventListener('paypilot_avatar_updated', handleGlobalUpdate);
+    return () => window.removeEventListener('paypilot_avatar_updated', handleGlobalUpdate);
+  }, [name, id]);
+
+  // Compute deterministic palette for dummy avatar background
   const seed = `${name}_${id}`;
   const palette = useMemo(() => {
     const hash = hashString(seed);
@@ -200,8 +146,8 @@ export const UserAvatar = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Photo size must be less than 5MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Photo size must be less than 10MB.');
       return;
     }
 
@@ -212,11 +158,13 @@ export const UserAvatar = ({
         const base64Data = reader.result;
 
         // Call backend ImageKit upload API
+        const cleanId = (id || name || 'user').toLowerCase().replace(/\s+/g, '_');
         const result = await fetchApi('/employees/avatar', {
           method: 'POST',
           body: JSON.stringify({
             image: base64Data,
-            fileName: `profile_${Date.now()}_${file.name.replace(/\s+/g, '_')}`,
+            fileName: `avatar_${cleanId}_${Date.now()}_${file.name.replace(/\s+/g, '_')}`,
+            employeeId: id,
           }),
         });
 
@@ -224,6 +172,13 @@ export const UserAvatar = ({
           setCurrentSrc(result.url);
           setImageError(false);
           localStorage.setItem('paypilot_user_avatar', result.url);
+          if (cleanId) {
+            localStorage.setItem(`paypilot_avatar_${cleanId}`, result.url);
+          }
+          if (name) {
+            localStorage.setItem(`paypilot_avatar_${name.toLowerCase().trim()}`, result.url);
+          }
+
           window.dispatchEvent(new CustomEvent('paypilot_avatar_updated', { detail: result.url }));
 
           if (onPhotoUploaded) {
@@ -233,8 +188,8 @@ export const UserAvatar = ({
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      console.error('Failed to upload profile photo:', err);
-      alert(err.message || 'Failed to upload photo. Please check your connection.');
+      console.error('Failed to upload photo to ImageKit:', err);
+      alert(err.message || 'Failed to upload photo to ImageKit. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -242,9 +197,14 @@ export const UserAvatar = ({
 
   const handleRemovePhoto = (e) => {
     e.stopPropagation();
-    const fallback = resolveUserPhoto(name, id, null);
-    setCurrentSrc(fallback);
+    setCurrentSrc(null);
+    setImageError(false);
+    const cleanId = (id || name || 'user').toLowerCase().replace(/\s+/g, '_');
     localStorage.removeItem('paypilot_user_avatar');
+    localStorage.removeItem(`paypilot_avatar_${cleanId}`);
+    if (name) {
+      localStorage.removeItem(`paypilot_avatar_${name.toLowerCase().trim()}`);
+    }
     window.dispatchEvent(new CustomEvent('paypilot_avatar_updated', { detail: null }));
     if (onPhotoRemoved) {
       onPhotoRemoved();
@@ -255,12 +215,12 @@ export const UserAvatar = ({
 
   return (
     <Box style={{ position: 'relative', display: 'inline-block', flexShrink: 0, ...style }} className={className}>
-      {/* Hidden File Input */}
+      {/* Hidden File Input for ImageKit upload */}
       {editable && (
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/png,image/jpeg,image/webp,image/jpg"
+          accept="image/png,image/jpeg,image/webp,image/jpg,image/gif"
           style={{ display: 'none' }}
           onChange={handleFileChange}
         />
@@ -283,9 +243,10 @@ export const UserAvatar = ({
           cursor: editable ? 'pointer' : 'default',
         }}
         onClick={() => editable && !uploading && fileInputRef.current?.click()}
-        title={editable ? 'Click to change profile photo' : name}
+        title={editable ? 'Click to upload profile photo to ImageKit' : name}
       >
         {showImage ? (
+          /* User Uploaded ImageKit Photo */
           <img
             src={currentSrc}
             alt={name}
@@ -296,8 +257,8 @@ export const UserAvatar = ({
             }}
             onError={() => setImageError(true)}
           />
-        ) : (
-          /* High-Contrast Clean Initial / Silhouette Badge */
+        ) : showInitials ? (
+          /* High-Contrast Initial Badge */
           <div
             style={{
               width: '100%',
@@ -315,15 +276,39 @@ export const UserAvatar = ({
           >
             {initials}
           </div>
+        ) : (
+          /* Clean Professional Vector Silhouette Dummy Avatar */
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: palette.bg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill={palette.figure}
+              style={{
+                width: '64%',
+                height: '64%',
+                opacity: 0.85,
+              }}
+            >
+              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+            </svg>
+          </div>
         )}
 
-        {/* Loading Overlay */}
+        {/* Uploading to ImageKit Loader Overlay */}
         {uploading && (
           <div
             style={{
               position: 'absolute',
               inset: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.55)',
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -334,9 +319,9 @@ export const UserAvatar = ({
         )}
       </div>
 
-      {/* Editable Overlay Camera Badge */}
+      {/* Editable Camera Badge */}
       {editable && !uploading && (
-        <Tooltip label={showImage ? 'Change photo' : 'Upload photo'} withArrow>
+        <Tooltip label={showImage ? 'Change ImageKit photo' : 'Upload photo to ImageKit'} withArrow>
           <ActionIcon
             size={Math.max(22, Math.round(size * 0.34))}
             radius="xl"
@@ -360,9 +345,9 @@ export const UserAvatar = ({
         </Tooltip>
       )}
 
-      {/* Remove Photo Badge if photo is set */}
+      {/* Remove Photo Badge */}
       {editable && showImage && !uploading && (
-        <Tooltip label="Reset photo" withArrow>
+        <Tooltip label="Reset to dummy avatar" withArrow>
           <ActionIcon
             size={Math.max(18, Math.round(size * 0.28))}
             radius="xl"

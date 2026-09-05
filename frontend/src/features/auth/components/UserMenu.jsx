@@ -83,16 +83,28 @@ export const UserMenu = ({ onNavigateTab }) => {
       </Menu.Target>
 
       <Menu.Dropdown style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}>
-        <Menu.Label>User Identity</Menu.Label>
+        <Menu.Label>User Identity & Photo</Menu.Label>
         <Box p="xs" style={{ borderRadius: '6px', backgroundColor: '#F8FAFC' }}>
-          <Group gap="xs" wrap="nowrap">
-            <IconUser size={16} color="#64748B" />
-            <div>
-              <Text size="xs" fw={700} c="#09090B">
+          <Group gap="xs" wrap="nowrap" align="center">
+            <UserAvatar
+              size={42}
+              radius="xl"
+              src={avatarUrl}
+              name={user?.name || 'Meera Krishnan'}
+              id={user?.email || 'meera'}
+              editable={true}
+              onPhotoUploaded={(url) => setAvatarUrl(url)}
+              onPhotoRemoved={() => setAvatarUrl(null)}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <Text size="xs" fw={700} c="#09090B" truncate>
                 {user?.name || 'Meera Krishnan'}
               </Text>
-              <Text size="10px" c="#71717A">
+              <Text size="10px" c="#71717A" truncate>
                 {user?.email || 'meera.krishnan@paypilot.internal'}
+              </Text>
+              <Text size="9px" c="#2563EB" fw={600} mt={2}>
+                Click avatar to upload photo
               </Text>
             </div>
           </Group>
