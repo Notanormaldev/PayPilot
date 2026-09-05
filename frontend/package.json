@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.22.12",
     "@mantine/core": "^7.16.2",
     "@mantine/dates": "^7.16.2",
     "@mantine/hooks": "^7.16.2",
