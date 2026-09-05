@@ -1,0 +1,424 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRESQL_URI")
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ADMINISTRATION & RBAC
+// ─────────────────────────────────────────────────────────────────
+
+model Organization {
+  id               String            @id @default(cuid())
+  name             String
+  timezone         String            @default("Asia/Kolkata")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  workingSchedules WorkingSchedule[]
+  employees        Employee[]
+}
+
+enum Role {
+  EMPLOYEE
+  HR_MANAGER
+  HR_PAYROLL_USER
+  HR_PAYROLL_MANAGER
+  ADMIN
+}
+
+model User {
+  id                      String              @id @default(cuid())
+  clerkId                 String              @unique // Clerk user ID
+  email                   String              @unique
+  role                    Role                @default(EMPLOYEE)
+  isActive                Boolean             @default(true)
+  employeeId              String?             @unique
+  employee                Employee?           @relation(fields: [employeeId], references: [id])
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+
+  correctedAttendances    Attendance[]        @relation("CorrectedBy")
+  approvedTimeOffRequests TimeOffRequest[]    @relation("ApprovedBy")
+  resolvedFlags           SentinelFlag[]      @relation("ResolvedBy")
+  auditEvents             PayrollAuditEvent[]
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CORE HR
+// ─────────────────────────────────────────────────────────────────
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+}
+
+model Employee {
+  id                 String              @id @default(cuid())
+  name               String
+  workEmail          String              @unique
+  department         String
+  jobPosition        String
+  managerId          String?
+  manager            Employee?           @relation("EmployeeManager", fields: [managerId], references: [id])
+  reports            Employee[]          @relation("EmployeeManager")
+  scheduleId         String?
+  schedule           WorkingSchedule?    @relation(fields: [scheduleId], references: [id])
+  status             EmployeeStatus      @default(ACTIVE)
+  bankAccount        String?
+  bankName           String?
+  orgId              String
+  organization       Organization        @relation(fields: [orgId], references: [id])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  user               User?
+  contracts          Contract[]
+  attendance         Attendance[]
+  timeOffRequests    TimeOffRequest[]
+  timeOffAllocations TimeOffAllocation[]
+  payslips           Payslip[]
+}
+
+enum ContractStatus {
+  DRAFT
+  RUNNING
+  EXPIRED
+}
+
+model Contract {
+  id                String          @id @default(cuid())
+  employeeId        String
+  employee          Employee        @relation(fields: [employeeId], references: [id])
+  startDate         DateTime
+  endDate           DateTime?
+  wage              Decimal         @db.Decimal(12, 2)
+  department        String
+  jobPosition       String
+  salaryStructureId String
+  salaryStructure   SalaryStructure @relation(fields: [salaryStructureId], references: [id])
+  status            ContractStatus  @default(DRAFT)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  payslips          Payslip[]
+
+  @@index([employeeId, status])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// WORKFORCE OPERATIONS
+// ─────────────────────────────────────────────────────────────────
+
+model WorkingSchedule {
+  id        String         @id @default(cuid())
+  name      String
+  orgId     String
+  org       Organization   @relation(fields: [orgId], references: [id])
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  lines     ScheduleLine[]
+  employees Employee[]
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+model ScheduleLine {
+  id           String          @id @default(cuid())
+  scheduleId   String
+  schedule     WorkingSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  dayOfWeek    DayOfWeek
+  startTime    String // "HH:MM"
+  endTime      String // "HH:MM"
+  breakMinutes Int             @default(60)
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  INCOMPLETE
+}
+
+model Attendance {
+  id            String           @id @default(cuid())
+  employeeId    String
+  employee      Employee         @relation(fields: [employeeId], references: [id])
+  date          DateTime         @db.Date
+  checkIn       DateTime?
+  checkOut      DateTime?
+  workedHours   Decimal?         @db.Decimal(5, 2)
+  overtimeHours Decimal?         @db.Decimal(5, 2)
+  status        AttendanceStatus @default(ABSENT)
+  isCorrected   Boolean          @default(false)
+  correctedById String?
+  correctedBy   User?            @relation("CorrectedBy", fields: [correctedById], references: [id])
+  correctedAt   DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([employeeId, date])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TIME OFF
+// ─────────────────────────────────────────────────────────────────
+
+enum LeaveUnit {
+  DAYS
+  HOURS
+}
+
+model TimeOffType {
+  id                 String              @id @default(cuid())
+  name               String
+  unit               LeaveUnit           @default(DAYS)
+  requiresAllocation Boolean             @default(true)
+  requiresApproval   Boolean             @default(true)
+  affectsPayroll     Boolean             @default(true)
+  isActive           Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  allocations        TimeOffAllocation[]
+  requests           TimeOffRequest[]
+}
+
+model TimeOffAllocation {
+  id            String           @id @default(cuid())
+  employeeId    String
+  employee      Employee         @relation(fields: [employeeId], references: [id])
+  timeOffTypeId String
+  timeOffType   TimeOffType      @relation(fields: [timeOffTypeId], references: [id])
+  allocated     Decimal          @db.Decimal(6, 2)
+  taken         Decimal          @default(0) @db.Decimal(6, 2)
+  validFrom     DateTime         @db.Date
+  validTo       DateTime         @db.Date
+  status        String           @default("active")
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  requests      TimeOffRequest[]
+
+  @@index([employeeId, timeOffTypeId])
+}
+
+enum TimeOffRequestStatus {
+  TO_APPROVE
+  APPROVED
+  REFUSED
+}
+
+model TimeOffRequest {
+  id            String               @id @default(cuid())
+  employeeId    String
+  employee      Employee             @relation(fields: [employeeId], references: [id])
+  timeOffTypeId String
+  timeOffType   TimeOffType          @relation(fields: [timeOffTypeId], references: [id])
+  allocationId  String?
+  allocation    TimeOffAllocation?   @relation(fields: [allocationId], references: [id])
+  startDate     DateTime             @db.Date
+  endDate       DateTime             @db.Date
+  duration      Decimal              @db.Decimal(6, 2)
+  reason        String?
+  status        TimeOffRequestStatus @default(TO_APPROVE)
+  approvedById  String?
+  approvedBy    User?                @relation("ApprovedBy", fields: [approvedById], references: [id])
+  approvedAt    DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([employeeId, status])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SALARY CONFIGURATION & RULES
+// ─────────────────────────────────────────────────────────────────
+
+model SalaryStructure {
+  id        String       @id @default(cuid())
+  name      String
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  rules     SalaryRule[]
+  contracts Contract[]
+  payruns   Payrun[]
+}
+
+enum SalaryCategory {
+  BASIC
+  ALLOWANCE
+  GROSS
+  DEDUCTION
+  NET
+}
+
+enum ComputationMethod {
+  FIXED
+  PERCENTAGE
+  FORMULA
+}
+
+model SalaryRule {
+  id                String            @id @default(cuid())
+  structureId       String
+  structure         SalaryStructure   @relation(fields: [structureId], references: [id], onDelete: Cascade)
+  name              String
+  code              String
+  category          SalaryCategory
+  sequence          Int
+  computationMethod ComputationMethod
+  amount            Decimal?          @db.Decimal(12, 2)
+  percentageOf      String?
+  percentageValue   Decimal?          @db.Decimal(6, 4)
+  formulaExpression String?
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  payslipLines      PayslipLine[]
+
+  @@unique([structureId, code])
+  @@index([structureId, sequence])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PAYROLL
+// ─────────────────────────────────────────────────────────────────
+
+enum PayrunStatus {
+  DRAFT
+  COMPUTED
+  VALIDATED
+  PAID
+}
+
+model Payrun {
+  id                String          @id @default(cuid())
+  name              String
+  salaryStructureId String
+  salaryStructure   SalaryStructure @relation(fields: [salaryStructureId], references: [id])
+  periodStart       DateTime        @db.Date
+  periodEnd         DateTime        @db.Date
+  status            PayrunStatus    @default(DRAFT)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  payslips          Payslip[]
+}
+
+enum PayslipStatus {
+  DRAFT
+  COMPUTED
+  VALIDATED
+  PAID
+}
+
+model Payslip {
+  id         String         @id @default(cuid())
+  payrunId   String
+  payrun     Payrun         @relation(fields: [payrunId], references: [id])
+  employeeId String
+  employee   Employee       @relation(fields: [employeeId], references: [id])
+  contractId String
+  contract   Contract       @relation(fields: [contractId], references: [id])
+  workedDays Decimal        @default(0) @db.Decimal(5, 2)
+  status     PayslipStatus  @default(DRAFT)
+  pdfUrl     String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  lines      PayslipLine[]
+  flags      SentinelFlag[]
+
+  @@unique([payrunId, employeeId])
+}
+
+model PayslipLine {
+  id           String         @id @default(cuid())
+  payslipId    String
+  payslip      Payslip        @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+  salaryRuleId String
+  salaryRule   SalaryRule     @relation(fields: [salaryRuleId], references: [id])
+  code         String
+  name         String
+  category     SalaryCategory
+  sequence     Int
+  amount       Decimal        @db.Decimal(12, 2)
+  createdAt    DateTime       @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SENTINEL ANOMALY ENGINE
+// ─────────────────────────────────────────────────────────────────
+
+enum FlagType {
+  DUPLICATE_PAYSLIP
+  MISSING_BANK_DETAILS
+  NO_ACTIVE_CONTRACT
+  UNAPPROVED_LEAVE_MISMATCH
+  STATISTICAL_ANOMALY
+}
+
+enum FlagSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum FlagStatus {
+  OPEN
+  RESOLVED
+  OVERRIDDEN
+}
+
+model SentinelFlag {
+  id                      String       @id @default(cuid())
+  payslipId               String
+  payslip                 Payslip      @relation(fields: [payslipId], references: [id])
+  flagType                FlagType
+  severity                FlagSeverity
+  deterministicReasonJson Json
+  aiExplanation           String?
+  status                  FlagStatus   @default(OPEN)
+  resolvedById            String?
+  resolvedBy              User?        @relation("ResolvedBy", fields: [resolvedById], references: [id])
+  resolvedAt              DateTime?
+  overrideNote            String?
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+
+  @@index([payslipId, status])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AUDIT LOG
+// ─────────────────────────────────────────────────────────────────
+
+model PayrollAuditEvent {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  action     String
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  meta       Json
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+}
