@@ -12,6 +12,7 @@ import {
   Tabs,
   ThemeIcon,
   Alert,
+  SimpleGrid,
 } from '@mantine/core';
 import {
   IconDatabase,
@@ -105,7 +106,7 @@ export const AdminTaxRuleModal = ({ opened, onClose, rules, onUpdateSlab }) => {
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {rules.slabs.NEW.map((slab) => (
+                  {(rules?.slabs?.NEW || []).map((slab) => (
                     <Table.Tr key={slab.id}>
                       <Table.Td><Badge size="xs" color="gray">{slab.id}</Badge></Table.Td>
                       <Table.Td fw={600}>
@@ -168,7 +169,7 @@ export const AdminTaxRuleModal = ({ opened, onClose, rules, onUpdateSlab }) => {
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {rules.deductions.map((ded) => (
+                  {(rules?.deductions || []).map((ded) => (
                     <Table.Tr key={ded.id}>
                       <Table.Td><Badge size="xs" color="blue">{ded.sectionCode}</Badge></Table.Td>
                       <Table.Td fw={600}>{ded.name}</Table.Td>
@@ -199,7 +200,7 @@ export const AdminTaxRuleModal = ({ opened, onClose, rules, onUpdateSlab }) => {
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {rules.professionalTaxes.map((pt) => (
+                  {(rules?.professionalTaxes || []).map((pt) => (
                     <Table.Tr key={pt.id}>
                       <Table.Td><Badge size="xs" color="dark">{pt.stateCode}</Badge></Table.Td>
                       <Table.Td fw={700}>₹{pt.annualLimit.toLocaleString('en-IN')}</Table.Td>

@@ -48,7 +48,7 @@ export const SlabVisualizer = ({ taxResult, regimeCode }) => {
 
       {/* Slabs Grid */}
       <Stack gap="sm">
-        {slabs.map((slab, idx) => {
+        {(slabs || []).map((slab, idx) => {
           const slabCapacity = slab.maxIncome ? slab.maxIncome - slab.minIncome : 1000000;
           const percentageFilled = slabCapacity > 0 ? Math.min(100, Math.round((slab.taxableAmountInSlab / slabCapacity) * 100)) : 0;
           const isActive = slab.taxableAmountInSlab > 0;

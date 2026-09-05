@@ -141,7 +141,7 @@ export const TaxExplanationCard = ({ taxResult }) => {
 
       {/* Step-by-Step Explanation Accordion */}
       <Accordion variant="separated" radius="md" defaultValue="step-1">
-        {explanationSteps.map((step) => (
+        {(explanationSteps || []).map((step) => (
           <Accordion.Item
             key={`step-${step.stepNumber}`}
             value={`step-${step.stepNumber}`}

@@ -23,6 +23,8 @@ import {
 } from '@tabler/icons-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { generatePayslipPdf } from '../../../lib/payslipPdfGenerator';
+import { generateTaxBreakdownPdf } from '../../../lib/taxBreakdownPdfGenerator';
+import { useAuthUser } from '../../auth/hooks/useAuthUser';
 
 export const MyPayslipsView = () => {
   const [downloadingId, setDownloadingId] = useState(null);
@@ -108,11 +110,39 @@ export const MyPayslipsView = () => {
     }
   };
 
+  const { user } = useAuthUser();
+  const [downloadingAnnual, setDownloadingAnnual] = useState(false);
+
+  const handleDownloadAnnualTax = async () => {
+    try {
+      setDownloadingAnnual(true);
+      const res = await fetch('/api/tax/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ salaryIncome: 1392000, regimeCode: 'NEW' }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        await generateTaxBreakdownPdf(json.data, {
+          name: user?.name || 'Kartik Kumar',
+          id: user?.id || 'EMP-8492',
+          designation: user?.designation || 'Staff Software Engineer',
+          department: user?.department || 'Engineering',
+          pan: user?.pan || 'ABCPK8942F',
+        });
+      }
+    } catch (err) {
+      console.error('Failed to generate annual tax statement:', err);
+    } finally {
+      setDownloadingAnnual(false);
+    }
+  };
+
   return (
     <Stack gap="lg">
       {/* Top Header Card */}
       <Paper p="lg" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-        <Group justify="space-between" align="center">
+        <Group justify="space-between" align="center" wrap="wrap" gap="md">
           <div>
             <Title order={3} c="#09090B">
               My Monthly Payslips & Salary Breakdown
@@ -122,9 +152,21 @@ export const MyPayslipsView = () => {
             </Text>
           </div>
 
-          <Badge size="md" color="indigo" variant="light">
-            Latest Net Take-Home: ₹95,300
-          </Badge>
+          <Group gap="xs">
+            <Button
+              size="xs"
+              color="indigo"
+              variant="light"
+              leftSection={<IconDownload size={14} />}
+              loading={downloadingAnnual}
+              onClick={handleDownloadAnnualTax}
+            >
+              Download Annual Tax & CTC Statement (PDF)
+            </Button>
+            <Badge size="md" color="indigo" variant="light">
+              Latest Net Take-Home: ₹95,300
+            </Badge>
+          </Group>
         </Group>
       </Paper>
 

@@ -33,6 +33,8 @@ import {
   IconCheck,
   IconChevronRight,
   IconWallet,
+  IconDownload,
+  IconUserCheck,
 } from '@tabler/icons-react';
 
 import { useTaxCalculator } from './useTaxCalculator';
@@ -41,8 +43,16 @@ import { TaxExplanationCard } from './TaxExplanationCard';
 import { RegimeComparisonCard } from './RegimeComparisonCard';
 import { PayrollCtcDrawer } from './PayrollCtcDrawer';
 import { AdminTaxRuleModal } from './AdminTaxRuleModal';
+import { useAuthUser } from '../auth/hooks/useAuthUser';
+import { useEmployees } from '../employees/hooks/useEmployees';
+import { generateTaxBreakdownPdf } from '../../lib/taxBreakdownPdfGenerator';
+import { canAccessTaxStatement, getAuthorizedEmployeesForUser } from './taxAccessControl';
 
-export const TaxCalculatorView = () => {
+export const TaxCalculatorView = ({ targetEmployee = null }) => {
+  const { user, currentRole } = useAuthUser();
+  const { employees } = useEmployees();
+  const isEmployee = currentRole === 'EMPLOYEE';
+
   const {
     rules,
     loadingRules,
@@ -76,6 +86,58 @@ export const TaxCalculatorView = () => {
 
   const [ctcDrawerOpened, setCtcDrawerOpened] = useState(false);
   const [adminModalOpened, setAdminModalOpened] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(targetEmployee?.id || (isEmployee ? user?.id || 'EMP-8492' : 'CUSTOM'));
+
+  // Get list of employees authorized for this role
+  const allEmployeesList = Array.isArray(employees) ? employees : employees?.employees || [];
+  const authorizedEmployees = getAuthorizedEmployeesForUser(user, allEmployeesList);
+
+  const selectedEmpObject = allEmployeesList.find((e) => e.id === selectedEmployeeId) || (isEmployee ? {
+    id: user?.id || 'EMP-8492',
+    name: user?.name || 'Kartik Kumar',
+    designation: user?.designation || 'Staff Software Engineer',
+    department: user?.department || 'Engineering',
+    pan: user?.pan || 'ABCPK8942F',
+    uan: '101849204918',
+    state: 'Maharashtra (MH)',
+  } : {
+    id: 'SIM-001',
+    name: user?.name || 'Meera Krishnan (Simulation)',
+    designation: 'Management Simulation',
+    department: 'Corporate Payroll',
+    pan: 'AAAAP1234F',
+    uan: '109876543210',
+    state: 'Maharashtra (MH)',
+  });
+
+  const handleSelectEmployee = (empId) => {
+    setSelectedEmployeeId(empId);
+    if (empId === 'CUSTOM') {
+      return;
+    }
+    const emp = allEmployeesList.find((e) => e.id === empId);
+    if (emp) {
+      if (emp.salary || emp.annualCTC || emp.ctc) {
+        setSalaryIncome(Number(emp.salary || emp.annualCTC || emp.ctc) || 1275000);
+      }
+      if (emp.department === 'Operations' || emp.role === 'Senior') {
+        setServiceTenureYears(6);
+      }
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!taxResult) return;
+    try {
+      setDownloadingPdf(true);
+      await generateTaxBreakdownPdf(taxResult, selectedEmpObject, payrollResult || {});
+    } catch (err) {
+      console.error('PDF generation error:', err);
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
 
   const handleDeductionChange = (section, value) => {
     setClaimedDeductions((prev) => ({
@@ -119,6 +181,18 @@ export const TaxCalculatorView = () => {
           </Group>
 
           <Group gap="xs">
+            {/* Download PDF Button */}
+            <Button
+              size="xs"
+              color="blue"
+              variant="filled"
+              leftSection={<IconDownload size={14} />}
+              loading={downloadingPdf}
+              onClick={handleDownloadPdf}
+            >
+              {isEmployee ? 'Download My Tax Statement (PDF)' : 'Download Statement (PDF)'}
+            </Button>
+
             <Button
               size="xs"
               variant="light"
@@ -129,17 +203,46 @@ export const TaxCalculatorView = () => {
               CTC & Gratuity Breakdown
             </Button>
 
-            <Button
-              size="xs"
-              variant="outline"
-              color="gray"
-              leftSection={<IconDatabase size={14} />}
-              onClick={() => setAdminModalOpened(true)}
-            >
-              DB Tax Rules Config
-            </Button>
+            {!isEmployee && (
+              <Button
+                size="xs"
+                variant="outline"
+                color="gray"
+                leftSection={<IconDatabase size={14} />}
+                onClick={() => setAdminModalOpened(true)}
+              >
+                DB Tax Rules Config
+              </Button>
+            )}
           </Group>
         </Group>
+
+        {/* Role-Based Employee Selector for Admin/HR */}
+        {!isEmployee && authorizedEmployees.length > 0 && (
+          <Paper p="xs" radius="sm" mt="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+            <Group justify="space-between" align="center">
+              <Group gap="xs">
+                <IconUserCheck size={16} color="#2563EB" />
+                <Text size="xs" fw={700} c="#0F172A">
+                  Target Employee Statement:
+                </Text>
+              </Group>
+              <Select
+                size="xs"
+                style={{ width: '380px' }}
+                value={selectedEmployeeId}
+                onChange={handleSelectEmployee}
+                data={[
+                  { value: 'CUSTOM', label: '⚡ Custom Simulation / Calculator Mode' },
+                  ...authorizedEmployees.map((e) => ({
+                    value: e.id,
+                    label: `${e.name} (${e.designation || e.department || 'Employee'}) - ${e.id}`,
+                  })),
+                ]}
+              />
+            </Group>
+          </Paper>
+        )}
 
         <Divider my="md" color="#F1F5F9" />
 
