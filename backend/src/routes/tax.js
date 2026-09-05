@@ -184,25 +184,70 @@ taxRouter.get('/history', (req, res) => {
 });
 
 /**
+ * POST /api/tax/declaration
+ * Persistently save employee tax regime selection and Chapter VI-A investment proofs to DB
+ */
+taxRouter.post('/declaration', (req, res) => {
+  try {
+    const { employeeId, financialYearId = 'FY_2026_27', regimeCode = 'NEW', claimedDeductions = {} } = req.body;
+    if (!employeeId) {
+      return res.status(400).json({ success: false, message: 'Employee ID is required' });
+    }
+
+    const saved = taxRulesRepository.saveEmployeeDeclaration(employeeId, {
+      financialYearId,
+      regimeCode,
+      claimedDeductions,
+    });
+
+    res.json({
+      success: true,
+      message: 'Employee tax declaration saved to database successfully',
+      data: saved,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * GET /api/tax/declaration/:empId
+ * Fetch employee's saved tax declaration from DB
+ */
+taxRouter.get('/declaration/:empId', (req, res) => {
+  try {
+    const { empId } = req.params;
+    const declaration = taxRulesRepository.getEmployeeDeclaration(empId);
+    res.json({
+      success: true,
+      data: declaration,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
  * PUT /api/tax/admin/slabs
- * Admin configuration: update tax slab details dynamically in the database repository
+ * Admin configuration: update tax slab details dynamically and persist to database
  */
 taxRouter.put('/admin/slabs', (req, res) => {
   try {
     const { slabId, taxRate, minIncome, maxIncome } = req.body;
-    const slab = taxRulesRepository.taxSlabs.find((s) => s.id === slabId);
-    if (!slab) {
+    const updatedSlab = taxRulesRepository.updateTaxSlab(slabId, {
+      taxRate,
+      minIncome,
+      maxIncome,
+    });
+
+    if (!updatedSlab) {
       return res.status(404).json({ success: false, message: 'Tax slab not found' });
     }
 
-    if (taxRate !== undefined) slab.taxRate = Number(taxRate);
-    if (minIncome !== undefined) slab.minIncome = Number(minIncome);
-    if (maxIncome !== undefined) slab.maxIncome = maxIncome === null ? null : Number(maxIncome);
-
     res.json({
       success: true,
-      message: `Tax slab ${slabId} updated successfully`,
-      data: slab,
+      message: `Tax slab ${slabId} updated and persisted to database successfully`,
+      data: updatedSlab,
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

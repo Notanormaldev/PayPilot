@@ -1,7 +1,16 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DATA_DIR = path.join(__dirname, '..', '..', 'data');
+const DB_FILE = path.join(DATA_DIR, 'tax_database.json');
+
 /**
  * Indian Income Tax & Payroll Statutory Rules Database Repository
  * Fully versioned by Financial Year & Assessment Year (FY 2026-27 / AY 2027-28 & Latest Govt Reforms)
- * NO HARDCODED SLABS IN CALCULATION ENGINE - EVERYTHING IS LOADED FROM THIS REPOSITORY
+ * NO HARDCODED SLABS IN CALCULATION ENGINE - EVERYTHING IS LOADED AND PERSISTED IN DB REPOSITORY
  */
 
 class TaxRulesRepository {
@@ -35,7 +44,7 @@ class TaxRulesRepository {
         regimeName: 'New Tax Regime (u/s 115BAC)',
         standardDeduction: 75000,
         isDefault: true,
-        description: 'Default concessional regime with simplified tax slabs, ₹75k standard deduction, and Section 87A rebate up to ₹12 Lakhs.',
+        description: 'Default concessional regime with simplified tax slabs, Rs. 75k standard deduction, and Section 87A rebate up to Rs. 12 Lakhs.',
         active: true,
       },
       {
@@ -99,7 +108,7 @@ class TaxRulesRepository {
         regimeId: 'REGIME_OLD_2026_27',
         sectionCode: '80D',
         name: 'Section 80D (Health Insurance Premium - Self & Family)',
-        description: 'Medical insurance premiums paid for self, spouse, children (₹25k) and parents (₹25k/₹50k).',
+        description: 'Medical insurance premiums paid for self, spouse, children (Rs. 25k) and parents (Rs. 25k/Rs. 50k).',
         maximumAmount: 75000,
         formulaType: 'MIN_CLAIM_LIMIT',
         eligibility: 'Individual / HUF',
@@ -165,7 +174,7 @@ class TaxRulesRepository {
         incomeLimit: 1200000,
         maximumRebate: 60000,
         formulaType: 'THRESHOLD_REBATE',
-        description: '100% tax rebate for resident individuals with taxable income up to ₹12 Lakhs.',
+        description: '100% tax rebate for resident individuals with taxable income up to Rs. 12 Lakhs.',
         active: true,
       },
       {
@@ -176,7 +185,7 @@ class TaxRulesRepository {
         incomeLimit: 500000,
         maximumRebate: 12500,
         formulaType: 'THRESHOLD_REBATE',
-        description: 'Tax rebate for resident individuals with taxable income up to ₹5 Lakhs.',
+        description: 'Tax rebate for resident individuals with taxable income up to Rs. 5 Lakhs.',
         active: true,
       },
     ];
@@ -248,7 +257,7 @@ class TaxRulesRepository {
         februaryDeduction: 300,
         taxTreatmentOldRegime: 'DEDUCTIBLE_US_16_III',
         taxTreatmentNewRegime: 'NOT_DEDUCTIBLE',
-        description: 'Maharashtra Professional Tax: ₹200/month and ₹300 in February (Max ₹2,500/year).',
+        description: 'Maharashtra Professional Tax: Rs. 200/month and Rs. 300 in February (Max Rs. 2,500/year).',
         active: true,
       },
       {
@@ -260,7 +269,7 @@ class TaxRulesRepository {
         februaryDeduction: 200,
         taxTreatmentOldRegime: 'DEDUCTIBLE_US_16_III',
         taxTreatmentNewRegime: 'NOT_DEDUCTIBLE',
-        description: 'Karnataka Professional Tax: ₹200/month (Max ₹2,400/year).',
+        description: 'Karnataka Professional Tax: Rs. 200/month (Max Rs. 2,400/year).',
         active: true,
       },
       {
@@ -301,16 +310,66 @@ class TaxRulesRepository {
         lawName: 'Payment of Bonus Act, 1965',
         minimumBonusRate: 8.33,
         maximumBonusRate: 20.0,
-        salaryEligibilityLimit: 21000, // Monthly salary eligibility ceiling
-        calculationWageLimit: 7000,   // Monthly statutory calculation base ceiling
+        salaryEligibilityLimit: 21000,
+        calculationWageLimit: 7000,
         minimumDaysWorked: 30,
         taxTreatment: 'TAXABLE_AS_SALARY',
         active: true,
       },
     ];
 
+    // Employee Tax Declarations Store (Persistent)
+    this.employeeDeclarations = {};
+
     // Calculation Logs History Store
     this.calculationLogs = [];
+
+    // Load persisted state from disk on startup
+    this.loadFromDisk();
+  }
+
+  loadFromDisk() {
+    try {
+      if (fs.existsSync(DB_FILE)) {
+        const raw = fs.readFileSync(DB_FILE, 'utf-8');
+        const data = JSON.parse(raw);
+        if (data.taxSlabs) this.taxSlabs = data.taxSlabs;
+        if (data.deductions) this.deductions = data.deductions;
+        if (data.rebates) this.rebates = data.rebates;
+        if (data.professionalTaxRules) this.professionalTaxRules = data.professionalTaxRules;
+        if (data.employeeDeclarations) this.employeeDeclarations = data.employeeDeclarations;
+        if (data.calculationLogs) this.calculationLogs = data.calculationLogs;
+      }
+    } catch (err) {
+      console.warn('Could not read tax database file from disk:', err.message);
+    }
+  }
+
+  saveToDisk() {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      const data = {
+        updatedAt: new Date().toISOString(),
+        financialYears: this.financialYears,
+        taxRegimes: this.taxRegimes,
+        taxSlabs: this.taxSlabs,
+        deductions: this.deductions,
+        rebates: this.rebates,
+        surchargeRules: this.surchargeRules,
+        cessRules: this.cessRules,
+        states: this.states,
+        professionalTaxRules: this.professionalTaxRules,
+        gratuityRules: this.gratuityRules,
+        statutoryBonusRules: this.statutoryBonusRules,
+        employeeDeclarations: this.employeeDeclarations,
+        calculationLogs: this.calculationLogs.slice(0, 200),
+      };
+      fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to write tax database to disk:', err.message);
+    }
   }
 
   getFinancialYears() {
@@ -325,6 +384,16 @@ class TaxRulesRepository {
     return this.taxSlabs
       .filter((s) => s.regimeId === regimeId && (s.ageCategory === ageCategory || s.ageCategory === 'ALL') && s.active)
       .sort((a, b) => a.priority - b.priority);
+  }
+
+  updateTaxSlab(slabId, updates) {
+    const slab = this.taxSlabs.find((s) => s.id === slabId);
+    if (!slab) return null;
+    if (updates.taxRate !== undefined) slab.taxRate = Number(updates.taxRate);
+    if (updates.minIncome !== undefined) slab.minIncome = Number(updates.minIncome);
+    if (updates.maxIncome !== undefined) slab.maxIncome = updates.maxIncome === null ? null : Number(updates.maxIncome);
+    this.saveToDisk();
+    return slab;
   }
 
   getDeductions(regimeId = 'REGIME_OLD_2026_27', financialYearId = 'FY_2026_27') {
@@ -358,6 +427,19 @@ class TaxRulesRepository {
     return this.statutoryBonusRules.find((b) => b.financialYearId === financialYearId && b.active);
   }
 
+  saveEmployeeDeclaration(empId, declaration) {
+    this.employeeDeclarations[empId] = {
+      ...declaration,
+      updatedAt: new Date().toISOString(),
+    };
+    this.saveToDisk();
+    return this.employeeDeclarations[empId];
+  }
+
+  getEmployeeDeclaration(empId) {
+    return this.employeeDeclarations[empId] || null;
+  }
+
   saveCalculationLog(logEntry) {
     const entry = {
       id: `LOG_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
@@ -365,6 +447,7 @@ class TaxRulesRepository {
       ...logEntry,
     };
     this.calculationLogs.unshift(entry);
+    this.saveToDisk();
     return entry;
   }
 }

@@ -27,9 +27,22 @@ export const MyTaxSummaryView = () => {
   const [taxRegime, setTaxRegime] = useState('new'); // 'new' | 'old'
   const [regimeUpdated, setRegimeUpdated] = useState(false);
 
-  const handleRegimeChange = (val) => {
+  const handleRegimeChange = async (val) => {
     setTaxRegime(val);
     setRegimeUpdated(true);
+    try {
+      await fetch('/api/tax/declaration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: 'EMP-8492',
+          financialYearId: 'FY_2026_27',
+          regimeCode: val.toUpperCase(),
+        }),
+      });
+    } catch (err) {
+      console.warn('Failed to save declaration to DB:', err);
+    }
     setTimeout(() => setRegimeUpdated(false), 3000);
   };
 

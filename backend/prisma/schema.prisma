@@ -425,3 +425,105 @@ model PayrollAuditEvent {
   @@index([entityType, entityId])
   @@index([actorId])
 }
+
+// ─────────────────────────────────────────────────────────────────
+// INDIAN INCOME TAX & STATUTORY PAYROLL RULES DATABASE
+// ─────────────────────────────────────────────────────────────────
+
+model TaxFinancialYear {
+  id             String      @id @default(cuid())
+  financialYear  String      @unique // e.g. 'FY 2026-27'
+  assessmentYear String      // e.g. 'AY 2027-28'
+  startDate      DateTime
+  endDate        DateTime
+  isCurrent      Boolean     @default(false)
+  active         Boolean     @default(true)
+  regimes        TaxRegime[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model TaxRegime {
+  id                String           @id @default(cuid())
+  financialYearId   String
+  financialYear     TaxFinancialYear @relation(fields: [financialYearId], references: [id])
+  regimeCode        String           // 'NEW' | 'OLD'
+  regimeName        String
+  standardDeduction Float            @default(75000)
+  isDefault         Boolean          @default(false)
+  description       String?
+  active            Boolean          @default(true)
+  slabs             TaxSlab[]
+  deductions        TaxDeduction[]
+  rebates           TaxRebate[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model TaxSlab {
+  id          String    @id @default(cuid())
+  regimeId    String
+  regime      TaxRegime @relation(fields: [regimeId], references: [id])
+  ageCategory String    @default("ALL") // 'ALL' | 'BELOW_60' | '60_TO_80' | 'ABOVE_80'
+  minIncome   Float
+  maxIncome   Float?
+  taxRate     Float     // e.g. 5, 10, 15, 20, 25, 30
+  fixedTax    Float     @default(0)
+  formulaType String    @default("SLAB_CALCULATION")
+  priority    Int       @default(1)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([regimeId, ageCategory])
+}
+
+model TaxDeduction {
+  id            String    @id @default(cuid())
+  regimeId      String
+  regime        TaxRegime @relation(fields: [regimeId], references: [id])
+  sectionCode   String    // '80C', '80D', '80CCD(1B)', '24(b)', '10(13A)'
+  name          String
+  description   String?
+  maximumAmount Float
+  formulaType   String    @default("MIN_CLAIM_LIMIT")
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model TaxRebate {
+  id            String    @id @default(cuid())
+  regimeId      String
+  regime        TaxRegime @relation(fields: [regimeId], references: [id])
+  sectionCode   String    @default("87A")
+  incomeLimit   Float     @default(1200000) // Rs. 12,00,000 in New Regime (FY 2026-27)
+  maximumRebate Float     @default(60000)   // Rs. 60,000 in New Regime
+  formulaType   String    @default("THRESHOLD_REBATE")
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model EmployeeTaxDeclaration {
+  id                String   @id @default(cuid())
+  employeeId        String
+  financialYear     String   @default("FY 2026-27")
+  selectedRegime    String   @default("NEW") // 'NEW' | 'OLD'
+  claimedDeductions Json     // { "80C": 150000, "80D": 25000, ... }
+  status            String   @default("SUBMITTED")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([employeeId, financialYear])
+}
+
+model TaxCalculationLog {
+  id               String   @id @default(cuid())
+  regime           String
+  grossIncome      Float
+  taxableIncome    Float
+  taxPayable       Float
+  effectiveTaxRate Float
+  createdAt        DateTime @default(now())
+}
