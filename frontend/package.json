@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node node_modules/vite/bin/vite.js",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -29,12 +29,16 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
-    "autoprefixer": "^10.5.5",
+    "autoprefixer": "10.4.20",
+    "browserslist": "4.27.0",
     "postcss": "^8.5.1",
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.7.3",
     "vite": "^6.1.0"
+  },
+  "pnpm": {
+    "minimumReleaseAge": "0m"
   }
 }
