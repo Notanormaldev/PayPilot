@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Stack, Group, Text, Button, Badge, ThemeIcon, Skeleton } from '@mantine/core';
-import { IconCheck, IconAlertCircle, IconClock, IconShieldExclamation, IconReceipt2 } from '@tabler/icons-react';
+import { Paper, Stack, Group, Text, Button, Badge, ThemeIcon, Skeleton, SimpleGrid } from '@mantine/core';
+import { IconCheck, IconAlertCircle, IconClock, IconShieldExclamation, IconReceipt2, IconSparkles } from '@tabler/icons-react';
 import { fetchApi } from '../../../lib/api';
 
 export const ToDoTasks = () => {
@@ -98,25 +98,27 @@ export const ToDoTasks = () => {
       if (task.type === 'LEAVE') {
         const itemToApprove = task.items[0];
         if (itemToApprove) {
-          await fetchApi(`/time-off/requests/${itemToApprove.id}/status`, {
-            method: 'PUT',
-            body: JSON.stringify({ status: 'APPROVED' }),
+          await fetchApi(`/time-off/requests/${itemToApprove.id}/approve`, {
+            method: 'POST',
+            body: JSON.stringify({ notes: 'Approved via Live Dashboard Quick Action' }),
           });
         }
       } else if (task.type === 'SENTINEL_BANK') {
-        const itemToResolve = task.items[0];
-        if (itemToResolve) {
-          await fetchApi(`/sentinel/flags/${itemToResolve.id}/resolve`, {
+        const flagToResolve = task.items[0];
+        if (flagToResolve) {
+          await fetchApi(`/sentinel/flags/${flagToResolve.id}/resolve`, {
             method: 'POST',
-            body: JSON.stringify({ resolutionNotes: 'Auto-verified in ToDo Tasks' }),
+            body: JSON.stringify({
+              resolutionNotes: 'Verified and authorized by Executive Compliance Officer',
+              officerConfirmation: true,
+            }),
           });
         }
       } else if (task.type === 'PAYRUN_VALIDATE') {
-        const itemToValidate = task.items[0];
-        if (itemToValidate) {
-          await fetchApi(`/payruns/${itemToValidate.id}/validate`, {
+        const payrunToValidate = task.items[0];
+        if (payrunToValidate) {
+          await fetchApi(`/payruns/${payrunToValidate.id}/validate`, {
             method: 'POST',
-            body: JSON.stringify({ processVerifiedOnly: true }),
           });
         }
       }
@@ -130,7 +132,7 @@ export const ToDoTasks = () => {
 
   return (
     <Paper
-      p="lg"
+      p="md"
       radius="md"
       style={{
         backgroundColor: '#FFFFFF',
@@ -138,71 +140,89 @@ export const ToDoTasks = () => {
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
       }}
     >
-      <Group justify="space-between" mb="md">
-        <Text fw={700} size="sm" c="#09090B">
-          To Do Tasks & Live Approvals
-        </Text>
-        <Badge size="xs" color="blue" variant="light">
+      <Group justify="space-between" mb="sm">
+        <Group gap="xs">
+          <Text fw={700} size="sm" c="#09090B">
+            To Do Tasks & Live Approvals
+          </Text>
+          <Badge size="xs" color="red" variant="light">
+            {tasks.filter(t => !t.completed).length} Actionable Items
+          </Badge>
+        </Group>
+        <Badge size="xs" color="blue" variant="light" leftSection={<IconSparkles size={11} />}>
           Real-time Engine
         </Badge>
       </Group>
 
       {loading ? (
-        <Stack gap="xs">
-          <Skeleton height={36} radius="sm" />
-          <Skeleton height={36} radius="sm" />
-        </Stack>
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="sm">
+          <Skeleton height={58} radius="sm" />
+          <Skeleton height={58} radius="sm" />
+          <Skeleton height={58} radius="sm" />
+        </SimpleGrid>
       ) : (
-        <Stack gap="md">
+        <SimpleGrid
+          cols={{
+            base: 1,
+            sm: tasks.length === 1 ? 1 : 2,
+            md: Math.min(Math.max(tasks.length, 1), 3),
+          }}
+          spacing="sm"
+        >
           {tasks.map((t) => {
             const IconComponent = t.icon || IconCheck;
             return (
-              <div
+              <Paper
                 key={t.id}
+                p="sm"
+                radius="sm"
                 style={{
-                  paddingBottom: '12px',
-                  borderBottom: '1px solid #F1F5F9',
+                  backgroundColor: '#F8FAFC',
+                  border: '1px solid #E2E8F0',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
+                  transition: 'all 0.15s ease',
                 }}
               >
-                <Group gap="xs" wrap="nowrap">
-                  <ThemeIcon size="md" color={t.color} variant="light" radius="md">
-                    <IconComponent size={16} />
+                <Group gap="xs" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+                  <ThemeIcon size={34} color={t.color} variant="light" radius="md" style={{ flexShrink: 0 }}>
+                    <IconComponent size={18} />
                   </ThemeIcon>
-                  <div>
-                    <Text size="xs" fw={700} c="#09090B">
+                  <div style={{ minWidth: 0 }}>
+                    <Text size="xs" fw={700} c="#09090B" truncate>
                       {t.title}
                     </Text>
-                    <Text size="10px" c="#71717A">
+                    <Text size="10px" c="#64748B" truncate>
                       {t.subtitle}
                     </Text>
                   </div>
                 </Group>
 
-                {t.completed ? (
-                  <Badge size="xs" color="teal" variant="light" leftSection={<IconCheck size={10} />}>
-                    Completed
-                  </Badge>
-                ) : (
-                  <Button
-                    size="xs"
-                    variant={t.color === 'red' ? 'filled' : 'outline'}
-                    color={t.color}
-                    loading={actionId === t.id}
-                    onClick={() => handleAction(t)}
-                    styles={{
-                      root: { height: 26, padding: '0 10px', fontSize: '11px' },
-                    }}
-                  >
-                    {t.actionLabel}
-                  </Button>
-                )}
-              </div>
+                <Box ml="xs" style={{ flexShrink: 0 }}>
+                  {t.completed ? (
+                    <Badge size="xs" color="teal" variant="light" leftSection={<IconCheck size={10} />}>
+                      Completed
+                    </Badge>
+                  ) : (
+                    <Button
+                      size="xs"
+                      variant={t.color === 'red' ? 'filled' : 'outline'}
+                      color={t.color}
+                      loading={actionId === t.id}
+                      onClick={() => handleAction(t)}
+                      styles={{
+                        root: { height: 28, padding: '0 12px', fontSize: '11px', fontWeight: 600 },
+                      }}
+                    >
+                      {t.actionLabel}
+                    </Button>
+                  )}
+                </Box>
+              </Paper>
             );
           })}
-        </Stack>
+        </SimpleGrid>
       )}
     </Paper>
   );

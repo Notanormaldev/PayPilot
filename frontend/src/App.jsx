@@ -119,27 +119,18 @@ export const App = () => {
             /* ADMIN / HR / PAYROLL VIEWS */
             <>
               {activeTab === 'dashboard' && (
-                <Grid gutter="lg">
-                  <Grid.Col span={{ base: 12, lg: 8 }}>
-                    <Stack gap="lg">
-                      <WelcomeBanner
-                        userName={user?.name || 'Meera Krishnan'}
-                        kpis={kpis}
-                        onRunPayroll={() => setActiveTab('payroll')}
-                      />
-                      <DeductionSummary kpis={kpis} employeesCount={kpis?.totalEmployees || 1308} />
-                      <PayrollCostChart data={trends} />
-                      <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
-                      <EmployeeTable employees={employees} />
-                    </Stack>
-                  </Grid.Col>
-
-                  <Grid.Col span={{ base: 12, lg: 4 }}>
-                    <Stack gap="lg">
-                      <ToDoTasks />
-                    </Stack>
-                  </Grid.Col>
-                </Grid>
+                <Stack gap="lg">
+                  <WelcomeBanner
+                    userName={user?.name || 'Meera Krishnan'}
+                    kpis={kpis}
+                    onRunPayroll={() => setActiveTab('payroll')}
+                  />
+                  <DeductionSummary kpis={kpis} employeesCount={kpis?.totalEmployees || 1308} />
+                  <ToDoTasks />
+                  <PayrollCostChart data={trends} />
+                  <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
+                  <EmployeeTable employees={employees} />
+                </Stack>
               )}
 
               {activeTab === 'employees' && (
