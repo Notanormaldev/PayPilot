@@ -72,7 +72,7 @@ enum Role {
 
 model User {
   id              String    @id @default(cuid())
-  clerkId         String    @unique   // Clerk user ID
+  clerkId         String    @unique   // Provider/External ID
   email           String    @unique
   role            Role      @default(EMPLOYEE)
   isActive        Boolean   @default(true)
