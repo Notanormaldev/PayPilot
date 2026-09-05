@@ -31,6 +31,7 @@ import {
   IconClock,
 } from '@tabler/icons-react';
 import { fetchApi } from '../../../lib/api';
+import { UserAvatar } from '../../../components/ui';
 
 export const MyProfileView = () => {
   const [profile, setProfile] = useState(null);
@@ -40,6 +41,7 @@ export const MyProfileView = () => {
   const [errorMsg, setErrorMsg] = useState(null);
 
   // Editable state
+  const [avatarUrl, setAvatarUrl] = useState(() => localStorage.getItem('paypilot_user_avatar') || null);
   const [phone, setPhone] = useState('+91 98765 43210');
   const [personalEmail, setPersonalEmail] = useState('kartik.personal@gmail.com');
   const [address, setAddress] = useState('B-402, Cyber Heights, Sector 62, Noida, UP - 201301');
@@ -47,6 +49,12 @@ export const MyProfileView = () => {
 
   useEffect(() => {
     fetchProfile();
+
+    const handleAvatarUpdate = (e) => {
+      setAvatarUrl(e.detail);
+    };
+    window.addEventListener('paypilot_avatar_updated', handleAvatarUpdate);
+    return () => window.removeEventListener('paypilot_avatar_updated', handleAvatarUpdate);
   }, []);
 
   const fetchProfile = async () => {
@@ -55,6 +63,10 @@ export const MyProfileView = () => {
       const res = await fetchApi('/employees/me').catch(() => ({}));
       if (res?.data) {
         setProfile(res.data);
+        if (res.data.avatarUrl) {
+          setAvatarUrl(res.data.avatarUrl);
+          localStorage.setItem('paypilot_user_avatar', res.data.avatarUrl);
+        }
         if (res.data.phone) setPhone(res.data.phone);
         if (res.data.personalEmail) setPersonalEmail(res.data.personalEmail);
         if (res.data.address) setAddress(res.data.address);
@@ -91,10 +103,21 @@ export const MyProfileView = () => {
       <Paper p="xl" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
         <Group justify="space-between" align="center">
           <Group gap="md">
-            <Avatar
-              size={64}
+            <UserAvatar
+              size={68}
               radius="xl"
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120"
+              src={avatarUrl}
+              name={profile?.name || 'Kartik Kumar'}
+              id={profile?.id || 'EMP-8492'}
+              editable={true}
+              onPhotoUploaded={(url) => {
+                setAvatarUrl(url);
+                setSuccessMsg('Profile photo updated successfully!');
+              }}
+              onPhotoRemoved={() => {
+                setAvatarUrl(null);
+                setSuccessMsg('Profile photo removed. Unique silhouette avatar restored.');
+              }}
             />
             <div>
               <Group gap="xs" mb={2}>

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Paper, Stack, Group, Text, Button, Avatar, SimpleGrid, Box } from '@mantine/core';
 import { IconReceipt2, IconCoin, IconGift, IconFileText } from '@tabler/icons-react';
+import { UserAvatar } from '../../../components/ui';
 
 export const SelfServicePortal = () => {
   const [checkedIn, setCheckedIn] = useState(true);
   const [seconds, setSeconds] = useState(13424); // 03:43:44
+
+  const [avatarUrl, setAvatarUrl] = useState(() => localStorage.getItem('paypilot_user_avatar') || null);
 
   useEffect(() => {
     let interval = null;
@@ -13,7 +16,14 @@ export const SelfServicePortal = () => {
         setSeconds((prev) => prev + 1);
       }, 1000);
     }
-    return () => clearInterval(interval);
+
+    const handleAvatar = (e) => setAvatarUrl(e.detail);
+    window.addEventListener('paypilot_avatar_updated', handleAvatar);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('paypilot_avatar_updated', handleAvatar);
+    };
   }, [checkedIn]);
 
   const formatTime = (totalSec) => {
@@ -25,12 +35,11 @@ export const SelfServicePortal = () => {
 
   return (
     <Paper
-      p="lg"
+      p="md"
       radius="md"
       style={{
         backgroundColor: '#FFFBEB',
-        border: '1px solid #FEF3C7',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+        border: '1px solid #FDE68A',
       }}
     >
       <Text fw={700} size="xs" c="#92400E" mb="xs" style={{ letterSpacing: '0.5px' }}>
@@ -40,10 +49,12 @@ export const SelfServicePortal = () => {
       <Stack gap="sm">
         {/* User Greeting */}
         <Group gap="xs">
-          <Avatar
+          <UserAvatar
             size={36}
             radius="xl"
-            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120"
+            src={avatarUrl}
+            name="Kartik Kumar"
+            id="EMP-8492"
           />
           <div>
             <Text size="xs" fw={700} c="#09090B">
