@@ -81,24 +81,73 @@ export async function authenticate(req, res, next) {
   }
 }
 
+const PERSONA_CONFIGS = {
+  ADMIN: {
+    name: 'Meera Krishnan',
+    email: 'meera.krishnan@paypilot.internal',
+    department: 'Executive Management',
+    jobPosition: 'Chief People & Payroll Officer',
+  },
+  HR_MANAGER: {
+    name: 'Tanvi Kapoor',
+    email: 'tanvi.kapoor@paypilot.internal',
+    department: 'HR & People',
+    jobPosition: 'HR Manager & People Ops',
+  },
+  HR_PAYROLL_MANAGER: {
+    name: 'Neha Gupta',
+    email: 'neha.gupta@paypilot.internal',
+    department: 'HR & People',
+    jobPosition: 'Senior Payroll Specialist',
+  },
+  EMPLOYEE: {
+    name: 'Kartik Kumar',
+    email: 'kartik.kumar@paypilot.internal',
+    department: 'Product & Technology',
+    jobPosition: 'Product Manager',
+  },
+};
+
 export async function getOrCreateDevUser(role) {
+  const persona = PERSONA_CONFIGS[role] || PERSONA_CONFIGS.ADMIN;
+  const email = persona.email;
   const clerkId = `usr_${String(role).toLowerCase()}_dev`;
-  const email = `dev-${String(role).toLowerCase()}@paypilot.internal`;
 
   try {
     let user = await prisma.user.findFirst({
       where: {
-        OR: [{ clerkId }, { email }],
+        OR: [{ email }, { clerkId }],
       },
       include: { employee: true },
     });
 
     if (!user) {
+      let org = await prisma.organization.findFirst();
+      if (!org) {
+        org = await prisma.organization.create({
+          data: { name: 'PayPilot Global Inc.', timezone: 'Asia/Kolkata' },
+        });
+      }
+
+      let employee = await prisma.employee.findUnique({ where: { workEmail: email } });
+      if (!employee) {
+        employee = await prisma.employee.create({
+          data: {
+            name: persona.name,
+            workEmail: email,
+            department: persona.department,
+            jobPosition: persona.jobPosition,
+            orgId: org.id,
+          },
+        });
+      }
+
       user = await prisma.user.create({
         data: {
           clerkId,
           email,
           role,
+          employeeId: employee.id,
         },
         include: { employee: true },
       });
@@ -107,17 +156,21 @@ export async function getOrCreateDevUser(role) {
     return {
       id: user.id,
       email: user.email,
-      role: user.role,
-      employeeId: user.employeeId,
-      name: user.employee ? user.employee.name : (role === 'EMPLOYEE' ? 'Kartik Kumar' : 'Executive Officer'),
+      role: user.role || role,
+      employeeId: user.employeeId || user.employee?.id,
+      name: user.employee ? user.employee.name : persona.name,
+      department: user.employee?.department || persona.department,
+      jobPosition: user.employee?.jobPosition || persona.jobPosition,
     };
   } catch (err) {
     return {
       id: clerkId,
-      email,
+      email: persona.email,
       role,
-      employeeId: 'emp_me',
-      name: role === 'EMPLOYEE' ? 'Kartik Kumar' : 'Executive Officer',
+      employeeId: `emp_${String(role).toLowerCase()}`,
+      name: persona.name,
+      department: persona.department,
+      jobPosition: persona.jobPosition,
     };
   }
 }

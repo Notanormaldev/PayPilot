@@ -21,14 +21,14 @@ const NAMED_PERSONA_AVATARS = {
   'vikram': '/professional-man-avatar-with-beard-and-glasses-loo.jpg',
 
   // Payroll Specialists
-  'neha gupta': '/testimonial-avatar-1.jpg',
-  'neha.gupta@paypilot.internal': '/testimonial-avatar-1.jpg',
-  'neha': '/testimonial-avatar-1.jpg',
+  'neha gupta': '/professional-person-avatar-with-curly-hair-and-war.jpg',
+  'neha.gupta@paypilot.internal': '/professional-person-avatar-with-curly-hair-and-war.jpg',
+  'neha': '/professional-person-avatar-with-curly-hair-and-war.jpg',
 
   // Product & Engineering
-  'kartik kumar': '/testimonial-avatar-2.jpg',
-  'kartik.kumar@paypilot.internal': '/testimonial-avatar-2.jpg',
-  'kartik': '/testimonial-avatar-2.jpg',
+  'kartik kumar': '/testimonial-avatar-1.jpg',
+  'kartik.kumar@paypilot.internal': '/testimonial-avatar-1.jpg',
+  'kartik': '/testimonial-avatar-1.jpg',
 
   'priya sharma': '/testimonial-avatar-3.jpg',
   'priya.sharma@paypilot.internal': '/testimonial-avatar-3.jpg',

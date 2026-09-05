@@ -26,35 +26,27 @@ employeesRouter.get('/me', authenticate, async (req, res) => {
     });
 
     if (!employee) {
-      // Fallback response for new employee persona
+      // Fallback response for authenticated user persona
       employee = {
-        id: req.user.employeeId || 'emp_me',
-        name: req.user.name || 'Kartik Kumar',
+        id: req.user.employeeId || `emp_${req.user.id || 'me'}`,
+        name: req.user.name || 'Employee',
         workEmail: email,
-        department: req.user.department || 'Product',
-        jobPosition: 'Product Manager',
+        department: req.user.department || 'Executive',
+        jobPosition: req.user.jobPosition || 'Specialist',
         status: 'ACTIVE',
         phone: '+91 98765 43210',
-        personalEmail: 'kartik.personal@gmail.com',
-        address: 'B-402, Cyber Heights, Sector 62, Noida, UP - 201301',
-        emergencyContact: 'Aarti Kumar (Spouse) - +91 98123 45678',
-        manager: { name: 'Meera Krishnan' },
+        personalEmail: `${(req.user.name || 'user').toLowerCase().replace(/\s+/g, '.')}.personal@gmail.com`,
+        address: 'Plot 42, Sector 18, Electronic City, Cyber Hub, Gurugram, Haryana - 122002',
+        emergencyContact: 'Emergency Contact - +91 98123 45678',
+        manager: { name: 'Leadership Board' },
         schedule: { name: 'Standard 40h Schedule (Mon-Fri 9:00 - 18:00)' },
         contracts: [
           {
             id: 'contract_cur',
             startDate: '2024-04-01T00:00:00.000Z',
-            wage: 145000.00,
+            wage: 150000.00,
             status: 'RUNNING',
-            salaryStructure: { name: 'Corporate Product Scale v2.1' },
-          },
-          {
-            id: 'contract_prev',
-            startDate: '2023-04-01T00:00:00.000Z',
-            endDate: '2024-03-31T00:00:00.000Z',
-            wage: 120000.00,
-            status: 'EXPIRED',
-            salaryStructure: { name: 'Associate Product Scale v1.0' },
+            salaryStructure: { name: 'Executive Compensation Scale v2.1' },
           },
         ],
       };

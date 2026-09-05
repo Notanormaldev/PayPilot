@@ -1,5 +1,36 @@
 import { fetchApi } from '../../../lib/api';
 
+const PERSONA_CONFIGS = {
+  ADMIN: {
+    name: 'Meera Krishnan',
+    email: 'meera.krishnan@paypilot.internal',
+    title: 'Chief People & Payroll Officer',
+    department: 'Executive Management',
+    role: 'ADMIN',
+  },
+  HR_MANAGER: {
+    name: 'Tanvi Kapoor',
+    email: 'tanvi.kapoor@paypilot.internal',
+    title: 'HR Manager',
+    department: 'HR & People',
+    role: 'HR_MANAGER',
+  },
+  HR_PAYROLL_MANAGER: {
+    name: 'Neha Gupta',
+    email: 'neha.gupta@paypilot.internal',
+    title: 'Senior Payroll Specialist',
+    department: 'HR & People',
+    role: 'HR_PAYROLL_MANAGER',
+  },
+  EMPLOYEE: {
+    name: 'Kartik Kumar',
+    email: 'kartik.kumar@paypilot.internal',
+    title: 'Product Manager',
+    department: 'Product & Technology',
+    role: 'EMPLOYEE',
+  },
+};
+
 export const authService = {
   getCurrentRole: () => {
     return localStorage.getItem('paypilot_active_role') || 'ADMIN';
@@ -38,6 +69,9 @@ export const authService = {
         localStorage.setItem('paypilot_refresh_token', res.refreshToken);
       }
       localStorage.setItem('paypilot_active_role', res.user?.role || role || 'ADMIN');
+      if (res.user) {
+        localStorage.setItem('paypilot_user_profile', JSON.stringify(res.user));
+      }
     }
     return res;
   },
@@ -54,6 +88,9 @@ export const authService = {
         localStorage.setItem('paypilot_refresh_token', res.refreshToken);
       }
       localStorage.setItem('paypilot_active_role', res.user?.role || data.role || 'EMPLOYEE');
+      if (res.user) {
+        localStorage.setItem('paypilot_user_profile', JSON.stringify(res.user));
+      }
     }
     return res;
   },

@@ -140,6 +140,14 @@ export const SettingsView = () => {
     monthlyDigest: true,
   });
 
+  // Synchronize profile fields when logged-in user changes
+  useEffect(() => {
+    if (user?.name) setFullName(user.name);
+    if (user?.email) setWorkEmail(user.email);
+    if (user?.title) setJobTitle(user.title);
+    if (user?.department) setDepartment(user.department);
+  }, [user, currentRole]);
+
   // Load initial settings from server & local profile
   useEffect(() => {
     loadSettings();
@@ -149,7 +157,7 @@ export const SettingsView = () => {
     };
     window.addEventListener('paypilot_avatar_updated', handleAvatarUpdate);
     return () => window.removeEventListener('paypilot_avatar_updated', handleAvatarUpdate);
-  }, []);
+  }, [user?.email]);
 
   const loadSettings = async () => {
     try {
@@ -165,13 +173,16 @@ export const SettingsView = () => {
       const empRes = await fetchApi('/employees/me').catch(() => null);
       if (empRes?.data) {
         const emp = empRes.data;
-        if (emp.name) setFullName(emp.name);
-        if (emp.workEmail) setWorkEmail(emp.workEmail);
+        // Only update identity if it matches the authenticated user
+        if (emp.workEmail === user?.email || !user?.email) {
+          if (emp.name) setFullName(emp.name);
+          if (emp.workEmail) setWorkEmail(emp.workEmail);
+          if (emp.department) setDepartment(emp.department);
+          if (emp.jobPosition) setJobTitle(emp.jobPosition);
+        }
         if (emp.phone) setPhone(emp.phone);
         if (emp.personalEmail) setPersonalEmail(emp.personalEmail);
         if (emp.address) setResidentialAddress(emp.address);
-        if (emp.department) setDepartment(emp.department);
-        if (emp.jobPosition) setJobTitle(emp.jobPosition);
       }
     } catch (err) {
       console.warn('Failed to fetch settings:', err);
