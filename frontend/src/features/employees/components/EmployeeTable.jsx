@@ -6,31 +6,17 @@ import {
   Text,
   Badge,
   TextInput,
-  Tooltip,
-  Button,
 } from '@mantine/core';
-import { IconSearch, IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { IconSearch, IconCheck } from '@tabler/icons-react';
 import { UserAvatar } from '../../../components/ui';
 
 export const EmployeeTable = ({ employees = [] }) => {
   const [search, setSearch] = useState('');
-  const [filterMissingBank, setFilterMissingBank] = useState(false);
 
   const empList = Array.isArray(employees) ? employees : [];
 
-  const missingBankEmployees = empList.filter((e) => {
-    const acc = e?.bankAccount || e?.bankAccountNo;
-    return !acc || String(acc).trim() === '';
-  });
-  const missingBankCount = missingBankEmployees.length;
-
   const filtered = empList.filter((e) => {
     if (!e) return false;
-    const acc = e?.bankAccount || e?.bankAccountNo;
-    const hasBank = !!(acc && String(acc).trim() !== '');
-
-    if (filterMissingBank && hasBank) return false;
-
     const term = search.toLowerCase();
     const fullName = e.name || `${e.firstName || ''} ${e.lastName || ''}`.trim();
     return (
@@ -54,36 +40,6 @@ export const EmployeeTable = ({ employees = [] }) => {
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
       }}
     >
-      {missingBankCount > 0 && (
-        <Paper
-          p="xs"
-          mb="md"
-          radius="sm"
-          style={{
-            backgroundColor: '#FEF2F2',
-            border: '1px solid #FECACA',
-          }}
-        >
-          <Group justify="space-between" wrap="nowrap">
-            <Group gap="xs">
-              <IconAlertCircle size={16} color="#DC2626" />
-              <Text size="xs" fw={700} c="#991B1B">
-                Sentinel Compliance Warning: {missingBankCount} employee(s) have missing banking credentials on file.
-              </Text>
-            </Group>
-            <Button
-              size="xs"
-              color="red"
-              variant={filterMissingBank ? 'filled' : 'light'}
-              onClick={() => setFilterMissingBank(!filterMissingBank)}
-              styles={{ root: { height: 24, padding: '0 8px', fontSize: '11px' } }}
-            >
-              {filterMissingBank ? 'Show All Employees' : `Filter Missing Bank (${missingBankCount})`}
-            </Button>
-          </Group>
-        </Paper>
-      )}
-
       <Group justify="space-between" mb="md">
         <div>
           <Group gap="xs">
@@ -93,11 +49,6 @@ export const EmployeeTable = ({ employees = [] }) => {
             <Badge size="xs" color="blue" variant="filled">
               {empList.length} Total Registered
             </Badge>
-            {missingBankCount > 0 && (
-              <Badge size="xs" color="red" variant="filled">
-                {missingBankCount} Missing Banking Credentials
-              </Badge>
-            )}
           </Group>
           <Text size="xs" c="#71717A">
             Master records, banking verification, and active compensation status
@@ -105,17 +56,6 @@ export const EmployeeTable = ({ employees = [] }) => {
         </div>
 
         <Group gap="xs">
-          {missingBankCount > 0 && (
-            <Button
-              size="xs"
-              variant={filterMissingBank ? 'filled' : 'outline'}
-              color="red"
-              leftSection={<IconAlertCircle size={14} />}
-              onClick={() => setFilterMissingBank(!filterMissingBank)}
-            >
-              {filterMissingBank ? 'Show All' : `Missing Bank Info (${missingBankCount})`}
-            </Button>
-          )}
           <TextInput
             placeholder="Search employee, ID, department..."
             size="xs"
@@ -156,7 +96,7 @@ export const EmployeeTable = ({ employees = [] }) => {
             const hasBank = !!(acc && String(acc).trim() !== '');
 
             return (
-              <Table.Tr key={emp.id} style={{ borderBottom: '1px solid #F1F5F9', backgroundColor: !hasBank ? '#FFF5F5' : 'transparent' }}>
+              <Table.Tr key={emp.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
                 <Table.Td>
                   <Group gap="xs" wrap="nowrap">
                     <UserAvatar
@@ -215,19 +155,14 @@ export const EmployeeTable = ({ employees = [] }) => {
                           Verified
                         </Text>
                         <Text size="10px" c="#71717A">
-                          {emp.bankAccount}
+                          {acc}
                         </Text>
                       </div>
                     </Group>
                   ) : (
-                    <Tooltip label="Flagged in Sentinel Audit Section: Action Required before payroll disbursal" withArrow>
-                      <Group gap={4}>
-                        <IconAlertCircle size={14} color="#DC2626" />
-                        <Badge size="xs" color="red" variant="filled">
-                          Missing Bank Info (Sentinel Audit)
-                        </Badge>
-                      </Group>
-                    </Tooltip>
+                    <Badge size="xs" color="gray" variant="light">
+                      Not Registered
+                    </Badge>
                   )}
                 </Table.Td>
 

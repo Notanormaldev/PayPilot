@@ -179,11 +179,24 @@ loansRouter.get('/', authenticate, async (req, res) => {
     const { status, employeeId, search } = req.query;
     let filtered = [...loansStore];
 
+    // Enforce Role-Based Scoping: EMPLOYEE persona can ONLY view their own personal loans
+    if (req.user.role === 'EMPLOYEE') {
+      const userEmail = (req.user.email || '').toLowerCase();
+      const userName = (req.user.name || '').toLowerCase();
+      const userEmpId = req.user.employeeId;
+
+      filtered = filtered.filter((l) => {
+        const matchesEmail = l.employeeEmail && l.employeeEmail.toLowerCase() === userEmail;
+        const matchesName = l.employeeName && l.employeeName.toLowerCase() === userName;
+        const matchesId = l.employeeId && l.employeeId === userEmpId;
+        return matchesEmail || matchesName || matchesId;
+      });
+    } else if (employeeId) {
+      filtered = filtered.filter((l) => l.employeeId === employeeId || l.employeeEmail === req.user.email);
+    }
+
     if (status && status !== 'ALL') {
       filtered = filtered.filter((l) => l.status === status);
-    }
-    if (employeeId) {
-      filtered = filtered.filter((l) => l.employeeId === employeeId || l.employeeEmail === req.user.email);
     }
     if (search) {
       const q = String(search).toLowerCase();
@@ -196,7 +209,7 @@ loansRouter.get('/', authenticate, async (req, res) => {
       );
     }
 
-    const stats = getSummaryStats(loansStore);
+    const stats = getSummaryStats(filtered);
     res.json({ success: true, data: filtered, stats });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch loans', details: err.message });

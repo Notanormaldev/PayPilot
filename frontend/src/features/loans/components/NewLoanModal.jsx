@@ -36,7 +36,7 @@ const LOAN_TYPES = [
   { value: 'PERSONAL_LOAN', label: 'General Employee Welfare Advance' },
 ];
 
-export const NewLoanModal = ({ opened, onClose, onSubmit, currentRole }) => {
+export const NewLoanModal = ({ opened, onClose, onSubmit, currentRole, user }) => {
   const isManager = ['ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'].includes(currentRole);
 
   const [selectedEmpId, setSelectedEmpId] = useState(SAMPLE_EMPLOYEES[0].value);
@@ -48,7 +48,16 @@ export const NewLoanModal = ({ opened, onClose, onSubmit, currentRole }) => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const selectedEmp = SAMPLE_EMPLOYEES.find((e) => e.value === selectedEmpId) || SAMPLE_EMPLOYEES[0];
+  const selectedEmp = isManager
+    ? (SAMPLE_EMPLOYEES.find((e) => e.value === selectedEmpId) || SAMPLE_EMPLOYEES[0])
+    : {
+        value: user?.employeeId || 'emp-kartik',
+        name: user?.name || 'Kartik Kumar',
+        email: user?.email || 'kartik.kumar@paypilot.internal',
+        dept: user?.department || 'Product',
+        role: user?.jobPosition || 'Product Manager',
+      };
+
   const monthlyEmi = Math.round(principalAmount / Math.max(1, tenureMonths));
 
   const handleSubmit = async (e) => {
@@ -125,13 +134,13 @@ export const NewLoanModal = ({ opened, onClose, onSubmit, currentRole }) => {
           ) : (
             <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
               <Group gap="sm">
-                <UserAvatar size={36} name="Kartik Kumar" id="emp-kartik" />
+                <UserAvatar size={36} name={selectedEmp.name} id={selectedEmp.email} />
                 <div>
                   <Text size="xs" fw={700} c="#09090B">
-                    Kartik Kumar (Product Manager)
+                    {selectedEmp.name} ({selectedEmp.role})
                   </Text>
                   <Text size="11px" c="#64748B">
-                    kartik.kumar@paypilot.internal • Product
+                    {selectedEmp.email} • {selectedEmp.dept}
                   </Text>
                 </div>
               </Group>

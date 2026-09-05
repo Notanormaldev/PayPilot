@@ -42,7 +42,7 @@ import { NewLoanModal } from './NewLoanModal';
 import { LoanScheduleModal } from './LoanScheduleModal';
 
 export const LoansView = () => {
-  const { currentRole } = useAuthUser();
+  const { user, currentRole } = useAuthUser();
   const isManager = ['ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'].includes(currentRole);
 
   const { loans, stats, loading, fetchLoans, createLoan, updateLoanStatus } = useLoans();
@@ -99,14 +99,16 @@ export const LoansView = () => {
           <div>
             <Group gap="xs" mb={2}>
               <Title order={3} style={{ color: '#09090B' }}>
-                Employee Loans & Salary Advances
+                {isManager ? 'Employee Loans & Salary Advances' : 'My Loans & Salary Advances'}
               </Title>
               <Badge size="sm" color="blue" variant="light">
-                Auto-Deduction Engine
+                {isManager ? 'Auto-Deduction Engine' : 'Personal Advance Portal'}
               </Badge>
             </Group>
             <Text size="xs" c="#64748B">
-              Manage employee advance schemes, calculate monthly EMI recovery schedules, and integrate automatic payslip deductions.
+              {isManager
+                ? 'Manage employee advance schemes, calculate monthly EMI recovery schedules, and integrate automatic payslip deductions.'
+                : 'Apply for personal salary advance schemes, track approval status, and view monthly EMI deduction schedules.'}
             </Text>
           </div>
 
@@ -445,6 +447,7 @@ export const LoansView = () => {
         onClose={() => setNewLoanModalOpen(false)}
         onSubmit={handleCreateLoan}
         currentRole={currentRole}
+        user={user}
       />
 
       <LoanScheduleModal
