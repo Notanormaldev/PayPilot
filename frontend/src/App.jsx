@@ -137,7 +137,6 @@ export const App = () => {
                   <Grid.Col span={{ base: 12, lg: 4 }}>
                     <Stack gap="lg">
                       <ToDoTasks />
-                      <SelfServicePortal />
                     </Stack>
                   </Grid.Col>
                 </Grid>

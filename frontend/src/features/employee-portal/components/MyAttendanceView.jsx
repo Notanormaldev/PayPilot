@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Paper,
   Stack,
@@ -12,16 +12,17 @@ import {
   Modal,
   TextInput,
   Textarea,
-  Select,
   Alert,
+  Box,
 } from '@mantine/core';
 import {
   IconClock,
   IconCalendarTime,
   IconAlertCircle,
   IconCheck,
-  IconTrendingUp,
   IconEdit,
+  IconClockCheck,
+  IconClockOff,
 } from '@tabler/icons-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
@@ -33,16 +34,108 @@ export const MyAttendanceView = () => {
   const [reason, setReason] = useState('');
   const [submittedMessage, setSubmittedMessage] = useState(null);
 
-  // Sample 30-Day Trend Data
+  // Shift Punch State with Local Storage Persistence
+  const [checkedIn, setCheckedIn] = useState(() => {
+    const saved = localStorage.getItem('paypilot_shift_checked_in');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  const [checkInTime, setCheckInTime] = useState(() => {
+    const saved = localStorage.getItem('paypilot_shift_start');
+    return saved ? parseInt(saved, 10) : Date.now() - (2 * 3600 + 22 * 60 + 53) * 1000;
+  });
+
+  const [shiftCompleted, setShiftCompleted] = useState(() => {
+    const saved = localStorage.getItem('paypilot_shift_today_completed');
+    return saved !== null ? JSON.parse(saved) : false;
+  });
+
+  const [elapsedSec, setElapsedSec] = useState(0);
+
+  // Shift Target: 8 hours = 28,800 seconds
+  const TARGET_SECONDS = 8 * 3600;
+
+  // Attendance History List
+  const [attendanceLogs, setAttendanceLogs] = useState([
+    { date: 'Sep 04, 2026', checkIn: '09:00 AM', checkOut: '06:00 PM', workedHours: '8.0 hrs', status: 'PRESENT' },
+    { date: 'Sep 03, 2026', checkIn: '09:28 AM', checkOut: '06:00 PM', workedHours: '7.5 hrs', status: 'LATE' },
+    { date: 'Sep 02, 2026', checkIn: '09:00 AM', checkOut: '06:00 PM', workedHours: '8.0 hrs', status: 'PRESENT' },
+    { date: 'Sep 01, 2026', checkIn: '09:02 AM', checkOut: '06:10 PM', workedHours: '8.1 hrs', status: 'PRESENT' },
+    { date: 'Aug 29, 2026', checkIn: '09:00 AM', checkOut: '06:00 PM', workedHours: '8.0 hrs', status: 'PRESENT' },
+    { date: 'Aug 28, 2026', checkIn: '09:18 AM', checkOut: '06:00 PM', workedHours: '7.7 hrs', status: 'LATE' },
+  ]);
+
+  // Live timer loop
+  useEffect(() => {
+    let interval = null;
+    if (checkedIn && checkInTime) {
+      const updateClock = () => {
+        const diff = Math.max(0, Math.floor((Date.now() - checkInTime) / 1000));
+        setElapsedSec(diff);
+      };
+      updateClock();
+      interval = setInterval(updateClock, 1000);
+    } else {
+      setElapsedSec(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [checkedIn, checkInTime]);
+
+  const handleToggleCheckIn = () => {
+    const now = Date.now();
+    if (!checkedIn) {
+      // Check In
+      setCheckedIn(true);
+      setCheckInTime(now);
+      setShiftCompleted(false);
+      localStorage.setItem('paypilot_shift_checked_in', 'true');
+      localStorage.setItem('paypilot_shift_start', now.toString());
+      localStorage.setItem('paypilot_shift_today_completed', 'false');
+    } else {
+      // Check Out - complete shift and move to Recent Daily Logs
+      const workedHrsVal = (elapsedSec / 3600).toFixed(1);
+      const checkInStr = new Date(checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const checkOutStr = new Date(now).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+
+      const newLog = {
+        date: todayStr,
+        checkIn: checkInStr,
+        checkOut: checkOutStr,
+        workedHours: `${workedHrsVal} hrs`,
+        status: parseFloat(workedHrsVal) >= 7.5 ? 'PRESENT' : 'HALF_DAY',
+      };
+
+      setAttendanceLogs([newLog, ...attendanceLogs]);
+      setCheckedIn(false);
+      setShiftCompleted(true);
+      localStorage.setItem('paypilot_shift_checked_in', 'false');
+      localStorage.setItem('paypilot_shift_today_completed', 'true');
+      localStorage.removeItem('paypilot_shift_start');
+    }
+  };
+
+  const formatHours = (totalSec) => {
+    const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+    const mins = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+    const secs = String(totalSec % 60).padStart(2, '0');
+    return `${hrs} : ${mins} : ${secs}`;
+  };
+
+  const remainingSec = Math.max(0, TARGET_SECONDS - elapsedSec);
+  const remainingHrs = Math.floor(remainingSec / 3600);
+  const remainingMins = Math.floor((remainingSec % 3600) / 60);
+
+  const todayFormattedDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
   const trendData = [
-    { day: '08/06', hours: 8.5 },
-    { day: '08/07', hours: 8.0 },
-    { day: '08/08', hours: 9.0 },
-    { day: '08/11', hours: 8.2 },
-    { day: '08/12', hours: 8.5 },
-    { day: '08/13', hours: 7.8 },
-    { day: '08/14', hours: 8.4 },
-    { day: '08/15', hours: 8.0 },
     { day: '08/18', hours: 8.5 },
     { day: '08/19', hours: 8.2 },
     { day: '08/20', hours: 9.1 },
@@ -60,17 +153,6 @@ export const MyAttendanceView = () => {
     { day: '09/05', hours: 8.2 },
   ];
 
-  // Attendance History List
-  const attendanceLogs = [
-    { date: 'Sep 05, 2026', checkIn: '09:05 AM', checkOut: '06:15 PM', workedHours: '8.2 hrs', status: 'PRESENT' },
-    { date: 'Sep 04, 2026', checkIn: '09:00 AM', checkOut: '06:00 PM', workedHours: '8.0 hrs', status: 'PRESENT' },
-    { date: 'Sep 03, 2026', checkIn: '09:28 AM', checkOut: '06:00 PM', workedHours: '7.5 hrs', status: 'LATE' },
-    { date: 'Sep 02, 2026', checkIn: '09:00 AM', checkOut: '06:00 PM', workedHours: '8.0 hrs', status: 'PRESENT' },
-    { date: 'Sep 01, 2026', checkIn: '09:02 AM', checkOut: '06:10 PM', workedHours: '8.1 hrs', status: 'PRESENT' },
-    { date: 'Aug 29, 2026', checkIn: '09:00 AM', checkOut: '06:00 PM', workedHours: '8.0 hrs', status: 'PRESENT' },
-    { date: 'Aug 28, 2026', checkIn: '09:18 AM', checkOut: '06:00 PM', workedHours: '7.7 hrs', status: 'LATE' },
-  ];
-
   const handleSubmitCorrection = () => {
     setSubmittedMessage(`Attendance correction request for ${correctionDate} submitted to HR Manager for review.`);
     setCorrectionModalOpen(false);
@@ -79,15 +161,15 @@ export const MyAttendanceView = () => {
 
   return (
     <Stack gap="lg">
-      {/* Top Header & Correction Trigger */}
+      {/* Top Header */}
       <Paper p="lg" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
         <Group justify="space-between" align="center">
           <div>
             <Title order={3} c="#09090B">
-              My Attendance & Worked Hours
+              My Attendance & Work Shift Tracker
             </Title>
             <Text size="xs" c="#64748B">
-              Monthly summary logs, 30-day worked hours trends, and HR correction request dispatch.
+              Real-time shift timer, remaining shift target countdown, and daily attendance logs.
             </Text>
           </div>
 
@@ -99,6 +181,95 @@ export const MyAttendanceView = () => {
             Request Correction
           </Button>
         </Group>
+      </Paper>
+
+      {/* TODAY'S LOG & LIVE SHIFT PUNCH CARD */}
+      <Paper
+        p="lg"
+        radius="md"
+        style={{
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.04)',
+        }}
+      >
+        <Group justify="space-between" align="center" mb="sm">
+          <Group gap="xs">
+            <Text fw={800} size="sm" c="#09090B">
+              TODAY'S SHIFT LOG ({todayFormattedDate})
+            </Text>
+            <Badge
+              size="xs"
+              color={checkedIn ? 'teal' : shiftCompleted ? 'blue' : 'gray'}
+              variant="filled"
+            >
+              {checkedIn ? 'ACTIVE SHIFT IN PROGRESS' : shiftCompleted ? 'SHIFT COMPLETED' : 'NOT CHECKED IN'}
+            </Badge>
+          </Group>
+          <Text size="xs" c="#71717A">
+            Standard Daily Target: <b>08h 00m</b>
+          </Text>
+        </Group>
+
+        {/* Live Work Time Dark Card */}
+        <Box
+          p="md"
+          style={{
+            backgroundColor: '#09090B',
+            borderRadius: '12px',
+            color: '#FFFFFF',
+          }}
+        >
+          <Group justify="space-between" align="center" mb="xs">
+            <Text size="11px" fw={700} c="#94A3B8" style={{ letterSpacing: '1px' }}>
+              LIVE WORKED TIME
+            </Text>
+            <Group gap="xs">
+              <Text size="11px" c="#CBD5E1">
+                Check-In:{' '}
+                <b>
+                  {checkInTime && checkedIn
+                    ? new Date(checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    : '09:23 PM'}
+                </b>
+              </Text>
+              <Text size="11px" c="#F59E0B" fw={700}>
+                Remaining: {remainingHrs}h {remainingMins}m
+              </Text>
+            </Group>
+          </Group>
+
+          {/* Big Digital Clock */}
+          <Text
+            size="36px"
+            fw={900}
+            c="#F59E0B"
+            style={{
+              fontFamily: 'JetBrains Mono, monospace',
+              textAlign: 'center',
+              letterSpacing: '2px',
+              padding: '8px 0',
+            }}
+          >
+            {checkedIn ? formatHours(elapsedSec) : '00 : 00 : 00'}
+          </Text>
+
+          {/* Action Button */}
+          <Button
+            fullWidth
+            size="md"
+            color={checkedIn ? 'orange' : 'teal'}
+            leftSection={checkedIn ? <IconClockOff size={18} /> : <IconClockCheck size={18} />}
+            onClick={handleToggleCheckIn}
+            style={{
+              fontWeight: 800,
+              fontSize: '14px',
+              borderRadius: '8px',
+            }}
+          >
+            {checkedIn ? 'Check Out of Shift' : 'Check In to Shift'}
+          </Button>
+        </Box>
       </Paper>
 
       {submittedMessage && (

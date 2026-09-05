@@ -334,24 +334,24 @@ export const EmployeeTable = ({ employees = [], onRefresh }) => {
         }}
       >
         <Stack gap="md">
-          <Alert color="red" icon={<IconAlertTriangle size={16} />} title="Irreversible Action">
-            <Text size="xs" c="#991B1B">
-              Are you sure you want to offboard and delete <b>{targetEmployee?.name}</b> from the master employee registry?
+          <Alert color="red" icon={<IconAlertTriangle size={16} />} title="Confirm Employee Deletion">
+            <Text size="xs" c="#991B1B" fw={600}>
+              Are you sure you want to delete <b>{targetEmployee?.name}</b> from the employee registry?
             </Text>
           </Alert>
 
           <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
             <Text size="xs" fw={700} c="#09090B">
-              {targetEmployee?.name} ({targetEmployee?.employeeNumber})
+              {targetEmployee?.name} ({targetEmployee?.employeeNumber || 'STAFF'})
             </Text>
             <Text size="11px" c="#64748B">
-              {targetEmployee?.jobPosition || targetEmployee?.jobTitle} • {targetEmployee?.department}
+              {targetEmployee?.jobPosition || targetEmployee?.jobTitle || 'Officer'} • {targetEmployee?.department || 'General'}
             </Text>
           </Paper>
 
           <Group justify="flex-end" gap="xs">
             <Button size="xs" variant="default" onClick={() => setDeleteModalOpen(false)}>
-              Cancel
+              No, Cancel
             </Button>
             <Button
               size="xs"
@@ -360,7 +360,7 @@ export const EmployeeTable = ({ employees = [], onRefresh }) => {
               onClick={handleConfirmDelete}
               leftSection={<IconTrash size={14} />}
             >
-              Offboard & Delete Employee
+              Yes, Delete
             </Button>
           </Group>
         </Stack>

@@ -180,7 +180,7 @@ export const UserMenu = ({ onNavigateTab }) => {
       >
         <Stack gap="md">
           <Text size="xs" c="#64748B" style={{ lineHeight: 1.5 }}>
-            Are you sure you want to end your current session? You will be signed out from{' '}
+            Are you sure you want to sign out of PayPilot? You will end the session for{' '}
             <strong style={{ color: '#09090B' }}>{user?.name || 'Meera Krishnan'}</strong> ({user?.email || 'meera.krishnan@paypilot.internal'}).
           </Text>
 
@@ -191,7 +191,7 @@ export const UserMenu = ({ onNavigateTab }) => {
               onClick={() => setConfirmOpen(false)}
               styles={{ root: { fontWeight: 600 } }}
             >
-              Cancel
+              No, Cancel
             </Button>
             <Button
               color="red"
