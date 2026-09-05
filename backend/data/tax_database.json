@@ -557,10 +557,6 @@
   },
   "calculationLogs": [
     {
-<<<<<<< HEAD
-      "id": "LOG_1788618734614_ifjd",
-      "createdAt": "2026-09-05T14:32:14.614Z",
-=======
       "id": "LOG_1788624763477_muap",
       "createdAt": "2026-09-05T16:12:43.477Z",
       "regime": "NEW",
@@ -1904,7 +1900,6 @@
     {
       "id": "LOG_1788620223769_a0lq",
       "createdAt": "2026-09-05T14:57:03.769Z",
->>>>>>> c0eb446 (feat(payroll/dashboard): implement live ToDo tasks, strict chart cutoff, payslips breakdown, partial bank validation & employee status actions)
       "regime": "NEW",
       "grossIncome": 1275000,
       "taxableIncome": 1200000,
