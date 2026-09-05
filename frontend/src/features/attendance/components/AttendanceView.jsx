@@ -156,10 +156,10 @@ export const AttendanceView = ({
             <Table verticalSpacing="xs" highlightOnHover>
               <Table.Thead>
                 <Table.Tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                  <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>EMPLOYEE</Table.Th>
-                  <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>DATE</Table.Th>
-                  <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>HOURS</Table.Th>
-                  <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>STATUS</Table.Th>
+                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '38%', whiteSpace: 'nowrap' }}>EMPLOYEE</Table.Th>
+                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '22%', whiteSpace: 'nowrap' }}>DATE</Table.Th>
+                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '20%', whiteSpace: 'nowrap' }}>HOURS</Table.Th>
+                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '20%', whiteSpace: 'nowrap' }}>STATUS</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -171,11 +171,11 @@ export const AttendanceView = ({
                       <Table.Td>
                         <Group gap="xs" wrap="nowrap">
                           <UserAvatar size={28} radius="xl" name={empName} id={empNum} />
-                          <div>
-                            <Text size="xs" fw={600} c="#09090B">
+                          <div style={{ minWidth: 0 }}>
+                            <Text size="xs" fw={600} c="#09090B" style={{ whiteSpace: 'nowrap' }}>
                               {empName}
                             </Text>
-                            <Text size="10px" c="#71717A">
+                            <Text size="10px" c="#71717A" style={{ whiteSpace: 'nowrap' }}>
                               {empNum}
                             </Text>
                           </div>
@@ -183,13 +183,13 @@ export const AttendanceView = ({
                       </Table.Td>
 
                       <Table.Td>
-                        <Text size="xs" c="#09090B">
+                        <Text size="xs" c="#09090B" style={{ whiteSpace: 'nowrap' }}>
                           {new Date(att.date).toLocaleDateString()}
                         </Text>
                       </Table.Td>
 
                       <Table.Td>
-                        <Text size="xs" fw={700} c="#09090B" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                        <Text size="xs" fw={700} c="#09090B" style={{ fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>
                           {Number(att.workedHours || 8).toFixed(1)} hrs
                         </Text>
                       </Table.Td>
@@ -205,6 +205,7 @@ export const AttendanceView = ({
                               : 'red'
                           }
                           variant="light"
+                          styles={{ root: { height: 20, fontSize: '10px', whiteSpace: 'nowrap' } }}
                         >
                           {att.status || 'PRESENT'}
                         </Badge>
@@ -258,16 +259,16 @@ export const AttendanceView = ({
                       radius="sm"
                       style={{ backgroundColor: isPending ? '#FFFBEB' : '#F8FAFC', border: isPending ? '1px solid #FDE68A' : '1px solid #E2E8F0' }}
                     >
-                      <Group justify="space-between" align="flex-start" wrap="nowrap">
-                        <Group gap="xs" align="flex-start" wrap="nowrap">
+                      <Group justify="space-between" align="flex-start" wrap="nowrap" gap="xs">
+                        <Group gap="xs" align="flex-start" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
                           <UserAvatar size={30} radius="xl" name={empName} id={lr.employeeId || empName} />
-                          <div>
-                            <Group gap="xs" mb={2}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <Group gap="xs" mb={2} wrap="wrap">
                               <Text size="xs" fw={700} c="#09090B">
                                 {empName}
                               </Text>
                               {isPending && (
-                                <Badge size="9px" color="orange">
+                                <Badge size="xs" color="orange" variant="light" styles={{ root: { height: 18, fontSize: '10px', padding: '0 6px' } }}>
                                   Needs Approval
                                 </Badge>
                               )}
@@ -279,44 +280,46 @@ export const AttendanceView = ({
                               {lr.startDate || '2026-09-12'} to {lr.endDate || '2026-09-14'}
                             </Text>
                             {lr.reason && (
-                              <Text size="10px" c="#64748B" fs="italic" mt={2}>
+                              <Text size="10px" c="#64748B" fs="italic" mt={2} lineClamp={2}>
                                 "{lr.reason}"
                               </Text>
                             )}
                           </div>
                         </Group>
 
-                        {isPending ? (
-                          <Group gap={4}>
-                            <Button
-                              size="xs"
-                              color="dark"
-                              loading={approvingId === lr.id}
-                              onClick={() => handleApprove(lr.id)}
-                              styles={{
-                                root: { height: 26, fontSize: '11px', padding: '0 8px' },
-                              }}
-                            >
-                              Approve
-                            </Button>
-                            <Button
-                              size="xs"
-                              variant="light"
-                              color="red"
-                              loading={refusingId === lr.id}
-                              onClick={() => handleRefuse(lr.id)}
-                              styles={{
-                                root: { height: 26, fontSize: '11px', padding: '0 6px' },
-                              }}
-                            >
-                              <IconX size={12} />
-                            </Button>
-                          </Group>
-                        ) : (
-                          <Badge size="xs" color={isApproved ? 'teal' : 'red'} variant="light">
-                            {isApproved ? 'Approved' : 'Refused'}
-                          </Badge>
-                        )}
+                        <div style={{ flexShrink: 0 }}>
+                          {isPending ? (
+                            <Group gap={4} wrap="nowrap">
+                              <Button
+                                size="xs"
+                                color="dark"
+                                loading={approvingId === lr.id}
+                                onClick={() => handleApprove(lr.id)}
+                                styles={{
+                                  root: { height: 26, fontSize: '11px', padding: '0 8px' },
+                                }}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                size="xs"
+                                variant="light"
+                                color="red"
+                                loading={refusingId === lr.id}
+                                onClick={() => handleRefuse(lr.id)}
+                                styles={{
+                                  root: { height: 26, fontSize: '11px', padding: '0 6px' },
+                                }}
+                              >
+                                <IconX size={12} />
+                              </Button>
+                            </Group>
+                          ) : (
+                            <Badge size="xs" color={isApproved ? 'teal' : 'red'} variant="light" styles={{ root: { height: 20, fontSize: '10px' } }}>
+                              {isApproved ? 'Approved' : 'Refused'}
+                            </Badge>
+                          )}
+                        </div>
                       </Group>
                     </Paper>
                   );
