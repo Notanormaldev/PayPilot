@@ -21,12 +21,18 @@ function generateTokens(user) {
     userId: user.id,
     email: user.email,
     role: user.role,
+    employeeId: user.employeeId || null,
   };
 
   const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
-  const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+  const refreshToken = jwt.sign({ userId: user.id, email: user.email }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-  return { accessToken, refreshToken };
+  return {
+    accessToken,
+    refreshToken,
+    tokenType: 'Bearer',
+    expiresIn: 900, // 15 minutes
+  };
 }
 
 /**
@@ -54,17 +60,20 @@ authRouter.post('/register', async (req, res) => {
       });
     }
 
-    // Create Employee record
-    const employee = await prisma.employee.create({
-      data: {
-        name: name || email.split('@')[0].replace('.', ' '),
-        workEmail: email,
-        department,
-        jobPosition,
-        orgId: org.id,
-        status: 'ACTIVE',
-      },
-    });
+    // Find or create Employee record
+    let employee = await prisma.employee.findUnique({ where: { workEmail: email } });
+    if (!employee) {
+      employee = await prisma.employee.create({
+        data: {
+          name: name || email.split('@')[0].replace('.', ' '),
+          workEmail: email,
+          department,
+          jobPosition,
+          orgId: org.id,
+          status: 'ACTIVE',
+        },
+      });
+    }
 
     // Create User record
     const user = await prisma.user.create({
@@ -85,8 +94,10 @@ authRouter.post('/register', async (req, res) => {
         id: user.id,
         email: user.email,
         role: user.role,
+        employeeId: employee.id,
         name: employee.name,
         department: employee.department,
+        jobPosition: employee.jobPosition,
       },
       ...tokens,
     });
@@ -122,15 +133,18 @@ authRouter.post('/login', async (req, res) => {
         });
       }
 
-      const employee = await prisma.employee.create({
-        data: {
-          name: email.split('@')[0].replace('.', ' '),
-          workEmail: email,
-          department: 'Executive',
-          jobPosition: 'Officer',
-          orgId: org.id,
-        },
-      });
+      let employee = await prisma.employee.findUnique({ where: { workEmail: email } });
+      if (!employee) {
+        employee = await prisma.employee.create({
+          data: {
+            name: email.split('@')[0].replace('.', ' '),
+            workEmail: email,
+            department: 'Executive',
+            jobPosition: 'Officer',
+            orgId: org.id,
+          },
+        });
+      }
 
       user = await prisma.user.create({
         data: {
@@ -143,6 +157,15 @@ authRouter.post('/login', async (req, res) => {
       });
     }
 
+    // If user exists and specific role is requested, update role
+    if (user && role && user.role !== role) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { role },
+        include: { employee: true },
+      });
+    }
+
     const tokens = generateTokens(user);
 
     res.json({
@@ -151,11 +174,14 @@ authRouter.post('/login', async (req, res) => {
         id: user.id,
         email: user.email,
         role: user.role,
+        employeeId: user.employeeId,
         name: user.employee ? user.employee.name : user.email.split('@')[0],
         department: user.employee?.department || 'Executive',
+        jobPosition: user.employee?.jobPosition || 'Officer',
       },
       ...tokens,
     });
+
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed', details: err.message });
@@ -164,31 +190,59 @@ authRouter.post('/login', async (req, res) => {
 
 /**
  * POST /api/auth/refresh
- * Exchange valid Refresh Token (7d) for fresh Access Token (15m)
+ * Exchange valid Refresh Token (7d) for fresh Access Token (15m) + new Refresh Token
  */
 authRouter.post('/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      return res.status(400).json({ error: 'Refresh token is required' });
+      return res.status(400).json({
+        error: 'Refresh token is required',
+        code: 'REFRESH_TOKEN_MISSING',
+      });
     }
 
-    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+    } catch (err) {
+      return res.status(401).json({
+        error: 'Invalid or expired refresh token',
+        code: 'REFRESH_TOKEN_EXPIRED',
+        message: err.message,
+      });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       include: { employee: true },
     });
 
     if (!user || !user.isActive) {
-      return res.status(401).json({ error: 'User is inactive or not found' });
+      return res.status(401).json({
+        error: 'User account not found or deactivated',
+        code: 'USER_INACTIVE',
+      });
     }
 
     const tokens = generateTokens(user);
-    res.json(tokens);
+    res.json({
+      message: 'Token refreshed successfully',
+      ...tokens,
+    });
   } catch (err) {
-    res.status(401).json({ error: 'Invalid or expired refresh token' });
+    console.error('Refresh token error:', err);
+    res.status(500).json({ error: 'Token refresh failed', details: err.message });
   }
+});
+
+/**
+ * POST /api/auth/logout
+ * Terminate current session
+ */
+authRouter.post('/logout', (req, res) => {
+  res.json({ message: 'Logged out successfully' });
 });
 
 /**
@@ -231,15 +285,18 @@ authRouter.post('/google', async (req, res) => {
         });
       }
 
-      const employee = await prisma.employee.create({
-        data: {
-          name,
-          workEmail: email,
-          department: 'Executive',
-          jobPosition: 'Director',
-          orgId: org.id,
-        },
-      });
+      let employee = await prisma.employee.findUnique({ where: { workEmail: email } });
+      if (!employee) {
+        employee = await prisma.employee.create({
+          data: {
+            name,
+            workEmail: email,
+            department: 'Executive',
+            jobPosition: 'Director',
+            orgId: org.id,
+          },
+        });
+      }
 
       user = await prisma.user.create({
         data: {
@@ -260,7 +317,9 @@ authRouter.post('/google', async (req, res) => {
         id: user.id,
         email: user.email,
         role: user.role,
+        employeeId: user.employeeId,
         name: user.employee ? user.employee.name : name,
+        department: user.employee?.department || 'Executive',
       },
       ...tokens,
     });
@@ -269,6 +328,7 @@ authRouter.post('/google', async (req, res) => {
     res.status(500).json({ error: 'Google OAuth failed', details: err.message });
   }
 });
+
 
 /**
  * GET /api/auth/me
@@ -279,3 +339,4 @@ authRouter.get('/me', authenticate, async (req, res) => {
 });
 
 export default authRouter;
+
