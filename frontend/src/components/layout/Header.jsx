@@ -1,12 +1,14 @@
-import React from 'react';
-import { Group, ActionIcon, Box, Indicator, Menu, Text, Badge, Stack, Button, UnstyledButton } from '@mantine/core';
+import React, { useState } from 'react';
+import { Group, ActionIcon, Box, Indicator, Menu, Text, Badge, Stack, Button, UnstyledButton, Tooltip } from '@mantine/core';
 import { IconBell, IconChecks, IconCalendarEvent, IconReceipt2, IconSpeakerphone, IconEdit } from '@tabler/icons-react';
 import { BrandLogo } from '../BrandLogo';
 import { UserMenu } from '../../features/auth/components/UserMenu';
 import { useNotifications } from '../../features/employee-portal/hooks/useNotifications';
+import { HolidayCalendarModal } from '../../features/employee-portal/components/HolidayCalendarModal';
 
 export const Header = ({ onOpenCopilot, onViewLanding, onNavigateTab }) => {
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
+  const [holidayModalOpen, setHolidayModalOpen] = useState(false);
 
   const getIcon = (type) => {
     switch (type) {
@@ -22,31 +24,46 @@ export const Header = ({ onOpenCopilot, onViewLanding, onNavigateTab }) => {
   };
 
   return (
-    <header
-      style={{
-        height: '60px',
-        backgroundColor: '#FFFFFF',
-        borderBottom: '1px solid #E2E8F0',
-        padding: '0 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-      }}
-    >
-      {/* Left: Brand Logo */}
-      <Group gap="lg">
-        <div onClick={onViewLanding} title="PayPilot" style={{ cursor: onViewLanding ? 'pointer' : 'default' }}>
-          <BrandLogo size={32} />
-        </div>
-      </Group>
+    <>
+      <header
+        style={{
+          height: '60px',
+          backgroundColor: '#FFFFFF',
+          borderBottom: '1px solid #E2E8F0',
+          padding: '0 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+        }}
+      >
+        {/* Left: Brand Logo */}
+        <Group gap="lg">
+          <div onClick={onViewLanding} title="PayPilot" style={{ cursor: onViewLanding ? 'pointer' : 'default' }}>
+            <BrandLogo size={32} />
+          </div>
+        </Group>
 
-      {/* Right: Notifications & User Menu */}
-      <Group gap="sm">
-        {/* Notifications Bell Dropdown */}
-        <Menu shadow="md" width={340} position="bottom-end" withArrow>
+        {/* Right: Holiday Calendar, Notifications & User Menu */}
+        <Group gap="sm">
+          {/* Indian Holiday Calendar Action Button */}
+          <Tooltip label="2026 Indian Holiday & Festival Calendar" position="bottom" withArrow>
+            <ActionIcon
+              variant="light"
+              size="md"
+              color="indigo"
+              radius="md"
+              onClick={() => setHolidayModalOpen(true)}
+              style={{ border: '1px solid #E0E7FF' }}
+            >
+              <IconCalendarEvent size={18} color="#4F46E5" />
+            </ActionIcon>
+          </Tooltip>
+
+          {/* Notifications Bell Dropdown */}
+          <Menu shadow="md" width={340} position="bottom-end" withArrow>
           <Menu.Target>
             <UnstyledButton style={{ display: 'inline-flex', position: 'relative' }}>
               <Indicator
@@ -148,5 +165,16 @@ export const Header = ({ onOpenCopilot, onViewLanding, onNavigateTab }) => {
         <UserMenu onNavigateTab={onNavigateTab} />
       </Group>
     </header>
+
+    <HolidayCalendarModal
+      opened={holidayModalOpen}
+      onClose={() => setHolidayModalOpen(false)}
+      onApplyRhLeave={(rhData) => {
+        if (onNavigateTab) {
+          onNavigateTab('my-time-off');
+        }
+      }}
+    />
+  </>
   );
 };

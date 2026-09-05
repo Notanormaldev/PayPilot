@@ -21,11 +21,14 @@ import {
   IconPlus,
   IconCheck,
   IconTrash,
+  IconCalendarEvent,
 } from '@tabler/icons-react';
 import { fetchApi } from '../../../lib/api';
+import { HolidayCalendarModal } from './HolidayCalendarModal';
 
 export const MyTimeOffView = () => {
   const [requestModalOpen, setRequestModalOpen] = useState(false);
+  const [holidayModalOpen, setHolidayModalOpen] = useState(false);
   const [leaveType, setLeaveType] = useState('Casual Leave');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -159,13 +162,23 @@ export const MyTimeOffView = () => {
             </Text>
           </div>
 
-          <Button
-            color="dark"
-            leftSection={<IconPlus size={16} />}
-            onClick={() => setRequestModalOpen(true)}
-          >
-            New Leave Request
-          </Button>
+          <Group gap="xs">
+            <Button
+              variant="light"
+              color="indigo"
+              leftSection={<IconCalendarEvent size={16} />}
+              onClick={() => setHolidayModalOpen(true)}
+            >
+              2026 Indian Holiday Calendar
+            </Button>
+            <Button
+              color="dark"
+              leftSection={<IconPlus size={16} />}
+              onClick={() => setRequestModalOpen(true)}
+            >
+              New Leave Request
+            </Button>
+          </Group>
         </Group>
       </Paper>
 
@@ -180,82 +193,85 @@ export const MyTimeOffView = () => {
         {balances.map((b, i) => (
           <Paper key={i} p="md" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
             <Group justify="space-between" mb="xs">
-              <Text size="xs" fw={700} c="#09090B">
+              <Text size="xs" fw={700} c="#64748B" style={{ textTransform: 'uppercase' }}>
                 {b.type}
               </Text>
-              <Badge size="xs" color={b.color} variant="light">
+              <Badge color={b.color} variant="light" size="sm">
                 {b.remaining} Days Left
               </Badge>
             </Group>
-
-            <Group gap="xs" align="baseline" mb="xs">
-              <Text size="22px" fw={800} c="#09090B">
+            <Group align="baseline" gap="xs" mb="xs">
+              <Text size="1.8rem" fw={700} c="#09090B">
                 {b.remaining}
               </Text>
-              <Text size="xs" c="#71717A">
-                / {b.allocated} allocated
+              <Text size="xs" c="#64748B">
+                / {b.allocated} Total Allocated
               </Text>
             </Group>
-
-            <Progress
-              value={(b.remaining / b.allocated) * 100}
-              color={b.color}
-              size="sm"
-              radius="xl"
-            />
-            <Group justify="space-between" mt={6}>
-              <Text size="10px" c="#64748B">Taken: {b.taken} days</Text>
-              <Text size="10px" c="#64748B">Allocated: {b.allocated} days</Text>
-            </Group>
+            <Progress value={(b.taken / b.allocated) * 100} color={b.color} size="sm" radius="xl" />
+            <Text size="10px" c="#94A3B8" mt="xs">
+              {b.taken} days consumed this year
+            </Text>
           </Paper>
         ))}
       </SimpleGrid>
 
       {/* Request History Table */}
       <Paper p="lg" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-        <Title order={4} size="sm" c="#09090B" mb="md">
+        <Title order={4} c="#09090B" mb="md">
           Leave Request History
         </Title>
-
-        <Table highlightOnHover border={0}>
+        <Table verticalSpacing="sm" horizontalSpacing="md">
           <Table.Thead>
             <Table.Tr style={{ backgroundColor: '#F8FAFC' }}>
-              <Table.Th style={{ color: '#64748B', fontSize: '11px' }}>Leave Type</Table.Th>
-              <Table.Th style={{ color: '#64748B', fontSize: '11px' }}>Dates</Table.Th>
-              <Table.Th style={{ color: '#64748B', fontSize: '11px' }}>Duration</Table.Th>
-              <Table.Th style={{ color: '#64748B', fontSize: '11px' }}>Reason</Table.Th>
-              <Table.Th style={{ color: '#64748B', fontSize: '11px' }}>Status</Table.Th>
-              <Table.Th style={{ color: '#64748B', fontSize: '11px', textAlign: 'right' }}>Actions</Table.Th>
+              <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Leave Type</Table.Th>
+              <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Requested Dates</Table.Th>
+              <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Duration</Table.Th>
+              <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Reason</Table.Th>
+              <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Approval Status</Table.Th>
+              <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B', textAlign: 'right' }}>Actions</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {requests.map((req) => (
               <Table.Tr key={req.id}>
-                <Table.Td style={{ fontWeight: 600, fontSize: '13px', color: '#09090B' }}>{req.type}</Table.Td>
-                <Table.Td style={{ fontSize: '12px', color: '#334155' }}>{req.dates}</Table.Td>
-                <Table.Td style={{ fontWeight: 600, fontSize: '12px', color: '#09090B' }}>{req.duration}</Table.Td>
-                <Table.Td style={{ fontSize: '12px', color: '#64748B' }}>{req.reason}</Table.Td>
+                <Table.Td>
+                  <Text size="xs" fw={600} c="#09090B">
+                    {req.type}
+                  </Text>
+                </Table.Td>
+                <Table.Td>
+                  <Text size="xs" c="#64748B">
+                    {req.dates}
+                  </Text>
+                </Table.Td>
+                <Table.Td>
+                  <Badge size="xs" variant="outline" color="gray">
+                    {req.duration}
+                  </Badge>
+                </Table.Td>
+                <Table.Td>
+                  <Text size="xs" c="#64748B">
+                    {req.reason}
+                  </Text>
+                </Table.Td>
                 <Table.Td>
                   <Badge
                     size="xs"
                     color={
-                      req.status === 'Approved'
-                        ? 'teal'
-                        : req.status === 'Pending'
-                        ? 'orange'
-                        : 'red'
+                      req.status === 'Approved' ? 'teal' : req.status === 'Pending' ? 'yellow' : 'red'
                     }
-                    variant="light"
+                    variant="filled"
                   >
                     {req.status}
                   </Badge>
                 </Table.Td>
                 <Table.Td style={{ textAlign: 'right' }}>
                   {req.status === 'Pending' ? (
-                    <Tooltip label="Cancel this pending request" withArrow>
+                    <Tooltip label="Cancel this pending request">
                       <Button
                         size="compact-xs"
-                        variant="light"
+                        variant="subtle"
                         color="red"
                         leftSection={<IconTrash size={12} />}
                         onClick={() => handleCancelRequest(req.id)}
@@ -284,7 +300,13 @@ export const MyTimeOffView = () => {
         <Stack gap="sm">
           <Select
             label="Leave Type"
-            data={['Casual Leave', 'Sick Leave', 'Earned / Paid Leave', 'Unpaid Absence']}
+            data={[
+              'Casual Leave',
+              'Sick Leave',
+              'Earned / Paid Leave',
+              'Restricted / Optional Holiday (RH)',
+              'Unpaid Absence',
+            ]}
             value={leaveType}
             onChange={setLeaveType}
           />
@@ -330,6 +352,19 @@ export const MyTimeOffView = () => {
           </Group>
         </Stack>
       </Modal>
+
+      {/* 2026 Indian Holiday & Festival Calendar Modal */}
+      <HolidayCalendarModal
+        opened={holidayModalOpen}
+        onClose={() => setHolidayModalOpen(false)}
+        onApplyRhLeave={(rhData) => {
+          setLeaveType('Restricted / Optional Holiday (RH)');
+          setStartDate(rhData.date);
+          setEndDate(rhData.date);
+          setReason(`Restricted Holiday (RH): ${rhData.name}`);
+          setRequestModalOpen(true);
+        }}
+      />
     </Stack>
   );
 };

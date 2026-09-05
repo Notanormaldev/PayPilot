@@ -51,6 +51,9 @@ import {
 import { useAuthUser } from '../../auth/hooks/useAuthUser';
 import { attendanceService } from '../../attendance/services/attendanceService';
 import { generatePayslipPdf } from '../../../lib/payslipPdfGenerator';
+import { HolidayCalendarModal } from './HolidayCalendarModal';
+import { getUpcomingIndianHolidays, getHolidayCountdown } from '../data/indianHolidays2026';
+import { IconCalendarEvent } from '@tabler/icons-react';
 
 export const EmployeeDashboardView = ({ onNavigate }) => {
   const { user } = useAuthUser();
@@ -58,6 +61,9 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
   const userRole = user?.designation || 'Staff Product Manager';
   const userDept = user?.department || 'Product';
   const userEmpId = user?.id || 'EMP-8492';
+
+  // Holiday Calendar Modal State
+  const [holidayModalOpen, setHolidayModalOpen] = useState(false);
 
   // Live Shift Attendance State (Synchronized with localStorage)
   const [checkedIn, setCheckedIn] = useState(() => {
@@ -212,6 +218,25 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
             <Text size="xs" c="#94A3B8" mt={4}>
               {userRole} • {userDept} Department • Standard 40h Work Week (Mon–Fri)
             </Text>
+            <Group gap="xs" mt="sm">
+              <Button
+                size="xs"
+                variant="light"
+                color="indigo"
+                leftSection={<IconCalendarEvent size={14} />}
+                onClick={() => setHolidayModalOpen(true)}
+                styles={{
+                  root: {
+                    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                    color: '#C7D2FE',
+                    border: '1px solid rgba(99, 102, 241, 0.4)',
+                    '&:hover': { backgroundColor: 'rgba(99, 102, 241, 0.35)' },
+                  },
+                }}
+              >
+                2026 Indian Holiday Calendar
+              </Button>
+            </Group>
           </div>
 
           {/* Web Punch Live Shift Box */}
@@ -683,30 +708,52 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
                   </Text>
                 </div>
               </Group>
+              <Button
+                size="compact-xs"
+                variant="light"
+                color="indigo"
+                leftSection={<IconCalendarEvent size={12} />}
+                onClick={() => setHolidayModalOpen(true)}
+              >
+                Calendar
+              </Button>
             </Group>
 
             <Stack gap="xs">
-              {/* Upcoming Holiday */}
-              <Paper p="xs" radius="sm" style={{ backgroundColor: '#FAF5FF', border: '1px solid #E9D5FF' }}>
-                <Group justify="space-between" align="center">
-                  <Group gap="xs">
-                    <ThemeIcon size="sm" color="grape" radius="xl">
-                      <IconCalendar size={14} />
-                    </ThemeIcon>
-                    <div>
-                      <Text size="xs" fw={700} c="#6B21A8">
-                        Oct 02: Mahatma Gandhi Jayanti
-                      </Text>
-                      <Text size="10px" c="#7E22CE">
-                        Friday • Official Public Holiday (3-Day Weekend)
-                      </Text>
-                    </div>
+              {/* Dynamic Upcoming Indian Holidays */}
+              {getUpcomingIndianHolidays('2026-09-06', 2).map((hol) => (
+                <Paper
+                  key={hol.id}
+                  p="xs"
+                  radius="sm"
+                  style={{
+                    backgroundColor: hol.type === 'GAZETTED' ? '#FAF5FF' : '#FFF7ED',
+                    border: hol.type === 'GAZETTED' ? '1px solid #E9D5FF' : '1px solid #FED7AA',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setHolidayModalOpen(true)}
+                >
+                  <Group justify="space-between" align="center">
+                    <Group gap="xs">
+                      <ThemeIcon size="sm" color={hol.type === 'GAZETTED' ? 'grape' : 'orange'} radius="xl">
+                        <IconCalendar size={14} />
+                      </ThemeIcon>
+                      <div>
+                        <Text size="xs" fw={700} c={hol.type === 'GAZETTED' ? '#6B21A8' : '#C2410C'}>
+                          {hol.date.split('-')[1]}/{hol.date.split('-')[2]}: {hol.name}
+                        </Text>
+                        <Text size="10px" c={hol.type === 'GAZETTED' ? '#7E22CE' : '#9A3412'}>
+                          {hol.day} • {hol.type === 'GAZETTED' ? 'Gazetted Public Holiday' : 'Restricted Holiday (RH)'}
+                          {hol.isLongWeekend && ' (🌴 3-Day Weekend)'}
+                        </Text>
+                      </div>
+                    </Group>
+                    <Badge size="xs" color={hol.type === 'GAZETTED' ? 'grape' : 'orange'}>
+                      {getHolidayCountdown(hol.date)}
+                    </Badge>
                   </Group>
-                  <Badge size="xs" color="grape">
-                    In 26 Days
-                  </Badge>
-                </Group>
-              </Paper>
+                </Paper>
+              ))}
 
               {/* Peer Birthday */}
               <Paper p="xs" radius="sm" style={{ backgroundColor: '#FFF1F2', border: '1px solid #FECDD3' }}>
@@ -746,6 +793,19 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
                   </div>
                 </Group>
               </Paper>
+
+              {/* Full Holiday Calendar Trigger Button */}
+              <Button
+                fullWidth
+                size="xs"
+                variant="light"
+                color="indigo"
+                mt={4}
+                leftSection={<IconCalendarEvent size={14} />}
+                onClick={() => setHolidayModalOpen(true)}
+              >
+                View Full 2026 Indian Holiday Calendar
+              </Button>
             </Stack>
           </Paper>
         </div>
@@ -781,7 +841,12 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
               size="xs"
               value={leaveType}
               onChange={setLeaveType}
-              data={['Casual Leave (9 Days Left)', 'Sick Leave (9 Days Left)', 'Earned / Paid Leave (10 Days Left)']}
+              data={[
+                'Casual Leave (9 Days Left)',
+                'Sick Leave (9 Days Left)',
+                'Earned / Paid Leave (10 Days Left)',
+                'Restricted / Optional Holiday (RH) (2 Days Left)',
+              ]}
               required
             />
 
@@ -886,6 +951,19 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
           </Stack>
         </form>
       </Modal>
+
+      {/* 2026 Indian Holiday & Festival Calendar Modal */}
+      <HolidayCalendarModal
+        opened={holidayModalOpen}
+        onClose={() => setHolidayModalOpen(false)}
+        onApplyRhLeave={(rhData) => {
+          setLeaveType('Restricted / Optional Holiday (RH) (2 Days Left)');
+          setLeaveStartDate(rhData.date);
+          setLeaveEndDate(rhData.date);
+          setLeaveReason(`Restricted Holiday (RH): ${rhData.name}`);
+          setLeaveModalOpen(true);
+        }}
+      />
     </Stack>
   );
 };
