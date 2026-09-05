@@ -1,6 +1,6 @@
-# HRMS OXP — System Architecture
+# PayPilot — System Architecture
 
-> **Stack:** React 18 + Vite · Node 22 + Express 4 · PostgreSQL 16 · Redis 7 · Clerk (Auth)
+> **Stack:** React 18 + Vite (JavaScript) · Node 22 + Express 4 (ESM) · PostgreSQL 16 · Redis 7 · Pure JWT (Access + Refresh Tokens)
 
 ---
 
@@ -10,27 +10,27 @@
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                            CLIENT (Browser)                                   │
 │                                                                                │
-│   React 18 + Vite  ·  TanStack Query  ·  Mantine UI  ·  Recharts             │
-│   Clerk Frontend SDK  ·  React Hook Form + Zod  ·  TanStack Router            │
+│   React 18 + Vite  ·  Redux Toolkit  ·  Mantine UI v7  ·  Recharts           │
+│   Pure JWT Auth Client  ·  Fetch API Interceptor  ·  Pure JavaScript (JSX)   │
 └──────────────────────────────┬─────────────────────────────────────────────┘
-                               │  HTTPS / REST + JSON
+                               │  HTTPS / REST + JSON (Bearer JWT)
                                ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                          API GATEWAY / NGINX                                   │
-│          Rate limiting · SSL termination · Static asset serving               │
+│                          API GATEWAY / EXPRESS ROUTER                         │
+│          Rate limiting · CORS · Static asset serving · Pino Logger             │
 └──────────────────────────────┬─────────────────────────────────────────────┘
                                │
                                ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                       NODE 22 + EXPRESS 4 API SERVER                          │
+│                       NODE 22 + EXPRESS 4 API SERVER (ESM)                    │
 │                                                                                │
 │   ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌──────────┐  ┌─────────────┐ │
 │   │  Auth    │  │ Business │  │  Payroll  │  │ Sentinel │  │  Dashboard  │ │
 │   │  Layer   │  │  Layer   │  │  Engine   │  │  Engine  │  │  Copilot    │ │
-│   │ (Clerk)  │  │ Services │  │(Rule Eval)│  │(Anomaly) │  │  (AI Layer) │ │
+│   │(JWT+Ref) │  │ Services │  │(FormulaAST│  │(5 Checks)│  │ (Gemini 2.5)│ │
 │   └──────────┘  └──────────┘  └───────────┘  └──────────┘  └─────────────┘ │
 │                                                                                │
-│   Middleware: requireRole · errorHandler · requestLogger · rateLimiter        │
+│   Middleware: authenticate (JWT) · requireRole · errorHandler · logger        │
 └───────────┬──────────────────────────────┬──────────────────────────────────┘
             │                              │
             ▼                              ▼
@@ -40,7 +40,7 @@
 │  Primary store for │         │  · Session cache       │
 │  all entities.     │         │  · Dashboard KPI cache │
 │  Prisma ORM with   │         │  · Rate-limit counters │
-│  typed migrations. │         │  · Sentinel flag cache │
+│  live relations.   │         │  · Sentinel flag cache │
 └────────────────────┘         └──────────────────────┘
 ```
 
@@ -50,14 +50,14 @@
 
 | Layer | Choice | Why |
 |---|---|---|
-| **Frontend Framework** | React 18 + Vite | Fast HMR, ecosystem breadth |
-| **UI Library** | Mantine v7 | Kanban-capable, rich data table, form support — all built-in |
-| **Server State** | TanStack Query v5 | Automatic cache invalidation; resolve-flag→recompute feels instant |
-| **Routing** | TanStack Router | File-based, type-safe, nested layouts per role |
-| **Forms** | React Hook Form + Zod | Minimal re-renders; Zod schema shared with backend |
-| **Charts** | Recharts | Simple API; recharts/area + recharts/bar covers all dashboard needs |
-| **Backend Runtime** | Node 22 LTS | Native ESM, `--watch` in dev, excellent Prisma support |
-| **Backend Framework** | Express 4 | Minimal overhead; predictable middleware chain |
+| **Frontend Framework** | React 18 + Vite | Fast HMR, pure JSX workflow |
+| **UI Library** | Mantine v7 | Enterprise design system, cards, modals, notifications |
+| **State Management** | Redux Toolkit | Predictable 4-tier feature architecture, global store |
+| **Auth Client** | Pure JWT Access + Refresh Tokens | Zero vendor lock-in, seamless token rotation, self-hosted |
+| **Charts** | Recharts | Smooth stacked area, bar, and cost distribution charts |
+| **Backend Runtime** | Node 22 LTS | Native ES Modules (`type: module`), async/await |
+| **Backend Framework** | Express 4 | Modular routers, predictable middleware chain |
+
 | **ORM** | Prisma 5 | Schema-first, typed queries, seamless migration |
 | **Primary DB** | PostgreSQL 16 | ACID semantics; `EXCLUDE USING gist` for contract-period exclusivity |
 | **Cache** | Redis 7 | Dashboard KPI cache (TTL 30s), rate-limit counters |
