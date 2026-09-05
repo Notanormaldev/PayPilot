@@ -149,10 +149,10 @@ export const PayrunView = ({ payruns, onRefresh }) => {
                         pr.status === 'PAID'
                           ? 'teal'
                           : pr.status === 'PARTIALLY_VALIDATED'
-                          ? 'orange'
-                          : pr.status === 'COMPUTED'
-                          ? 'blue'
-                          : 'gray'
+                            ? 'orange'
+                            : pr.status === 'COMPUTED'
+                              ? 'blue'
+                              : 'gray'
                       }
                       variant="light"
                     >

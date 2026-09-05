@@ -28,7 +28,6 @@ import {
   IconCalendarTime,
   IconAlertTriangle,
   IconUsers,
-  IconFilter,
   IconX,
 } from '@tabler/icons-react';
 import { UserAvatar } from '../../../components/ui';
@@ -614,4 +613,3 @@ export const EmployeeTable = ({ employees = [], onRefresh }) => {
 };
 
 export default EmployeeTable;
-

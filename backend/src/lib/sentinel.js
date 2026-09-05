@@ -1,5 +1,6 @@
 import { prisma } from './prisma.js';
 import { generateAuditFlagNarration } from './ai.js';
+import { isManagementOrHrUser } from '../routes/sentinel.js';
 
 /**
  * Autonomous Sentinel Compliance Engine
@@ -18,6 +19,7 @@ export async function runSentinelAudit(payrunId) {
         include: {
           employee: {
             include: {
+              user: true,
               contracts: true,
               timeOffRequests: true,
             },
@@ -34,6 +36,11 @@ export async function runSentinelAudit(payrunId) {
 
   for (const payslip of payrun.payslips) {
     const employee = payslip.employee;
+
+    // Skip HR Managers, Admins, and non-employee staff from payroll compliance flags
+    if (isManagementOrHrUser(employee)) {
+      continue;
+    }
 
     // Check 1: Missing Bank Details
     if (!employee.bankAccount && !employee.bankName) {
