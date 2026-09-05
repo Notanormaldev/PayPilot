@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Stack,
   Group,
@@ -41,6 +41,19 @@ export const EmployeesView = ({ employees = [], onRefresh }) => {
 
   const empList = Array.isArray(employees) ? employees : [];
 
+  const counts = useMemo(() => {
+    let active = 0;
+    let onLeave = 0;
+    let inactive = 0;
+    empList.forEach((e) => {
+      const s = e?.status || 'ACTIVE';
+      if (s === 'ACTIVE') active++;
+      else if (s === 'ON_LEAVE') onLeave++;
+      else inactive++;
+    });
+    return { total: empList.length, active, onLeave, inactive };
+  }, [empList]);
+
   const handleCreateEmployee = async (e) => {
     e?.preventDefault();
     if (!formData.name.trim() || !formData.workEmail.trim()) {
@@ -77,16 +90,25 @@ export const EmployeesView = ({ employees = [], onRefresh }) => {
       {/* Top Header & View Switcher */}
       <Group justify="space-between" align="center" wrap="wrap" gap="md">
         <div>
-          <Group gap="xs" align="center">
+          <Group gap="xs" align="center" wrap="wrap">
             <IconUsers size={22} color="#0284C7" />
             <Text fw={800} size="lg" c="#09090B">
               Employee Directory & Personnel Operations
             </Text>
             <Badge size="md" color="blue" variant="filled">
-              {empList.length} Staff Members
+              {counts.total} Total
+            </Badge>
+            <Badge size="sm" color="teal" variant="light">
+              {counts.active} Active
+            </Badge>
+            <Badge size="sm" color="yellow" variant="light">
+              {counts.onLeave} On Leave
+            </Badge>
+            <Badge size="sm" color="gray" variant="light">
+              {counts.inactive} Inactive
             </Badge>
           </Group>
-          <Text size="xs" c="#64748B">
+          <Text size="xs" c="#64748B" mt={2}>
             Manage organization staff, track live statuses, active contracts, and direct deposit verifications
           </Text>
         </div>

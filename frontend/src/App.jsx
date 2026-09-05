@@ -132,7 +132,7 @@ export const App = () => {
                     kpis={kpis}
                     onRunPayroll={() => setActiveTab('payroll')}
                   />
-                  <DeductionSummary kpis={kpis} employeesCount={kpis?.totalEmployees || 1308} />
+                  <DeductionSummary kpis={kpis} employeesCount={kpis?.totalEmployees || 301} />
                   <ToDoTasks />
                   <PayrollCostChart data={trends} />
                   <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />

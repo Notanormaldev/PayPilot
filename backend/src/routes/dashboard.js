@@ -30,8 +30,18 @@ dashboardRouter.get('/kpis', authenticate, async (req, res) => {
     });
     const openFlags = dbOpenFlags.filter((f) => !isManagementOrHrUser(f.payslip?.employee)).length;
 
-    const [totalEmployees, activeContracts, latestPayruns] = await Promise.all([
+    const [
+      totalEmployees,
+      activeEmployees,
+      onLeaveEmployees,
+      inactiveEmployees,
+      activeContracts,
+      latestPayruns,
+    ] = await Promise.all([
+      prisma.employee.count(),
       prisma.employee.count({ where: { status: 'ACTIVE' } }),
+      prisma.employee.count({ where: { status: 'ON_LEAVE' } }),
+      prisma.employee.count({ where: { status: 'INACTIVE' } }),
       prisma.contract.count({ where: { status: 'RUNNING' } }),
       prisma.payrun.findMany({
         take: 2,
@@ -57,8 +67,11 @@ dashboardRouter.get('/kpis', authenticate, async (req, res) => {
     if (monthlyPayrollCost === 0) monthlyPayrollCost = 2450000;
 
     const kpis = {
-      totalEmployees: totalEmployees || 40,
-      activeContracts: activeContracts || 38,
+      totalEmployees: totalEmployees || 0,
+      activeEmployees: activeEmployees || 0,
+      onLeaveEmployees: onLeaveEmployees || 0,
+      inactiveEmployees: inactiveEmployees || 0,
+      activeContracts: activeContracts || 0,
       monthlyPayrollCost,
       payrollCostChangePct: 3.8,
       openSentinelFlags: openFlags,

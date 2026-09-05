@@ -2,7 +2,7 @@ import React from 'react';
 import { Paper, Grid, Text, Group, Box, Anchor } from '@mantine/core';
 import { IconBuildingBank, IconShieldCheck, IconPercentage } from '@tabler/icons-react';
 
-export const DeductionSummary = ({ kpis, employeesCount = 1308 }) => {
+export const DeductionSummary = ({ kpis, employeesCount = 301 }) => {
   return (
     <Grid>
       {/* EPF */}
