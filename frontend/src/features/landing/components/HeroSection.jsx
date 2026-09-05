@@ -50,24 +50,21 @@ export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
   };
 
   return (
-    <div className="pt-16 sm:pt-20 md:pt-22 lg:pt-24 pb-4 sm:pb-6 flex flex-col justify-center items-center px-2 sm:px-4 md:px-8 lg:px-0 w-full relative">
+    <div className="pt-32 sm:pt-36 md:pt-40 pb-4 sm:pb-6 flex flex-col justify-center items-center px-2 sm:px-4 md:px-8 lg:px-0 w-full relative">
       {/* Title & Copy */}
-      <div className="w-full max-w-[937px] lg:w-[937px] flex flex-col justify-center items-center gap-3 sm:gap-4 text-center">
-        <div className="self-stretch flex flex-col justify-center items-center gap-3 sm:gap-4">
-          <h1 className="w-full max-w-[900px] text-center text-[#37322F] text-[32px] xs:text-[36px] sm:text-[42px] md:text-[48px] lg:text-[54px] font-normal leading-[1.18] font-serif px-2 sm:px-4">
-            Effortless autonomous payroll <br className="hidden sm:inline" />
-            by <span className="italic">PayPilot</span>
-          </h1>
-
-          <p className="w-full max-w-[560px] text-center text-[rgba(55,50,47,0.78)] text-sm sm:text-base md:text-base leading-relaxed font-sans px-4 font-normal">
-            Streamline your workforce operations with deterministic rule calculation,
-            Sentinel statutory anomaly detection, and live recomputing payslips.
-          </p>
-        </div>
+      <div className="w-full max-w-[860px] flex flex-col justify-center items-center gap-4 text-center">
+        <h1 className="w-full text-center text-[#37322F] text-[36px] sm:text-[44px] md:text-[52px] lg:text-[58px] font-normal leading-[1.15] font-serif px-2 sm:px-4">
+          Effortless autonomous payroll{' '}
+          by <span className="italic">PayPilot</span>
+        </h1>
+        <p className="w-full max-w-[520px] text-center text-[rgba(55,50,47,0.72)] text-sm sm:text-[15px] leading-relaxed font-sans px-4 font-normal">
+          Streamline your workforce operations with deterministic rule calculation,
+          Sentinel statutory anomaly detection, and live recomputing payslips.
+        </p>
       </div>
 
       {/* CTA Button */}
-      <div className="w-full max-w-[497px] flex flex-col justify-center items-center relative z-10 mt-5 sm:mt-6 md:mt-7">
+      <div className="w-full max-w-[497px] flex flex-col justify-center items-center relative z-10 mt-6 sm:mt-7">
         <div className="backdrop-blur-[8px] flex justify-start items-center gap-3">
           <button
             onClick={onLaunchDemo}
@@ -92,8 +89,8 @@ export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
       </div>
 
       {/* Interactive Mockup Container */}
-      <div className="w-full max-w-[960px] lg:w-[960px] pt-4 pb-6 px-2 sm:px-4 md:px-6 lg:px-11 flex flex-col justify-center items-center gap-2 relative z-5 mt-8 sm:mt-10 md:mt-12 mb-0">
-        <div className="w-full max-w-[960px] lg:w-[960px] h-[220px] sm:h-[320px] md:h-[480px] lg:h-[620px] bg-white shadow-[0px_0px_0px_1px_rgba(0,0,0,0.08)] overflow-hidden rounded-[8px] sm:rounded-[10px] flex flex-col justify-start items-start border border-[#E2E8F0]">
+      <div className="w-full max-w-[1000px] px-2 sm:px-4 md:px-6 lg:px-0 flex flex-col justify-center items-center gap-2 relative z-5 mt-12 sm:mt-14 md:mt-16 mb-0">
+        <div className="w-full h-[240px] sm:h-[360px] md:h-[500px] lg:h-[560px] bg-white shadow-[0px_4px_24px_rgba(0,0,0,0.10)] overflow-hidden rounded-[10px] sm:rounded-[14px] flex flex-col justify-start items-start border border-[#E2E8F0]">
           <div className="w-full h-full relative overflow-hidden bg-slate-50">
             {/* Tab 0 Image */}
             <div
@@ -104,7 +101,7 @@ export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
               <img
                 src={heroTabs[0].image}
                 alt="Autonomous Payruns & Scheduling Dashboard"
-                className="w-full h-full object-cover object-top"
+                className="w-full h-full object-contain object-top bg-white"
               />
             </div>
 
@@ -117,7 +114,7 @@ export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
               <img
                 src={heroTabs[1].image}
                 alt="Sentinel AI Compliance Radar"
-                className="w-full h-full object-cover object-top"
+                className="w-full h-full object-cover object-top bg-white"
               />
             </div>
 
@@ -130,7 +127,7 @@ export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
               <img
                 src={heroTabs[2].image}
                 alt="Workforce Analytics & Telemetry"
-                className="w-full h-full object-cover object-top"
+                className="w-full h-full object-cover object-top bg-white"
               />
             </div>
           </div>
