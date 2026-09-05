@@ -5,7 +5,7 @@
     "moduleResolution": "Node",
     "outDir": "./dist",
     "rootDir": "./src",
-    "declaration": true,
+    "declaration": false,
     "sourceMap": true,
     "strict": true,
     "noImplicitAny": true,
@@ -15,5 +15,5 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "prisma/**/*"]
+  "include": ["src/**/*"]
 }
