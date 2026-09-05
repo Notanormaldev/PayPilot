@@ -1,6 +1,6 @@
 import React from 'react';
-import { Group, TextInput, ActionIcon, Box, Indicator, Menu, Text, Badge, Stack, Button, UnstyledButton } from '@mantine/core';
-import { IconSearch, IconBell, IconCheck, IconChecks, IconCalendarEvent, IconReceipt2, IconSpeakerphone, IconEdit } from '@tabler/icons-react';
+import { Group, ActionIcon, Box, Indicator, Menu, Text, Badge, Stack, Button, UnstyledButton } from '@mantine/core';
+import { IconBell, IconChecks, IconCalendarEvent, IconReceipt2, IconSpeakerphone, IconEdit } from '@tabler/icons-react';
 import { BrandLogo } from '../BrandLogo';
 import { UserMenu } from '../../features/auth/components/UserMenu';
 import { useNotifications } from '../../features/employee-portal/hooks/useNotifications';
@@ -42,24 +42,6 @@ export const Header = ({ onOpenCopilot, onViewLanding, onNavigateTab }) => {
           <BrandLogo size={32} />
         </div>
       </Group>
-
-      {/* Middle: Universal Search Bar */}
-      <Box style={{ width: '380px' }}>
-        <TextInput
-          placeholder="Search Employee, Payrun, Tax Form, or Flag..."
-          size="xs"
-          leftSection={<IconSearch size={14} color="#71717A" />}
-          styles={{
-            input: {
-              backgroundColor: '#F8FAFC',
-              borderColor: '#E2E8F0',
-              color: '#09090B',
-              fontSize: '12px',
-              borderRadius: '6px',
-            },
-          }}
-        />
-      </Box>
 
       {/* Right: Notifications & User Menu */}
       <Group gap="sm">

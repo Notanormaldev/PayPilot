@@ -93,6 +93,10 @@ export const App = () => {
         onOpenCopilot={() => setCopilotOpen(true)}
         onViewLanding={() => setViewLanding(true)}
         onNavigateTab={(tab) => setActiveTab(tab)}
+        currentRole={currentRole}
+        employees={employees}
+        payruns={payruns}
+        flags={flags}
       />
 
       <div style={{ display: 'flex', flex: 1 }}>
