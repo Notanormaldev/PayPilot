@@ -113,6 +113,11 @@ export const SentinelDrawer = ({ flags = [], onFlagResolved }) => {
                         {flag.employeeName ? `${flag.employeeName} (${flag.employeeNumber || 'STAFF'})` : flag.ruleCode}
                       </Text>
                       {getSeverityBadge(flag.severity)}
+                      {flag.flagType === 'MISSING_BANK_DETAILS' && (
+                        <Badge size="xs" color="red" variant="filled">
+                          EMPLOYEE BANKING AUDIT
+                        </Badge>
+                      )}
                     </Group>
 
                     <Text size="xs" c="#3F3F46" style={{ lineHeight: 1.4 }}>

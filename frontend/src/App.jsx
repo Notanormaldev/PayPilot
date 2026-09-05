@@ -145,6 +145,7 @@ export const App = () => {
 
               {activeTab === 'employees' && (
                 <Stack gap="lg">
+                  <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
                   <EmployeeTable employees={employees} />
                 </Stack>
               )}
@@ -184,6 +185,7 @@ export const App = () => {
               {activeTab === 'sentinel' && (
                 <Stack gap="lg">
                   <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
+                  <EmployeeTable employees={employees} />
                 </Stack>
               )}
 

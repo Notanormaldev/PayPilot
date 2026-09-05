@@ -34,21 +34,29 @@ sentinelRouter.get('/flags', authenticate, async (req, res) => {
       console.warn('Prisma sentinel flags query fallback:', e.message);
     }
 
-    let formattedFlags = dbFlags.map((f) => ({
-      id: f.id,
-      payslipId: f.payslipId,
-      ruleCode: f.flagType,
-      flagType: f.flagType,
-      severity: f.severity,
-      message:
-        f.deterministicReasonJson?.issue ||
-        `Anomaly detected in payslip computation for ${f.payslip?.employee?.name || 'Staff'}.`,
-      aiExplanation: f.aiExplanation,
-      employeeName: f.payslip?.employee?.name,
-      employeeNumber: `EMP-${f.payslip?.employee?.id?.slice(-4).toUpperCase()}`,
-      status: f.status,
-      createdAt: f.createdAt,
-    }));
+    let formattedFlags = dbFlags
+      .filter((f) => {
+        if (f.flagType === 'MISSING_BANK_DETAILS') {
+          const acc = f.payslip?.employee?.bankAccount;
+          if (acc && String(acc).trim() !== '') return false;
+        }
+        return true;
+      })
+      .map((f) => ({
+        id: f.id,
+        payslipId: f.payslipId,
+        ruleCode: f.flagType,
+        flagType: f.flagType,
+        severity: f.severity,
+        message:
+          f.deterministicReasonJson?.issue ||
+          `Anomaly detected in payslip computation for ${f.payslip?.employee?.name || 'Staff'}.`,
+        aiExplanation: f.aiExplanation,
+        employeeName: f.payslip?.employee?.name,
+        employeeNumber: `EMP-${f.payslip?.employee?.id?.slice(-4).toUpperCase()}`,
+        status: f.status,
+        createdAt: f.createdAt,
+      }));
 
     // Dynamic Employee Registry Audit: Check all employees with missing banking details
     try {
@@ -57,8 +65,6 @@ sentinelRouter.get('/flags', authenticate, async (req, res) => {
           OR: [
             { bankAccount: null },
             { bankAccount: '' },
-            { bankName: null },
-            { bankName: '' },
           ],
         },
       });

@@ -153,6 +153,8 @@ employeesRouter.get('/', authenticate, async (req, res) => {
         jobTitle: emp.jobPosition,
         jobPosition: emp.jobPosition,
         status: emp.status,
+        bankAccount: emp.bankAccount,
+        bankName: emp.bankName || (emp.bankAccount ? 'Verified Direct Deposit' : null),
         bankAccountNo: emp.bankAccount,
         bankIfsc: emp.bankName ? 'YES' : null,
         contracts: emp.contracts,
