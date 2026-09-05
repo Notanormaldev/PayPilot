@@ -3,6 +3,7 @@ import {
   Paper,
   Table,
   Group,
+  Stack,
   Text,
   Badge,
   TextInput,

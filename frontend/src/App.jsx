@@ -99,7 +99,7 @@ export const App = () => {
         <Sidebar
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          openSentinelFlagsCount={flags.length}
+          openSentinelFlagsCount={flags?.length || 0}
         />
 
         <main style={{ flex: 1, padding: '24px', maxWidth: '1480px', margin: '0 auto', width: '100%' }}>
