@@ -20,22 +20,23 @@ Hour 0         4         8        12        16     18.5     20      21.5  22.5  
 
 ### Phase 1 — Foundation (Hours 0–4)
 
-**Goal:** Running skeleton deployed, all DB tables created, auth working.
+**Goal:** Running skeleton deployed, all DB tables created, pure JWT auth working.
 
 | Task | Time | Owner Area |
 |---|---|---|
 | Monorepo scaffold (pnpm + turbo) | 30min | Infra |
 | `docker-compose.yml` (Postgres + Redis) | 20min | Infra |
 | Prisma schema (all tables) | 45min | DB |
-| `prisma migrate dev` — verify schema | 15min | DB |
-| Clerk project setup + `.env` | 20min | Auth |
+| `prisma db push` — verify schema | 15min | DB |
+| Pure JWT Secret setup + `.env` | 20min | Auth |
 | Express app factory + middleware stack | 30min | Backend |
 | `authenticate` + `requireRole` middleware | 20min | Backend |
 | Vite + React scaffold + Mantine theme | 30min | Frontend |
-| TanStack Router + root layout + auth guard | 30min | Frontend |
-| Deploy to Railway (smoke test) | 20min | Infra |
+| Redux store + root layout + auth guard | 30min | Frontend |
+| Deploy to Railway/Render (smoke test) | 20min | Infra |
 
-**Deliverable:** `GET /health → 200`, login flow works, protected route rejects unauthenticated requests.
+**Deliverable:** `GET /health → 200`, JWT login/refresh flow works, protected route rejects unauthenticated requests.
+
 
 **Cut if behind:** Fewer Contract edge cases — but period-resolver service must be done by end of Phase 2.
 
