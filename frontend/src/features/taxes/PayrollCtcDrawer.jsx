@@ -12,6 +12,7 @@ import {
   Table,
   Slider,
   Select,
+  Alert,
 } from '@mantine/core';
 import {
   IconBuildingBank,
@@ -21,6 +22,8 @@ import {
   IconAward,
   IconCoins,
   IconInfoCircle,
+  IconAlertCircle,
+  IconBolt,
 } from '@tabler/icons-react';
 
 export const PayrollCtcDrawer = ({
@@ -36,8 +39,19 @@ export const PayrollCtcDrawer = ({
 }) => {
   if (!payrollResult) return null;
 
-  const { earnings, employerContributions, employeeDeductions, takeHome, gratuityStatutory, statutoryBonusInfo } =
-    payrollResult;
+  const {
+    earnings,
+    employerContributions,
+    epfoBreakdown,
+    employeeDeductions,
+    takeHome,
+    gratuityStatutory,
+    statutoryBonusInfo,
+    disabilitySchemeInfo,
+    statutoryProfile,
+  } = payrollResult;
+
+  const isAge58Cutoff = epfoBreakdown?.employerShare?.isAge58PensionCutoff || statutoryProfile?.isAge58Plus;
 
   return (
     <Drawer
@@ -50,10 +64,10 @@ export const PayrollCtcDrawer = ({
           </ThemeIcon>
           <div>
             <Text size="sm" fw={700} c="#0F172A">
-              CTC, Gratuity & Statutory Payroll Breakdown
+              CTC, Statutory EPF/EPS & Gratuity Breakdown
             </Text>
             <Text size="11px" c="#64748B">
-              Statutory compliance under Payment of Gratuity Act 1972 & Payment of Bonus Act 1965
+              Compliant with EPFO 1952, EPS 1995, Payment of Gratuity Act 1972 & Bonus Act 1965
             </Text>
           </div>
         </Group>
@@ -166,6 +180,62 @@ export const PayrollCtcDrawer = ({
           </SimpleGrid>
         </Paper>
 
+        {/* EPFO EPS (Pension) & EPF Account 1 Allocation Card */}
+        <Paper p="md" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+          <Group justify="space-between" mb="xs">
+            <Group gap="xs">
+              <ThemeIcon size="sm" color={isAge58Cutoff ? 'cyan' : 'indigo'} radius="xl">
+                <IconShieldCheck size={14} />
+              </ThemeIcon>
+              <div>
+                <Text size="xs" fw={700} c="#0F172A">
+                  EPFO 1952 & EPS 1995 Statutory Allocation
+                </Text>
+                <Text size="10px" c="#64748B">
+                  Employee Age: {statutoryProfile?.age || 32} Years • Pension Scheme Cutoff Analysis
+                </Text>
+              </div>
+            </Group>
+            <Badge size="xs" color={isAge58Cutoff ? 'cyan' : 'indigo'} variant="filled">
+              {isAge58Cutoff ? '⚡ Age 58 Cutoff: 100% to EPF A/c 1' : '✓ Active EPS Pension Allocation'}
+            </Badge>
+          </Group>
+
+          <SimpleGrid cols={3} spacing="xs" mb="xs">
+            <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+              <Text size="10px" c="#64748B">Employee Share (12%)</Text>
+              <Text size="xs" fw={700} c="#0F172A">
+                ₹{epfoBreakdown?.employeeShare?.monthly?.toLocaleString('en-IN') || employeeDeductions.epf.monthly.toLocaleString('en-IN')}/mo
+              </Text>
+              <Text size="9px" c="#64748B">100% to EPF Account 1</Text>
+            </Paper>
+
+            <Paper p="xs" radius="sm" style={{ backgroundColor: isAge58Cutoff ? '#F0FDF4' : '#EEF2FF', border: '1px solid #CBD5E1' }}>
+              <Text size="10px" c={isAge58Cutoff ? '#166534' : '#3730A3'}>Employer EPF (A/c 1)</Text>
+              <Text size="xs" fw={700} c={isAge58Cutoff ? '#15803D' : '#4338CA'}>
+                ₹{epfoBreakdown?.employerShare?.epfAc1Monthly?.toLocaleString('en-IN') || 0}/mo
+              </Text>
+              <Text size="9px" c={isAge58Cutoff ? '#166534' : '#4338CA'}>
+                {isAge58Cutoff ? '100% of Employer Share' : '3.67% Basic + Wage Excess'}
+              </Text>
+            </Paper>
+
+            <Paper p="xs" radius="sm" style={{ backgroundColor: isAge58Cutoff ? '#FFFBEB' : '#F0FDF4', border: '1px solid #CBD5E1' }}>
+              <Text size="10px" c={isAge58Cutoff ? '#92400E' : '#166534'}>Employer EPS (A/c 10 Pension)</Text>
+              <Text size="xs" fw={700} c={isAge58Cutoff ? '#B45309' : '#15803D'}>
+                ₹{epfoBreakdown?.employerShare?.epsAc10Monthly?.toLocaleString('en-IN') || 0}/mo
+              </Text>
+              <Text size="9px" c={isAge58Cutoff ? '#92400E' : '#166534'}>
+                {isAge58Cutoff ? 'Ceased (Age ≥ 58)' : '8.33% capped at ₹15k wage'}
+              </Text>
+            </Paper>
+          </SimpleGrid>
+
+          <Text size="10px" c="#475569">
+            <strong>Statutory Rule:</strong> {epfoBreakdown?.employerShare?.epsExplanation || 'EPFO contribution is 12% employee + 12% employer split.'}
+          </Text>
+        </Paper>
+
         {/* Payment of Gratuity Act 1972 Card */}
         <Paper p="md" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
           <Group justify="space-between" mb="xs">
@@ -203,6 +273,25 @@ export const PayrollCtcDrawer = ({
             Formula: <code>(15 / 26) * Monthly Basic (₹{earnings.basic.monthly.toLocaleString('en-IN')}) * {serviceTenureYears} completed years</code>
           </Text>
         </Paper>
+
+        {/* Disability Relief Info if applicable */}
+        {disabilitySchemeInfo?.isApplicable && (
+          <Paper p="sm" radius="md" style={{ backgroundColor: '#ECFDF5', border: '1px solid #A7F3D0' }}>
+            <Group justify="space-between">
+              <Group gap="xs">
+                <Text size="xs" fw={700} c="#065F46">
+                  ♿ Persons with Disabilities (PwD) Statutory Benefits
+                </Text>
+              </Group>
+              <Badge size="xs" color="teal">
+                Section 80U Relief: ₹{disabilitySchemeInfo.exemptionAmount80U.toLocaleString('en-IN')}
+              </Badge>
+            </Group>
+            <Text size="10px" c="#047857" mt={2}>
+              ESI wage ceiling is elevated to <strong>₹25,000/month</strong> for employees with certified disability (with Central Government employer contribution reimbursement scheme).
+            </Text>
+          </Paper>
+        )}
 
         {/* Detailed Earnings and Deductions Table */}
         <Paper p="md" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>

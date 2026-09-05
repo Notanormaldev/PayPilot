@@ -62,6 +62,14 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
     setRegimeCode,
     ageCategory,
     setAgeCategory,
+    age,
+    setAge,
+    dob,
+    setDob,
+    residentialStatus,
+    setResidentialStatus,
+    disabilityCategory,
+    setDisabilityCategory,
     isSalaried,
     setIsSalaried,
     salaryIncome,
@@ -147,6 +155,7 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
   };
 
   const isZeroTax = taxResult?.taxBreakdown?.totalTaxPayable === 0;
+  const isAge58Plus = age >= 58;
 
   return (
     <Stack gap="lg">
@@ -175,7 +184,7 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
                 </Badge>
               </Group>
               <Text size="xs" c="#64748B" mt={2}>
-                Database-driven calculations with zero hardcoding • Section 87A Rebate up to ₹12L • Gratuity & Statutory Bonus Act
+                Database-driven calculations • Section 87A Rebate • Age 58 EPS Pension Cutoff • Section 6 NRI Rules • Section 80U Disability Relief
               </Text>
             </div>
           </Group>
@@ -249,7 +258,7 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
         {/* Quick Scenario Preset Chips */}
         <Group justify="space-between" align="center" wrap="wrap" gap="xs">
           <Text size="xs" fw={700} c="#64748B" style={{ textTransform: 'uppercase' }}>
-            Quick Scenarios:
+            Quick Statutory Scenarios:
           </Text>
           <Group gap="xs" wrap="wrap">
             <Button
@@ -265,17 +274,41 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
               size="compact-xs"
               variant="light"
               color="blue"
-              onClick={() => applyPreset('MID_CAREER_15L')}
+              onClick={() => applyPreset('SENIOR_CITIZEN_65')}
             >
-              ₹15L Mid-Career
+              👴 Senior (65 Yrs - ₹3L Exemption)
             </Button>
             <Button
               size="compact-xs"
               variant="light"
               color="indigo"
-              onClick={() => applyPreset('SENIOR_EXEC_30L')}
+              onClick={() => applyPreset('SUPER_SENIOR_82')}
             >
-              ₹30L Senior Exec
+              👑 Super Senior (82 Yrs - ₹5L Exemption)
+            </Button>
+            <Button
+              size="compact-xs"
+              variant="light"
+              color="cyan"
+              onClick={() => applyPreset('AGE_58_EPS_CUTOFF')}
+            >
+              ⚡ Age 58 EPS Cutoff
+            </Button>
+            <Button
+              size="compact-xs"
+              variant="light"
+              color="grape"
+              onClick={() => applyPreset('NRI_EXPAT')}
+            >
+              🌐 NRI Expat (Sec 6)
+            </Button>
+            <Button
+              size="compact-xs"
+              variant="light"
+              color="emerald"
+              onClick={() => applyPreset('DISABILITY_RELIEF_80U')}
+            >
+              ♿ Sec 80U Disability Relief
             </Button>
             <Button
               size="compact-xs"
@@ -304,7 +337,7 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
           <Stack gap="md">
             <Paper p="lg" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
               <Text size="xs" fw={700} c="#0F172A" mb="sm" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                1. Tax Profile & Regime Selection
+                1. Statutory Profile & Tax Regime
               </Text>
 
               <Stack gap="sm">
@@ -341,14 +374,152 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
                       { label: 'New Tax Regime (u/s 115BAC)', value: 'NEW' },
                       { label: 'Old Tax Regime (Exemptions)', value: 'OLD' },
                     ]}
-                    color="indigo"
+                    styles={{
+                      root: { backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0' },
+                      indicator: { backgroundColor: '#2563EB', boxShadow: '0 2px 4px rgba(37,99,235,0.2)' },
+                      label: { fontWeight: 600 },
+                    }}
                   />
+                </div>
+
+                {/* Residential Status (Section 6) */}
+                <div>
+                  <Group justify="space-between" mb={4}>
+                    <Text size="xs" c="#64748B">
+                      Residential Status (Income Tax Act Section 6)
+                    </Text>
+                    <Badge size="xs" color={residentialStatus === 'RESIDENT' ? 'teal' : 'grape'}>
+                      {residentialStatus === 'RESIDENT' ? 'Resident Indian' : 'Non-Resident (NRI)'}
+                    </Badge>
+                  </Group>
+                  <SegmentedControl
+                    fullWidth
+                    size="xs"
+                    value={residentialStatus}
+                    onChange={setResidentialStatus}
+                    data={[
+                      { label: 'Resident Indian (Sec 6)', value: 'RESIDENT' },
+                      { label: 'Non-Resident (NRI / Expat)', value: 'NRI' },
+                    ]}
+                    styles={{
+                      root: { backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0' },
+                      indicator: { backgroundColor: '#2563EB', boxShadow: '0 2px 4px rgba(37,99,235,0.2)' },
+                      label: { fontWeight: 600 },
+                    }}
+                  />
+                  {residentialStatus === 'NRI' && (
+                    <Text size="11px" c="#D97706" mt={4} fw={500}>
+                      ⚠️ Under Section 6, NRIs are taxed under General (&lt;60) slabs and are excluded from Section 87A rebate.
+                    </Text>
+                  )}
+                </div>
+
+                {/* Statutory Age & DOB Auto-Derivation */}
+                <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                  <Group justify="space-between" mb={4}>
+                    <Text size="xs" fw={700} c="#0F172A">
+                      Employee Age & Statutory Classification
+                    </Text>
+                    <Badge size="xs" color={age >= 80 ? 'grape' : age >= 60 ? 'blue' : age >= 58 ? 'cyan' : 'gray'}>
+                      {age >= 80 ? 'Super Senior (80+)' : age >= 60 ? 'Senior (60-80)' : age >= 58 ? 'Age 58 (EPS Cutoff)' : 'General (<60)'}
+                    </Badge>
+                  </Group>
+
+                  <SimpleGrid cols={2} spacing="xs" mb="sm">
+                    <div>
+                      <Text size="10px" c="#64748B" mb={2}>
+                        Date of Birth (DOB)
+                      </Text>
+                      <input
+                        type="date"
+                        value={dob}
+                        onChange={(e) => setDob(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          borderRadius: '4px',
+                          border: '1px solid #CBD5E1',
+                          backgroundColor: '#FFFFFF',
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <Group justify="space-between" mb={2}>
+                        <Text size="10px" c="#64748B">
+                          Exact Age:
+                        </Text>
+                        <Text size="11px" fw={700} c="#2563EB">
+                          {age} Years
+                        </Text>
+                      </Group>
+                      <NumberInput
+                        size="xs"
+                        min={18}
+                        max={100}
+                        value={age}
+                        onChange={(val) => setAge(Number(val) || 18)}
+                      />
+                    </div>
+                  </SimpleGrid>
+
+                  <div style={{ paddingBottom: '16px', paddingTop: '4px' }}>
+                    <Slider
+                      min={18}
+                      max={90}
+                      step={1}
+                      value={age}
+                      onChange={setAge}
+                      color="indigo"
+                      size="sm"
+                      marks={[
+                        { value: 18, label: '18y' },
+                        { value: 58, label: '⚡ 58y (EPS)' },
+                        { value: 80, label: '80y+ (Super)' },
+                      ]}
+                    />
+                  </div>
+
+                  {/* Age 58 EPS Alert Callout */}
+                  {isAge58Plus && (
+                    <Alert color="blue" variant="light" p="xs" mt="xs">
+                      <Text size="11px" fw={600} c="#1E40AF">
+                        ⚡ EPFO EPS 1995 Pension Cutoff Active (Age {age}):
+                      </Text>
+                      <Text size="10px" c="#1E3A8A" mt={2}>
+                        Pension contribution (8.33%) ceases at age 58. 100% of the 12% employer share is automatically diverted to EPF A/c 1.
+                      </Text>
+                    </Alert>
+                  )}
+                </Paper>
+
+                {/* Section 80U Disability Relief Selector */}
+                <div>
+                  <Text size="xs" c="#64748B" mb={4}>
+                    Disability Relief (Section 80U / 80DD & PwD ESI Scheme)
+                  </Text>
+                  <Select
+                    size="xs"
+                    value={disabilityCategory}
+                    onChange={setDisabilityCategory}
+                    data={[
+                      { value: 'NONE', label: 'None / Standard Profile' },
+                      { value: 'MODERATE_40_80', label: '♿ Section 80U (40% - 80% Disability) - ₹75,000 Ded' },
+                      { value: 'SEVERE_80_PLUS', label: '♿ Section 80U (80%+ Severe Disability) - ₹1,25,000 Ded' },
+                    ]}
+                  />
+                  {disabilityCategory !== 'NONE' && (
+                    <Text size="10px" c="#059669" mt={2} fw={500}>
+                      ✓ Eligible for Section 80U deduction under Old Regime & ESI wage ceiling elevated to ₹25,000/mo.
+                    </Text>
+                  )}
                 </div>
 
                 <SimpleGrid cols={2} spacing="xs">
                   <div>
                     <Text size="xs" c="#64748B" mb={4}>
-                      Age Category
+                      Age Category Slab
                     </Text>
                     <Select
                       size="xs"
@@ -481,7 +652,7 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
               {regimeCode === 'NEW' ? (
                 <Paper p="sm" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px dashed #CBD5E1' }}>
                   <Text size="xs" c="#64748B">
-                    Under the <strong>New Tax Regime (u/s 115BAC)</strong>, Chapter VI-A deductions (80C, 80D, HRA, 24b) are not required. You receive an automatic ₹75,000 Standard Deduction and simplified lower slab rates.
+                    Under the <strong>New Tax Regime (u/s 115BAC)</strong>, Chapter VI-A deductions (80C, 80D, 80U, HRA, 24b) are not required. You receive an automatic ₹75,000 Standard Deduction and simplified lower slab rates.
                   </Text>
                 </Paper>
               ) : (
@@ -513,6 +684,21 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
                       value={claimedDeductions['80D']}
                       onChange={(v) => handleDeductionChange('80D', v)}
                       max={75000}
+                    />
+                  </div>
+
+                  <div>
+                    <Group justify="space-between" mb={2}>
+                      <Text size="xs" c="#475569">Section 80U (Disability Relief - Max ₹1.25L)</Text>
+                      <Text size="11px" fw={600} c="#0F172A">₹{claimedDeductions['80U']?.toLocaleString('en-IN')}</Text>
+                    </Group>
+                    <NumberInput
+                      size="xs"
+                      prefix="₹ "
+                      thousandSeparator=","
+                      value={claimedDeductions['80U']}
+                      onChange={(v) => handleDeductionChange('80U', v)}
+                      max={125000}
                     />
                   </div>
 

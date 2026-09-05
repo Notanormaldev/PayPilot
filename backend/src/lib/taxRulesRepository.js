@@ -163,6 +163,18 @@ class TaxRulesRepository {
         eligibility: 'Individual / Senior Citizens',
         active: true,
       },
+      {
+        id: 'DED_80U',
+        financialYearId: 'FY_2026_27',
+        regimeId: 'REGIME_OLD_2026_27',
+        sectionCode: '80U',
+        name: 'Section 80U / 80DD (Person with Disability Relief)',
+        description: 'Flat deduction for resident individuals with disability (Rs. 75k for 40-80% / Rs. 1.25L for severe disability 80%+).',
+        maximumAmount: 125000,
+        formulaType: 'MIN_CLAIM_LIMIT',
+        eligibility: 'Resident Individuals with certified disability (Form 10-IA)',
+        active: true,
+      },
     ];
 
     // Section 87A Rebates Database

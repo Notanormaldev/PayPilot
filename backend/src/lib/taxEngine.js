@@ -15,8 +15,13 @@ export class TaxCalculationEngine {
    * @param {string} params.financialYearId - e.g. 'FY_2026_27'
    * @param {string} params.regimeCode - 'NEW' or 'OLD'
    * @param {string} params.ageCategory - 'BELOW_60', '60_TO_80', 'ABOVE_80'
+   * @param {number|null} params.age - Exact employee age (optional, auto-derives category and EPFO cutoff)
+   * @param {string|null} params.dob - Date of birth in YYYY-MM-DD format (optional)
+   * @param {string} params.residentialStatus - 'RESIDENT' or 'NRI' (Income Tax Act Section 6)
+   * @param {string} params.disabilityCategory - 'NONE', 'MODERATE_40_80', 'SEVERE_80_PLUS' (Section 80U)
    * @param {Object} params.claimedDeductions - Map of deduction section code -> amount { '80C': 150000, '80D': 25000, ... }
    * @param {string} params.stateCode - State code for professional tax (e.g. 'MH', 'KA')
+   * @param {boolean} params.isSalaried - True if salaried individual claiming standard deduction
    * @returns {Object} Complete calculation breakdown with educational steps
    */
   static calculate({
@@ -25,6 +30,10 @@ export class TaxCalculationEngine {
     financialYearId = 'FY_2026_27',
     regimeCode = 'NEW',
     ageCategory = 'BELOW_60',
+    age = null,
+    dob = null,
+    residentialStatus = 'RESIDENT',
+    disabilityCategory = 'NONE',
     claimedDeductions = {},
     stateCode = 'MH',
     isSalaried = true,
@@ -33,6 +42,38 @@ export class TaxCalculationEngine {
     const grossOtherIncome = Math.max(0, Number(otherIncome) || 0);
     const totalGrossIncome = grossSalary + grossOtherIncome;
 
+    // 0. Statutory Age & DOB Auto-Derivation
+    let computedAge = typeof age === 'number' && !isNaN(age) ? age : null;
+    if (computedAge === null && dob && typeof dob === 'string' && dob.trim() !== '') {
+      const dobDate = new Date(dob);
+      if (!isNaN(dobDate.getTime())) {
+        const fyBase = new Date(financialYearId === 'FY_2025_26' ? '2025-04-01' : '2026-04-01');
+        let calculatedAge = fyBase.getFullYear() - dobDate.getFullYear();
+        const m = fyBase.getMonth() - dobDate.getMonth();
+        if (m < 0 || (m === 0 && fyBase.getDate() < dobDate.getDate())) {
+          calculatedAge--;
+        }
+        computedAge = Math.max(0, calculatedAge);
+      }
+    }
+
+    let derivedAgeCategory = ageCategory || 'BELOW_60';
+    if (computedAge !== null) {
+      if (computedAge < 60) {
+        derivedAgeCategory = 'BELOW_60';
+      } else if (computedAge < 80) {
+        derivedAgeCategory = '60_TO_80';
+      } else {
+        derivedAgeCategory = 'ABOVE_80';
+      }
+    } else {
+      if (derivedAgeCategory === '60_TO_80') computedAge = 65;
+      else if (derivedAgeCategory === 'ABOVE_80') computedAge = 82;
+      else computedAge = 32;
+    }
+
+    const isAge58Plus = computedAge >= 58;
+
     // 1. Fetch Tax Regime from DB
     const regimes = taxRulesRepository.getTaxRegimes(financialYearId);
     const selectedRegime = regimes.find((r) => r.regimeCode === regimeCode) || regimes[0];
@@ -40,7 +81,6 @@ export class TaxCalculationEngine {
     // 2. Standard Deduction & Professional Tax (u/s 16)
     let standardDeduction = 0;
     if (isSalaried && selectedRegime.standardDeduction > 0) {
-      // Standard deduction cannot exceed salary income
       standardDeduction = Math.min(grossSalary, selectedRegime.standardDeduction);
     }
 
@@ -54,14 +94,22 @@ export class TaxCalculationEngine {
     const netSalaryIncome = Math.max(0, grossSalary - standardDeduction - professionalTaxDeduction);
     const grossTotalIncome = netSalaryIncome + grossOtherIncome;
 
-    // 3. Chapter VI-A & Other Deductions (Old Regime only, or specific to regime from DB)
+    // 3. Chapter VI-A & Other Deductions (Old Regime only)
     const allowedDeductionRules = taxRulesRepository.getDeductions(selectedRegime.id, financialYearId);
     const deductionBreakdown = [];
     let totalDeductions = 0;
 
+    // Auto-inject Section 80U Disability Relief if applicable and not manually overridden
+    const mergedClaimedDeductions = { ...claimedDeductions };
+    if (disabilityCategory === 'MODERATE_40_80') {
+      mergedClaimedDeductions['80U'] = Math.max(mergedClaimedDeductions['80U'] || 0, 75000);
+    } else if (disabilityCategory === 'SEVERE_80_PLUS') {
+      mergedClaimedDeductions['80U'] = Math.max(mergedClaimedDeductions['80U'] || 0, 125000);
+    }
+
     if (selectedRegime.regimeCode === 'OLD') {
       for (const rule of allowedDeductionRules) {
-        const claimed = Number(claimedDeductions[rule.sectionCode]) || 0;
+        const claimed = Number(mergedClaimedDeductions[rule.sectionCode]) || 0;
         if (claimed > 0) {
           const eligible = Math.min(claimed, rule.maximumAmount);
           deductionBreakdown.push({
@@ -76,13 +124,16 @@ export class TaxCalculationEngine {
       }
     }
 
-    // 4. Taxable Income
-    // Taxable income rounded to nearest 10 as per Indian Income Tax Act Section 288A
+    // 4. Taxable Income (Rounded to nearest 10 as per Section 288A)
     const unroundedTaxableIncome = Math.max(0, grossTotalIncome - totalDeductions);
     const taxableIncome = Math.round(unroundedTaxableIncome / 10) * 10;
 
-    // 5. Load Tax Slabs from DB and compute Slab Tax
-    const slabs = taxRulesRepository.getTaxSlabs(selectedRegime.id, ageCategory);
+    // 5. Section 6 Residency Rule & Tax Slabs:
+    // NRIs are not eligible for Senior/Super Senior higher basic exemption limits under Old Regime
+    const isNriSeniorExclusionApplied = (residentialStatus === 'NRI' && derivedAgeCategory !== 'BELOW_60');
+    const applicableSlabCategory = (residentialStatus === 'NRI' ? 'BELOW_60' : derivedAgeCategory);
+
+    const slabs = taxRulesRepository.getTaxSlabs(selectedRegime.id, applicableSlabCategory);
     let totalBaseTax = 0;
     const slabCalculations = [];
     let highestMarginalRate = 0;
@@ -124,19 +175,19 @@ export class TaxCalculationEngine {
     }
 
     // 6. Section 87A Rebate & Marginal Relief
+    // Note: Under Section 87A, rebate is ONLY admissible to RESIDENT individuals!
     const rebateRule = taxRulesRepository.getRebate(selectedRegime.id, financialYearId);
     let rebate87A = 0;
     let rebate87AMarginalRelief = 0;
     let taxAfter87A = totalBaseTax;
+    const isNri87AExclusionApplied = (residentialStatus === 'NRI');
 
-    if (rebateRule) {
+    if (rebateRule && residentialStatus === 'RESIDENT') {
       if (taxableIncome <= rebateRule.incomeLimit) {
-        // Full rebate up to maximum rebate or full tax
         rebate87A = Math.min(totalBaseTax, rebateRule.maximumRebate);
         taxAfter87A = Math.max(0, totalBaseTax - rebate87A);
       } else if (selectedRegime.regimeCode === 'NEW') {
         // Marginal Relief for New Regime u/s 87A
-        // If taxable income slightly exceeds ₹12,00,000, total tax payable cannot exceed (Taxable Income - ₹12,00,000)
         const excessOverLimit = taxableIncome - rebateRule.incomeLimit;
         if (totalBaseTax > excessOverLimit) {
           rebate87AMarginalRelief = totalBaseTax - excessOverLimit;
@@ -163,12 +214,10 @@ export class TaxCalculationEngine {
       const rawSurcharge = taxAfter87A * (applicableSurchargeRule.surchargeRate / 100);
       surchargeAmount = rawSurcharge;
 
-      // Marginal Relief Calculation for Surcharge threshold
       const threshold = applicableSurchargeRule.minThreshold;
       const excessIncomeOverThreshold = taxableIncome - threshold;
       
-      // Calculate tax payable at the exact threshold without surcharge
-      const taxAtThreshold = this.calculateTaxAtIncome(threshold, selectedRegime.id, ageCategory, rebateRule);
+      const taxAtThreshold = this.calculateTaxAtIncome(threshold, selectedRegime.id, applicableSlabCategory, rebateRule, residentialStatus);
       const maxPermissibleTaxWithSurcharge = taxAtThreshold + excessIncomeOverThreshold;
       const actualTaxWithSurcharge = taxAfter87A + rawSurcharge;
 
@@ -199,7 +248,13 @@ export class TaxCalculationEngine {
     const explanationSteps = this.generateExplanationSteps({
       financialYear: financialYearId,
       regime: selectedRegime,
-      ageCategory,
+      ageCategory: derivedAgeCategory,
+      computedAge,
+      residentialStatus,
+      disabilityCategory,
+      isNriSeniorExclusionApplied,
+      isNri87AExclusionApplied,
+      isAge58Plus,
       totalGrossIncome,
       grossSalary,
       grossOtherIncome,
@@ -229,7 +284,19 @@ export class TaxCalculationEngine {
         name: selectedRegime.regimeName,
         standardDeductionLimit: selectedRegime.standardDeduction,
       },
-      ageCategory,
+      ageCategory: derivedAgeCategory,
+      statutoryProfile: {
+        age: computedAge,
+        dob: dob || null,
+        ageCategory: derivedAgeCategory,
+        effectiveSlabCategory: applicableSlabCategory,
+        residentialStatus,
+        disabilityCategory,
+        isAge58Plus,
+        isNriSeniorExclusionApplied,
+        isNri87AExclusionApplied,
+        pensionRuleStatus: isAge58Plus ? 'EPFO_PENSION_CEASED_100PCT_EPF' : 'EPFO_PENSION_ACTIVE',
+      },
       incomeSummary: {
         grossSalary,
         grossOtherIncome,
@@ -286,7 +353,7 @@ export class TaxCalculationEngine {
   /**
    * Helper to compute base tax at a specific income threshold for marginal relief
    */
-  static calculateTaxAtIncome(income, regimeId, ageCategory, rebateRule) {
+  static calculateTaxAtIncome(income, regimeId, ageCategory, rebateRule, residentialStatus = 'RESIDENT') {
     const slabs = taxRulesRepository.getTaxSlabs(regimeId, ageCategory);
     let baseTax = 0;
     for (const slab of slabs) {
@@ -297,7 +364,7 @@ export class TaxCalculationEngine {
         baseTax += amt * (slab.taxRate / 100);
       }
     }
-    if (rebateRule && income <= rebateRule.incomeLimit) {
+    if (rebateRule && residentialStatus === 'RESIDENT' && income <= rebateRule.incomeLimit) {
       baseTax = Math.max(0, baseTax - rebateRule.maximumRebate);
     }
     return baseTax;
@@ -309,12 +376,23 @@ export class TaxCalculationEngine {
   static generateExplanationSteps(ctx) {
     const steps = [];
 
-    // Step 1: Gross Income Computation
+    // Step 1: Statutory Profile & Gross Income
+    let profileDesc = `Your total income of ₹${ctx.totalGrossIncome.toLocaleString('en-IN')} is aggregated from Salary Income (₹${ctx.grossSalary.toLocaleString('en-IN')}) and Other Income (₹${ctx.grossOtherIncome.toLocaleString('en-IN')}).`;
+    if (ctx.residentialStatus === 'NRI') {
+      profileDesc += ` Classified as Non-Resident Indian (NRI) per Income Tax Act Section 6.`;
+    }
+    if (ctx.isAge58Plus) {
+      profileDesc += ` Employee age (${ctx.computedAge || 58}+ yrs) triggers EPFO EPS 1995 Pension cessation cutoff (100% employer contribution routed to EPF A/c 1).`;
+    }
+    if (ctx.disabilityCategory && ctx.disabilityCategory !== 'NONE') {
+      profileDesc += ` Section 80U disability relief applied (${ctx.disabilityCategory === 'SEVERE_80_PLUS' ? 'Severe 80%+: ₹1.25L' : '40-80%: ₹75k'}).`;
+    }
+
     steps.push({
       stepNumber: 1,
-      title: 'Gross Total Income Breakdown',
-      description: `Your total income of ₹${ctx.totalGrossIncome.toLocaleString('en-IN')} is aggregated from Salary Income (₹${ctx.grossSalary.toLocaleString('en-IN')}) and Other Income (₹${ctx.grossOtherIncome.toLocaleString('en-IN')}).`,
-      highlight: `Gross Income = ₹${ctx.totalGrossIncome.toLocaleString('en-IN')}`,
+      title: 'Gross Total Income & Statutory Profile',
+      description: profileDesc,
+      highlight: `Gross Income = ₹${ctx.totalGrossIncome.toLocaleString('en-IN')} | Age: ${ctx.computedAge || 32} Yrs (${ctx.residentialStatus})`,
       type: 'INFO',
     });
 
@@ -331,7 +409,7 @@ export class TaxCalculationEngine {
       steps.push({
         stepNumber: 2,
         title: 'Old Regime Deductions (Chapter VI-A & Sec 16)',
-        description: `Standard deduction of ₹${ctx.standardDeduction.toLocaleString('en-IN')} plus Chapter VI-A deductions (80C, 80D, HRA, etc.) totaling ₹${ctx.totalDeductions.toLocaleString('en-IN')} and Professional Tax ₹${ctx.professionalTaxDeduction.toLocaleString('en-IN')} are subtracted.`,
+        description: `Standard deduction of ₹${ctx.standardDeduction.toLocaleString('en-IN')} plus Chapter VI-A deductions (80C, 80D, 80U, HRA, etc.) totaling ₹${ctx.totalDeductions.toLocaleString('en-IN')} and Professional Tax ₹${ctx.professionalTaxDeduction.toLocaleString('en-IN')} are subtracted.`,
         highlight: `Taxable Income = ₹${ctx.totalGrossIncome.toLocaleString('en-IN')} - ₹${(ctx.standardDeduction + ctx.totalDeductions + ctx.professionalTaxDeduction).toLocaleString('en-IN')} = ₹${ctx.taxableIncome.toLocaleString('en-IN')}`,
         type: 'DEDUCTION',
       });
@@ -343,16 +421,29 @@ export class TaxCalculationEngine {
       .map((s) => `${s.rangeLabel} @ ${s.taxRate}% on ₹${s.taxableAmountInSlab.toLocaleString('en-IN')} = ₹${Math.round(s.taxForSlab).toLocaleString('en-IN')}`)
       .join(' + ');
 
+    let slabExplanation = `Income tax is progressive: each bracket is taxed only on the portion of income within that range. ${slabSummaries || 'Your taxable income falls below the minimum taxable threshold.'}`;
+    if (ctx.isNriSeniorExclusionApplied) {
+      slabExplanation += ` (Note: Under Section 6, NRI individuals are taxed under the General Below-60 slab regardless of age).`;
+    }
+
     steps.push({
       stepNumber: 3,
       title: 'Progressive Slab-by-Slab Computation',
-      description: `Income tax is progressive: each bracket is taxed only on the portion of income within that range. ${slabSummaries || 'Your taxable income falls below the minimum taxable threshold.'}`,
+      description: slabExplanation,
       highlight: `Total Slab Tax = ₹${Math.round(ctx.totalBaseTax).toLocaleString('en-IN')}`,
       type: 'TAX_CALCULATION',
     });
 
     // Step 4: Section 87A Rebate & Marginal Relief
-    if (ctx.rebate87A > 0) {
+    if (ctx.isNri87AExclusionApplied) {
+      steps.push({
+        stepNumber: 4,
+        title: 'Section 87A Ineligible (NRI Status)',
+        description: `Section 87A tax rebate is statutory relief available strictly to Resident Individuals. As an NRI under Section 6, full slab tax remains payable without 87A rebate.`,
+        highlight: `Section 87A Rebate = ₹0 (NRI Exclusion u/s 87A)`,
+        type: 'REBATE',
+      });
+    } else if (ctx.rebate87A > 0) {
       steps.push({
         stepNumber: 4,
         title: 'Section 87A Full Tax Rebate',
@@ -427,7 +518,7 @@ export class TaxComparisonEngine {
     if (isNewRegimeBetter) {
       recommendationReason = `The New Tax Regime saves you ₹${totalSavings.toLocaleString('en-IN')} annually compared to the Old Regime due to lower slab rates and the ₹75,000 standard deduction.`;
     } else if (isOldRegimeBetter) {
-      recommendationReason = `The Old Tax Regime saves you ₹${totalSavings.toLocaleString('en-IN')} annually because your high claimed deductions (80C, 80D, HRA, Home Loan) significantly reduce your taxable income.`;
+      recommendationReason = `The Old Tax Regime saves you ₹${totalSavings.toLocaleString('en-IN')} annually because your high claimed deductions (80C, 80D, 80U, HRA, Home Loan) significantly reduce your taxable income.`;
     } else {
       recommendationReason = `Both regimes result in the exact same tax liability (₹${newRegimeResult.taxBreakdown.totalTaxPayable.toLocaleString('en-IN')}). The New Regime is recommended for its simplified filing without proof verification.`;
     }
@@ -438,6 +529,7 @@ export class TaxComparisonEngine {
     return {
       financialYear: params.financialYearId || 'FY_2026_27',
       grossIncome: (Number(params.salaryIncome) || 0) + (Number(params.otherIncome) || 0),
+      statutoryProfile: newRegimeResult.statutoryProfile,
       newRegime: newRegimeResult,
       oldRegime: oldRegimeResult,
       comparison: {
@@ -460,7 +552,6 @@ export class TaxComparisonEngine {
     const newRegimeResult = TaxCalculationEngine.calculate({ ...params, regimeCode: 'NEW' });
     const targetTax = newRegimeResult.taxBreakdown.totalTaxPayable;
     
-    // Binary search deduction from 0 to 10 Lakhs
     let low = 0;
     let high = 1500000;
     let breakeven = 0;
@@ -470,7 +561,7 @@ export class TaxComparisonEngine {
       const testResult = TaxCalculationEngine.calculate({
         ...params,
         regimeCode: 'OLD',
-        claimedDeductions: { '80C': Math.min(mid, 150000), '24B': Math.max(0, mid - 150000) },
+        claimedDeductions: { ...(params.claimedDeductions || {}), '80C': Math.min(mid, 150000), '24(b)': Math.max(0, mid - 150000) },
       });
 
       if (testResult.taxBreakdown.totalTaxPayable <= targetTax) {
@@ -506,8 +597,30 @@ export class PayrollCalculationEngine {
     bonusPercentage = 8.33,
     regimeCode = 'NEW',
     financialYearId = 'FY_2026_27',
+    employeeAge = null,
+    dob = null,
+    residentialStatus = 'RESIDENT',
+    disabilityCategory = 'NONE',
+    isAge58Plus = false,
   }) {
     const ctc = Math.max(0, Number(annualCTC) || 0);
+
+    // Statutory Age Derivation
+    let computedAge = typeof employeeAge === 'number' && !isNaN(employeeAge) ? employeeAge : null;
+    if (computedAge === null && dob && typeof dob === 'string' && dob.trim() !== '') {
+      const dobDate = new Date(dob);
+      if (!isNaN(dobDate.getTime())) {
+        const fyBase = new Date(financialYearId === 'FY_2025_26' ? '2025-04-01' : '2026-04-01');
+        let calculatedAge = fyBase.getFullYear() - dobDate.getFullYear();
+        const m = fyBase.getMonth() - dobDate.getMonth();
+        if (m < 0 || (m === 0 && fyBase.getDate() < dobDate.getDate())) {
+          calculatedAge--;
+        }
+        computedAge = Math.max(0, calculatedAge);
+      }
+    }
+
+    const is58 = Boolean(isAge58Plus || (computedAge !== null && computedAge >= 58));
 
     // Standard salary structuring:
     // Basic Salary: 40% - 50% of CTC (Standard: 40%)
@@ -518,9 +631,33 @@ export class PayrollCalculationEngine {
     const annualHRA = Math.round(annualBasic * 0.50);
     const monthlyHRA = Math.round(annualHRA / 12);
 
-    // Employer EPF: 12% of Basic (or capped at ₹1,800/mo if opting for statutory ceiling)
+    // Employer EPF: Total 12% of Basic
     const monthlyEmployerEPF = Math.round(monthlyBasic * 0.12);
     const annualEmployerEPF = monthlyEmployerEPF * 12;
+
+    // EPFO EPS 1995 Pension Allocation vs EPF Account 1
+    let monthlyEmployerEPS = 0;
+    let monthlyEmployerEPF_Ac1 = 0;
+    let epsStatus = '';
+    let epsExplanation = '';
+
+    if (is58) {
+      // Age 58 EPFO Pension Cutoff: EPS ceases, 100% of 12% goes to EPF Account 1
+      monthlyEmployerEPS = 0;
+      monthlyEmployerEPF_Ac1 = monthlyEmployerEPF;
+      epsStatus = 'PENSION_CEASED_AGE_58';
+      epsExplanation = 'EPFO EPS 1995 Pension ceased upon reaching age 58. 100% of the 12% employer share is diverted to EPF A/c 1.';
+    } else {
+      const statutoryPensionCeiling = 15000;
+      const pensionWage = Math.min(monthlyBasic, statutoryPensionCeiling);
+      monthlyEmployerEPS = Math.round(pensionWage * 0.0833); // max Rs. 1,250/mo
+      monthlyEmployerEPF_Ac1 = Math.max(0, monthlyEmployerEPF - monthlyEmployerEPS);
+      epsStatus = 'PENSION_ACTIVE';
+      epsExplanation = `Active EPS contribution: ₹${monthlyEmployerEPS}/mo to EPS A/c 10 (8.33% capped at ₹15k wage) + ₹${monthlyEmployerEPF_Ac1}/mo to EPF A/c 1.`;
+    }
+
+    const annualEmployerEPS = monthlyEmployerEPS * 12;
+    const annualEmployerEPF_Ac1 = monthlyEmployerEPF_Ac1 * 12;
 
     // Gratuity Provision (Payment of Gratuity Act, 1972)
     // Formula: (15 / 26) * Monthly Basic * Completed Service Years
@@ -577,6 +714,10 @@ export class PayrollCalculationEngine {
       financialYearId,
       regimeCode,
       stateCode,
+      age: computedAge,
+      dob,
+      residentialStatus,
+      disabilityCategory,
       isSalaried: true,
     });
 
@@ -597,6 +738,13 @@ export class PayrollCalculationEngine {
       monthlyCTC: Math.round(ctc / 12),
       stateCode,
       regimeCode,
+      statutoryProfile: {
+        age: computedAge,
+        dob: dob || null,
+        isAge58Plus: is58,
+        residentialStatus,
+        disabilityCategory,
+      },
       earnings: {
         basic: { annual: annualBasic, monthly: monthlyBasic, percentageOfCTC: 40 },
         hra: { annual: annualHRA, monthly: monthlyHRA, percentageOfCTC: 20 },
@@ -613,6 +761,25 @@ export class PayrollCalculationEngine {
         epf: { annual: annualEmployerEPF, monthly: monthlyEmployerEPF, rate: 12 },
         gratuityProvision: { annual: annualGratuityProvision, monthly: Math.round(annualGratuityProvision / 12), rate: 4.81 },
         totalEmployerContributions: otherEmployerCosts,
+      },
+      epfoBreakdown: {
+        employeeShare: {
+          rate: 12,
+          monthly: monthlyEmployeeEPF,
+          annual: annualEmployeeEPF,
+          accountName: 'EPF Account 1 (Employee PF)',
+        },
+        employerShare: {
+          totalMonthly: monthlyEmployerEPF,
+          totalAnnual: annualEmployerEPF,
+          epfAc1Monthly: monthlyEmployerEPF_Ac1,
+          epfAc1Annual: annualEmployerEPF_Ac1,
+          epsAc10Monthly: monthlyEmployerEPS,
+          epsAc10Annual: annualEmployerEPS,
+          epsStatus,
+          epsExplanation,
+          isAge58PensionCutoff: is58,
+        },
       },
       employeeDeductions: {
         epf: { annual: annualEmployeeEPF, monthly: monthlyEmployeeEPF, rate: 12 },
@@ -640,6 +807,13 @@ export class PayrollCalculationEngine {
         isEligibleUnderAct: isBonusStatutorilyMandated,
         wageCeiling: bonusRule?.calculationWageLimit || 7000,
         salaryEligibilityCeiling: bonusRule?.salaryEligibilityLimit || 21000,
+      },
+      disabilitySchemeInfo: {
+        category: disabilityCategory,
+        isApplicable: disabilityCategory !== 'NONE',
+        esiWageCeiling: disabilityCategory !== 'NONE' ? 25000 : 21000,
+        lawCitation: 'Persons with Disabilities (Equal Opportunities) Act & ESI PwD Incentive Scheme',
+        exemptionAmount80U: disabilityCategory === 'SEVERE_80_PLUS' ? 125000 : disabilityCategory === 'MODERATE_40_80' ? 75000 : 0,
       },
       taxDetails: taxResult,
     };

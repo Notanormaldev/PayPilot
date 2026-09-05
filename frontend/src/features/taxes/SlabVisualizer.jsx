@@ -7,7 +7,10 @@ export const SlabVisualizer = ({ taxResult, regimeCode }) => {
     return null;
   }
 
-  const { slabs, baseTax, totalTaxPayable, taxableIncome } = taxResult;
+  const slabs = taxResult.taxBreakdown.slabs || [];
+  const baseTax = taxResult.taxBreakdown.baseTax || 0;
+  const totalTaxPayable = taxResult.taxBreakdown.totalTaxPayable ?? 0;
+  const taxableIncome = taxResult.taxableIncome || 0;
 
   const getRateColor = (rate) => {
     if (rate === 0) return 'teal';
