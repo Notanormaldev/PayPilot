@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Badge } from './Badge';
+import { Badge } from '../ui/Badge';
 
 export const PricingSection = ({ onLaunchDemo, onOpenAuth }) => {
   const [billingPeriod, setBillingPeriod] = useState('annually');

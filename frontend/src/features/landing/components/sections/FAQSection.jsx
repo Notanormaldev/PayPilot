@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Badge } from './Badge';
+import { Badge } from '../ui/Badge';
 
 export const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState(0);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Badge } from './Badge';
+import { Badge } from '../ui/Badge';
 
 export const DocumentationSection = () => {
   const [activeCard, setActiveCard] = useState(0);

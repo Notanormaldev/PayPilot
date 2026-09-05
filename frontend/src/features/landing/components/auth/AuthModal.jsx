@@ -21,8 +21,8 @@ import {
   IconArrowRight,
   IconSparkles,
 } from '@tabler/icons-react';
-import { BrandLogo } from '../../../components/BrandLogo';
-import { useAuthUser } from '../../auth/hooks/useAuthUser';
+import { BrandLogo } from '../../../../components/BrandLogo';
+import { useAuthUser } from '../../../auth/hooks/useAuthUser';
 
 export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSuccess }) => {
   const { login, register } = useAuthUser();

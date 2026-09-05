@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrandLogo } from '../../../components/BrandLogo';
+import { BrandLogo } from '../../../../components/BrandLogo';
 
 export const LandingNavbar = ({ onOpenAuth, onLaunchDemo }) => {
   const scrollTo = (id) => {

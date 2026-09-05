@@ -1,8 +1,8 @@
 import React from 'react';
 import { Group, TextInput, ActionIcon, Box } from '@mantine/core';
 import { IconSearch, IconBell } from '@tabler/icons-react';
-import { BrandLogo } from './BrandLogo';
-import { UserMenu } from '../features/auth/components/UserMenu';
+import { BrandLogo } from '../BrandLogo';
+import { UserMenu } from '../../features/auth/components/UserMenu';
 
 export const Header = ({ onOpenCopilot, onViewLanding }) => {
   return (

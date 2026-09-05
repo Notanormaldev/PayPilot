@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Stack, Group, TextInput, Button, Text, Badge } from '@mantine/core';
 import { IconSparkles, IconSend } from '@tabler/icons-react';
-import { fetchApi } from '../lib/api';
+import { fetchApi } from '../../lib/api';
 
 export const CopilotModal = ({ opened, onClose }) => {
   const [question, setQuestion] = useState('');

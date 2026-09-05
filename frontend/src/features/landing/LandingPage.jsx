@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 import './landing.css';
-import { LandingNavbar } from './components/LandingNavbar';
-import { HeroSection } from './components/HeroSection';
-import { SocialProofSection } from './components/SocialProofSection';
-import { SmartSimpleBrilliant } from './components/SmartSimpleBrilliant';
-import { YourWorkInSync } from './components/YourWorkInSync';
-import { EffortlessIntegration } from './components/EffortlessIntegration';
-import { NumbersThatSpeak } from './components/NumbersThatSpeak';
-import { DocumentationSection } from './components/DocumentationSection';
-import { TestimonialsSection } from './components/TestimonialsSection';
-import { PricingSection } from './components/PricingSection';
-import { FAQSection } from './components/FAQSection';
-import { CTASection } from './components/CTASection';
-import { FooterSection } from './components/FooterSection';
-import { AuthModal } from './components/AuthModal';
-import { Badge } from './components/Badge';
+import {
+  LandingNavbar,
+  HeroSection,
+  SocialProofSection,
+  SmartSimpleBrilliant,
+  YourWorkInSync,
+  EffortlessIntegration,
+  NumbersThatSpeak,
+  DocumentationSection,
+  TestimonialsSection,
+  PricingSection,
+  FAQSection,
+  CTASection,
+  FooterSection,
+  AuthModal,
+  Badge,
+} from './components';
 import { useAuthUser } from '../auth/hooks/useAuthUser';
 
 export const LandingPage = ({ onAuthSuccess }) => {

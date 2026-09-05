@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge } from './Badge';
+import { Badge } from '../ui/Badge';
 
 export const SocialProofSection = () => {
   const companyLogos = [

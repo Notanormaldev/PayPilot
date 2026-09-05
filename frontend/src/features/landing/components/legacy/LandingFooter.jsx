@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconArrowUp, IconArrowRight, IconMail, IconPointFilled } from '@tabler/icons-react';
-import { BrandLogo } from '../../../components/BrandLogo';
+import { BrandLogo } from '../../../../components/BrandLogo';
 
 export const LandingFooter = ({ onOpenAuth }) => {
   const scrollToTop = () => {

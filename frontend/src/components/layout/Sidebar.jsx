@@ -16,7 +16,7 @@ import {
   IconReceiptTax,
   IconBell,
 } from '@tabler/icons-react';
-import { useAuthUser } from '../features/auth/hooks/useAuthUser';
+import { useAuthUser } from '../../features/auth/hooks/useAuthUser';
 
 export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) => {
   const { currentRole } = useAuthUser();

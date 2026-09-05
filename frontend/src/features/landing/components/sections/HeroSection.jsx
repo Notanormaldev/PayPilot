@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Badge } from './Badge';
+import { Badge } from '../ui/Badge';
 
 export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
   const [activeCard, setActiveCard] = useState(0);

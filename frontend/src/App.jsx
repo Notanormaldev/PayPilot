@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Stack } from '@mantine/core';
-import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar';
-import { CopilotModal } from './components/CopilotModal';
+import { Header } from './components/layout/Header';
+import { Sidebar } from './components/layout/Sidebar';
+import { CopilotModal } from './components/layout/CopilotModal';
 
 // Feature Components
 import { useAuthUser } from './features/auth/hooks/useAuthUser';
