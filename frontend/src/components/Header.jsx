@@ -10,7 +10,7 @@ import {
 import { BrandLogo } from './BrandLogo';
 import { UserMenu } from '../features/auth/components/UserMenu';
 
-export const Header = ({ onOpenCopilot }) => {
+export const Header = ({ onOpenCopilot, onViewLanding }) => {
   return (
     <header
       style={{
@@ -28,7 +28,9 @@ export const Header = ({ onOpenCopilot }) => {
     >
       {/* Left: Brand Logo & Org */}
       <Group gap="lg">
-        <BrandLogo size={32} />
+        <div onClick={onViewLanding} title="View PayPilot Landing Page" style={{ cursor: 'pointer' }}>
+          <BrandLogo size={32} />
+        </div>
 
         <Group gap={6} style={{ borderLeft: '1px solid #E2E8F0', paddingLeft: 16 }}>
           <IconBuildingSkyscraper size={16} color="#64748B" />

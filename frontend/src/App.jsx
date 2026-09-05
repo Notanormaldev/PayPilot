@@ -21,11 +21,12 @@ import { EmployeeTable } from './features/employees/components/EmployeeTable';
 import { PayrunView } from './features/payroll/components/PayrunView';
 import { SentinelDrawer } from './features/sentinel/components/SentinelDrawer';
 import { AttendanceView } from './features/attendance/components/AttendanceView';
-import { AuthPage } from './features/auth/components/AuthPage';
+import { LandingPage } from './features/landing/LandingPage';
 
 export const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [copilotOpen, setCopilotOpen] = useState(false);
+  const [viewLanding, setViewLanding] = useState(false);
 
   const { user, isSignedIn } = useAuthUser();
   const { kpis, trends, loading: dashboardLoading, refreshDashboard } = useDashboard();
@@ -40,10 +41,11 @@ export const App = () => {
     fetchFlags();
     fetchEmployees();
     fetchAttendanceData();
+    setViewLanding(false);
   };
 
-  if (!isSignedIn) {
-    return <AuthPage onAuthSuccess={handleRefreshAll} />;
+  if (!isSignedIn || viewLanding) {
+    return <LandingPage onAuthSuccess={handleRefreshAll} />;
   }
 
   return (
@@ -56,7 +58,10 @@ export const App = () => {
         flexDirection: 'column',
       }}
     >
-      <Header onOpenCopilot={() => setCopilotOpen(true)} />
+      <Header
+        onOpenCopilot={() => setCopilotOpen(true)}
+        onViewLanding={() => setViewLanding(true)}
+      />
 
       <div style={{ display: 'flex', flex: 1 }}>
         <Sidebar
