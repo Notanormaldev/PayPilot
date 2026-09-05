@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { cacheService } from '../lib/redis.js';
-import { authenticate } from '../middleware/auth.js';
 import { queryCopilot } from '../lib/ai.js';
+import { authenticate } from '../middleware/auth.js';
+import { isManagementOrHrUser } from './sentinel.js';
 
 export const dashboardRouter = Router();
 
@@ -15,10 +16,23 @@ dashboardRouter.get('/kpis', authenticate, async (req, res) => {
       return res.json({ data: cached, source: 'redis-cache' });
     }
 
-    const [totalEmployees, activeContracts, openFlags, latestPayruns] = await Promise.all([
+    const dbOpenFlags = await prisma.sentinelFlag.findMany({
+      where: { status: 'OPEN' },
+      include: {
+        payslip: {
+          include: {
+            employee: {
+              include: { user: true },
+            },
+          },
+        },
+      },
+    });
+    const openFlags = dbOpenFlags.filter((f) => !isManagementOrHrUser(f.payslip?.employee)).length;
+
+    const [totalEmployees, activeContracts, latestPayruns] = await Promise.all([
       prisma.employee.count({ where: { status: 'ACTIVE' } }),
       prisma.contract.count({ where: { status: 'RUNNING' } }),
-      prisma.sentinelFlag.count({ where: { status: 'OPEN' } }),
       prisma.payrun.findMany({
         take: 2,
         orderBy: { periodStart: 'desc' },

@@ -547,8 +547,13 @@
   "employeeDeclarations": {},
   "calculationLogs": [
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474892_uel4",
       "createdAt": "2026-09-05T19:27:54.892Z",
+=======
+      "id": "LOG_1788636212078_4ezw",
+      "createdAt": "2026-09-05T19:23:32.078Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "NEW",
       "grossIncome": 1189269,
       "taxableIncome": 1114270,
@@ -556,8 +561,13 @@
       "effectiveTaxRate": 0
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474891_c9a7",
       "createdAt": "2026-09-05T19:27:54.891Z",
+=======
+      "id": "LOG_1788636212073_s7v2",
+      "createdAt": "2026-09-05T19:23:32.073Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -565,8 +575,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474890_f0oy",
       "createdAt": "2026-09-05T19:27:54.890Z",
+=======
+      "id": "LOG_1788636212072_odrx",
+      "createdAt": "2026-09-05T19:23:32.072Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -574,8 +589,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474889_pk9r",
       "createdAt": "2026-09-05T19:27:54.890Z",
+=======
+      "id": "LOG_1788636212072_pvgp",
+      "createdAt": "2026-09-05T19:23:32.072Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -583,8 +603,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474889_ldbd",
       "createdAt": "2026-09-05T19:27:54.889Z",
+=======
+      "id": "LOG_1788636212071_pc8h",
+      "createdAt": "2026-09-05T19:23:32.071Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -592,8 +617,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474888_54bo",
       "createdAt": "2026-09-05T19:27:54.888Z",
+=======
+      "id": "LOG_1788636212070_y9ki",
+      "createdAt": "2026-09-05T19:23:32.070Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -601,8 +631,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474888_kf8h",
       "createdAt": "2026-09-05T19:27:54.888Z",
+=======
+      "id": "LOG_1788636212069_91gf",
+      "createdAt": "2026-09-05T19:23:32.069Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -610,8 +645,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474887_bsvg",
       "createdAt": "2026-09-05T19:27:54.887Z",
+=======
+      "id": "LOG_1788636212068_jr2x",
+      "createdAt": "2026-09-05T19:23:32.068Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -619,8 +659,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474887_sz9l",
       "createdAt": "2026-09-05T19:27:54.887Z",
+=======
+      "id": "LOG_1788636212067_irjg",
+      "createdAt": "2026-09-05T19:23:32.067Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -628,8 +673,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474886_riqa",
       "createdAt": "2026-09-05T19:27:54.886Z",
+=======
+      "id": "LOG_1788636212066_np85",
+      "createdAt": "2026-09-05T19:23:32.066Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -637,8 +687,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474886_d9x0",
       "createdAt": "2026-09-05T19:27:54.886Z",
+=======
+      "id": "LOG_1788636212065_fzr8",
+      "createdAt": "2026-09-05T19:23:32.065Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -646,8 +701,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474885_xtfn",
       "createdAt": "2026-09-05T19:27:54.885Z",
+=======
+      "id": "LOG_1788636212064_5k00",
+      "createdAt": "2026-09-05T19:23:32.064Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -655,8 +715,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474885_83tg",
       "createdAt": "2026-09-05T19:27:54.885Z",
+=======
+      "id": "LOG_1788636212063_btkb",
+      "createdAt": "2026-09-05T19:23:32.063Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -664,8 +729,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474884_0kgq",
       "createdAt": "2026-09-05T19:27:54.884Z",
+=======
+      "id": "LOG_1788636212062_fxia",
+      "createdAt": "2026-09-05T19:23:32.062Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -673,8 +743,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474883_vn8p",
       "createdAt": "2026-09-05T19:27:54.883Z",
+=======
+      "id": "LOG_1788636212061_wt5p",
+      "createdAt": "2026-09-05T19:23:32.061Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -682,8 +757,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474883_kezt",
       "createdAt": "2026-09-05T19:27:54.883Z",
+=======
+      "id": "LOG_1788636212060_dhdg",
+      "createdAt": "2026-09-05T19:23:32.060Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -691,8 +771,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474882_n7ro",
       "createdAt": "2026-09-05T19:27:54.882Z",
+=======
+      "id": "LOG_1788636212059_92bz",
+      "createdAt": "2026-09-05T19:23:32.059Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -700,8 +785,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474881_whcl",
       "createdAt": "2026-09-05T19:27:54.881Z",
+=======
+      "id": "LOG_1788636212058_kxkq",
+      "createdAt": "2026-09-05T19:23:32.058Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -709,8 +799,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474881_xt5k",
       "createdAt": "2026-09-05T19:27:54.881Z",
+=======
+      "id": "LOG_1788636212057_crfo",
+      "createdAt": "2026-09-05T19:23:32.057Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -718,8 +813,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474880_3j4g",
       "createdAt": "2026-09-05T19:27:54.880Z",
+=======
+      "id": "LOG_1788636212055_9gkx",
+      "createdAt": "2026-09-05T19:23:32.055Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -727,8 +827,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474880_w3v1",
       "createdAt": "2026-09-05T19:27:54.880Z",
+=======
+      "id": "LOG_1788636212055_ip03",
+      "createdAt": "2026-09-05T19:23:32.055Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -736,8 +841,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474879_vx6f",
       "createdAt": "2026-09-05T19:27:54.879Z",
+=======
+      "id": "LOG_1788636212054_ccmx",
+      "createdAt": "2026-09-05T19:23:32.054Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "NEW",
       "grossIncome": 1275000,
       "taxableIncome": 1200000,
@@ -745,8 +855,13 @@
       "effectiveTaxRate": 0
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474879_ljy5",
       "createdAt": "2026-09-05T19:27:54.879Z",
+=======
+      "id": "LOG_1788636212053_s2n5",
+      "createdAt": "2026-09-05T19:23:32.053Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 667500,
@@ -754,8 +869,13 @@
       "effectiveTaxRate": 3.75
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474878_nfus",
       "createdAt": "2026-09-05T19:27:54.878Z",
+=======
+      "id": "LOG_1788636212050_38hd",
+      "createdAt": "2026-09-05T19:23:32.050Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "NEW",
       "grossIncome": 1275000,
       "taxableIncome": 1200000,
@@ -763,6 +883,7 @@
       "effectiveTaxRate": 0
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474876_zkov",
       "createdAt": "2026-09-05T19:27:54.876Z",
       "regime": "NEW",
@@ -774,6 +895,10 @@
     {
       "id": "LOG_1788636474874_unmn",
       "createdAt": "2026-09-05T19:27:54.874Z",
+=======
+      "id": "LOG_1788636212047_j2fn",
+      "createdAt": "2026-09-05T19:23:32.047Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "NEW",
       "grossIncome": 1189269,
       "taxableIncome": 1114270,
@@ -781,8 +906,13 @@
       "effectiveTaxRate": 0
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474872_7so0",
       "createdAt": "2026-09-05T19:27:54.872Z",
+=======
+      "id": "LOG_1788636212044_iwmo",
+      "createdAt": "2026-09-05T19:23:32.044Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -790,8 +920,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474871_lp93",
       "createdAt": "2026-09-05T19:27:54.871Z",
+=======
+      "id": "LOG_1788636212043_407b",
+      "createdAt": "2026-09-05T19:23:32.043Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -799,8 +934,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474871_yhul",
       "createdAt": "2026-09-05T19:27:54.871Z",
+=======
+      "id": "LOG_1788636212042_pklr",
+      "createdAt": "2026-09-05T19:23:32.042Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -808,8 +948,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474870_dlaf",
       "createdAt": "2026-09-05T19:27:54.870Z",
+=======
+      "id": "LOG_1788636212041_9g3v",
+      "createdAt": "2026-09-05T19:23:32.041Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -817,8 +962,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474870_n78u",
       "createdAt": "2026-09-05T19:27:54.870Z",
+=======
+      "id": "LOG_1788636212040_aofr",
+      "createdAt": "2026-09-05T19:23:32.040Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -826,8 +976,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474869_1knm",
       "createdAt": "2026-09-05T19:27:54.869Z",
+=======
+      "id": "LOG_1788636212039_a58h",
+      "createdAt": "2026-09-05T19:23:32.039Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -835,8 +990,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474869_sckd",
       "createdAt": "2026-09-05T19:27:54.869Z",
+=======
+      "id": "LOG_1788636212038_whwg",
+      "createdAt": "2026-09-05T19:23:32.038Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -844,8 +1004,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474868_y28v",
       "createdAt": "2026-09-05T19:27:54.868Z",
+=======
+      "id": "LOG_1788636212037_pg9t",
+      "createdAt": "2026-09-05T19:23:32.037Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -853,8 +1018,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474867_mz1p",
       "createdAt": "2026-09-05T19:27:54.867Z",
+=======
+      "id": "LOG_1788636212036_ci4z",
+      "createdAt": "2026-09-05T19:23:32.036Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -862,8 +1032,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474867_l2ih",
       "createdAt": "2026-09-05T19:27:54.867Z",
+=======
+      "id": "LOG_1788636212034_yzcl",
+      "createdAt": "2026-09-05T19:23:32.034Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -871,8 +1046,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474866_z5c2",
       "createdAt": "2026-09-05T19:27:54.866Z",
+=======
+      "id": "LOG_1788636212034_25i5",
+      "createdAt": "2026-09-05T19:23:32.034Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -880,8 +1060,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474866_djco",
       "createdAt": "2026-09-05T19:27:54.866Z",
+=======
+      "id": "LOG_1788636212033_l0pq",
+      "createdAt": "2026-09-05T19:23:32.033Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -889,8 +1074,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474865_c7o7",
       "createdAt": "2026-09-05T19:27:54.865Z",
+=======
+      "id": "LOG_1788636212032_u3kp",
+      "createdAt": "2026-09-05T19:23:32.032Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -898,8 +1088,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474865_if05",
       "createdAt": "2026-09-05T19:27:54.865Z",
+=======
+      "id": "LOG_1788636212031_ph41",
+      "createdAt": "2026-09-05T19:23:32.031Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -907,8 +1102,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474864_1jyl",
       "createdAt": "2026-09-05T19:27:54.864Z",
+=======
+      "id": "LOG_1788636212030_gyu9",
+      "createdAt": "2026-09-05T19:23:32.030Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -916,8 +1116,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474864_ezc8",
       "createdAt": "2026-09-05T19:27:54.864Z",
+=======
+      "id": "LOG_1788636212028_rjog",
+      "createdAt": "2026-09-05T19:23:32.028Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -925,8 +1130,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474863_9d3q",
       "createdAt": "2026-09-05T19:27:54.863Z",
+=======
+      "id": "LOG_1788636212028_kpce",
+      "createdAt": "2026-09-05T19:23:32.028Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -934,8 +1144,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474863_2hks",
       "createdAt": "2026-09-05T19:27:54.863Z",
+=======
+      "id": "LOG_1788636212026_v46h",
+      "createdAt": "2026-09-05T19:23:32.026Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -943,8 +1158,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474862_wwqu",
       "createdAt": "2026-09-05T19:27:54.862Z",
+=======
+      "id": "LOG_1788636212024_uucm",
+      "createdAt": "2026-09-05T19:23:32.024Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -952,8 +1172,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474861_79h3",
       "createdAt": "2026-09-05T19:27:54.861Z",
+=======
+      "id": "LOG_1788636212023_3mp3",
+      "createdAt": "2026-09-05T19:23:32.023Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 1072500,
@@ -961,8 +1186,13 @@
       "effectiveTaxRate": 10.95
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474860_a4rf",
       "createdAt": "2026-09-05T19:27:54.860Z",
+=======
+      "id": "LOG_1788636212021_pwz0",
+      "createdAt": "2026-09-05T19:23:32.021Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "NEW",
       "grossIncome": 1275000,
       "taxableIncome": 1200000,
@@ -970,8 +1200,13 @@
       "effectiveTaxRate": 0
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474859_sytq",
       "createdAt": "2026-09-05T19:27:54.859Z",
+=======
+      "id": "LOG_1788636212019_2kx8",
+      "createdAt": "2026-09-05T19:23:32.019Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "OLD",
       "grossIncome": 1275000,
       "taxableIncome": 667500,
@@ -979,8 +1214,13 @@
       "effectiveTaxRate": 3.75
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474858_qlxq",
       "createdAt": "2026-09-05T19:27:54.858Z",
+=======
+      "id": "LOG_1788636212018_uxt4",
+      "createdAt": "2026-09-05T19:23:32.018Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "NEW",
       "grossIncome": 1275000,
       "taxableIncome": 1200000,
@@ -988,8 +1228,22 @@
       "effectiveTaxRate": 0
     },
     {
+<<<<<<< HEAD
       "id": "LOG_1788636474854_qnf4",
       "createdAt": "2026-09-05T19:27:54.854Z",
+=======
+      "id": "LOG_1788636212015_fht4",
+      "createdAt": "2026-09-05T19:23:32.015Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788636212008_igxh",
+      "createdAt": "2026-09-05T19:23:32.008Z",
+>>>>>>> 7d43a8e (feat(sentinel): scope compliance audit to staff employees and add batch/individual verification modal queue)
       "regime": "NEW",
       "grossIncome": 1275000,
       "taxableIncome": 1200000,

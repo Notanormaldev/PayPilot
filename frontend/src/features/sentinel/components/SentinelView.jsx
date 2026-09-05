@@ -18,6 +18,7 @@ import {
   ThemeIcon,
   Progress,
   Divider,
+  Checkbox,
 } from '@mantine/core';
 import {
   IconShieldExclamation,
@@ -97,11 +98,40 @@ export const SentinelView = ({ flags = [], onFlagResolved }) => {
   const [queue, setQueue] = useState([]);
   const [queueIndex, setQueueIndex] = useState(0);
 
+  // Batch Selection & Batch Resolution State
+  const [selectedFlagIds, setSelectedFlagIds] = useState([]);
+  const [batchResolving, setBatchResolving] = useState(false);
+
   const showNotification = (type, message) => {
     setFeedback({ type, message });
     setTimeout(() => {
       setFeedback({ type: null, message: '' });
     }, 5000);
+  };
+
+  const handleSelectAllFlags = (checked) => {
+    if (checked) {
+      setSelectedFlagIds(filteredFlags.map((f) => f.id));
+    } else {
+      setSelectedFlagIds([]);
+    }
+  };
+
+  const handleToggleFlagSelect = (id) => {
+    setSelectedFlagIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBatchAuthorizeSelected = () => {
+    const targetFlags = selectedFlagIds.length > 0
+      ? filteredFlags.filter((f) => selectedFlagIds.includes(f.id))
+      : filteredFlags;
+    if (targetFlags.length === 0) return;
+    setQueue(targetFlags);
+    setQueueIndex(0);
+    setSelectedFlag(targetFlags[0]);
+    setModalOpened(true);
   };
 
   // Open modal for a single flag
@@ -468,6 +498,41 @@ export const SentinelView = ({ flags = [], onFlagResolved }) => {
         {/* TAB 1: Flags List */}
         {activeTab !== 'RULES' && (
           <Stack gap="sm">
+            {filteredFlags.length > 0 && (
+              <Paper p="xs" px="md" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <Group justify="space-between" align="center">
+                  <Group gap="sm">
+                    <Checkbox
+                      size="xs"
+                      label={`Select All Flags (${filteredFlags.length})`}
+                      checked={selectedFlagIds.length === filteredFlags.length && filteredFlags.length > 0}
+                      indeterminate={selectedFlagIds.length > 0 && selectedFlagIds.length < filteredFlags.length}
+                      onChange={(e) => handleSelectAllFlags(e.currentTarget.checked)}
+                      styles={{ label: { fontWeight: 600, fontSize: '12px', color: '#334155' } }}
+                    />
+                    {selectedFlagIds.length > 0 && (
+                      <Badge size="xs" color="blue" variant="light">
+                        {selectedFlagIds.length} Selected for Batch Action
+                      </Badge>
+                    )}
+                  </Group>
+
+                  {selectedFlagIds.length > 0 && (
+                    <Button
+                      size="xs"
+                      color="teal"
+                      variant="filled"
+                      loading={batchResolving}
+                      onClick={handleBatchAuthorizeSelected}
+                      leftSection={<IconChecks size={14} />}
+                    >
+                      Batch Verify & Authorize ({selectedFlagIds.length})
+                    </Button>
+                  )}
+                </Group>
+              </Paper>
+            )}
+
             {filteredFlags.length === 0 ? (
               <Paper p="xl" radius="md" style={{ backgroundColor: '#F8FAFC', border: '1px dashed #CBD5E1', textAlign: 'center' }}>
                 <ThemeIcon size={44} radius="xl" color="teal" variant="light" mb="xs">
@@ -500,6 +565,12 @@ export const SentinelView = ({ flags = [], onFlagResolved }) => {
                   >
                     <Group justify="space-between" align="flex-start" wrap="nowrap">
                       <Group gap="sm" align="flex-start" style={{ flex: 1 }}>
+                        <Checkbox
+                          size="xs"
+                          checked={selectedFlagIds.includes(flag.id)}
+                          onChange={() => handleToggleFlagSelect(flag.id)}
+                          mt={6}
+                        />
                         <UserAvatar name={empName} role={flag.department || 'Operations'} size={38} />
                         <div style={{ flex: 1 }}>
                           <Group gap="xs" mb={4} wrap="wrap">

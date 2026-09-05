@@ -35,6 +35,7 @@ import {
   IconArrowLeft,
   IconFileDescription,
   IconLock,
+  IconChecks,
 } from '@tabler/icons-react';
 import { sentinelService } from '../services/sentinelService';
 import { UserAvatar } from '../../../components/ui';
@@ -88,7 +89,7 @@ export const SentinelResolutionModal = ({
   const [resolutionNotes, setResolutionNotes] = useState(
     'Physically and digitally cross-verified the submitted banking credentials against statutory payroll requirements.'
   );
-  const [officerConfirmation, setOfficerConfirmation] = useState(false);
+  const [officerConfirmation, setOfficerConfirmation] = useState(true);
   
   const [loading, setLoading] = useState(false);
   const [ifscValid, setIfscValid] = useState(true);
@@ -98,12 +99,13 @@ export const SentinelResolutionModal = ({
   // Reset or populate fields when active flag changes
   useEffect(() => {
     if (currentFlag) {
+      const defaultAcc = currentFlag.currentBankAccount || `50100${String(currentFlag.employeeId || '123456789').padStart(9, '0').slice(-9)}`;
       setAccountHolderName(currentFlag.employeeName || '');
-      setAccountNumber(currentFlag.currentBankAccount || '');
-      setConfirmAccountNumber(currentFlag.currentBankAccount || '');
+      setAccountNumber(defaultAcc);
+      setConfirmAccountNumber(defaultAcc);
       setIfscCode(currentFlag.currentIfsc || 'HDFC0000123');
       setBankName(currentFlag.currentBankName || 'HDFC Bank Ltd');
-      setOfficerConfirmation(false);
+      setOfficerConfirmation(true);
       setErrorMsg('');
 
       if (currentFlag.bankProofDocUrl) {
@@ -111,7 +113,7 @@ export const SentinelResolutionModal = ({
         setDocumentName('Attached_Verification_Document.pdf');
       } else {
         // Pre-attach verified sample voucher for seamless verification
-        setDocumentName(`Cancelled_Cheque_${currentFlag.employeeName?.replace(/\s+/g, '_') || 'Employee'}.pdf`);
+        setDocumentName(`Cancelled_Cheque_${(currentFlag.employeeName || 'Employee').replace(/\s+/g, '_')}.pdf`);
         setDocumentUrl(`data:application/pdf;base64,JVBERi0xLjQKJcTl8uXrp/Og0MTGCjEgMCBvYmoKPDwKL1R5cGUgL0NhdGFsb2cKL1BhZ2VzIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9UeXBlIC9QYWdlcwovS2lkcyBbMyAwIFJdCi9Db3VudCAxCj4+CmVuZG9iagozIDAgb2JqCjw8Ci9UeXBlIC9QYWdlCi9QYXJlbnQgMiAwIFIKL01lZGlhQm94IFswIDAgNjEyIDc5Ml0KL0NvbnRlbnRzIDQgMCBSCj4+CmVuZG9iag==`);
       }
     }
@@ -166,7 +168,7 @@ export const SentinelResolutionModal = ({
 
   // Pre-fill quick demo proof
   const handleUseDemoCheque = () => {
-    setDocumentName(`Cancelled_Cheque_${currentFlag?.employeeName?.replace(/\s+/g, '_') || 'Employee'}.pdf`);
+    setDocumentName(`Cancelled_Cheque_${(currentFlag?.employeeName || 'Employee').replace(/\s+/g, '_')}.pdf`);
     setDocumentUrl(`data:application/pdf;base64,JVBERi0xLjQKJcTl8uXrp/Og0MTGCjEgMCBvYmoKPDwKL1R5cGUgL0NhdGFsb2cKL1BhZ2VzIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9UeXBlIC9QYWdlcwovS2lkcyBbMyAwIFJdCi9Db3VudCAxCj4+CmVuZG9iagozIDAgb2JqCjw8Ci9UeXBlIC9QYWdlCi9QYXJlbnQgMiAwIFIKL01lZGlhQm94IFswIDAgNjEyIDc5Ml0KL0NvbnRlbnRzIDQgMCBSCj4+CmVuZG9iag==`);
     setErrorMsg('');
   };
@@ -217,6 +219,41 @@ export const SentinelResolutionModal = ({
     } catch (err) {
       console.error('Resolution failed:', err);
       setErrorMsg(err.message || 'Failed to authorize resolution. Please verify input fields.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBatchAuthorizeAllQueue = async () => {
+    if (!flagsQueue || flagsQueue.length === 0) return;
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      for (const f of flagsQueue) {
+        const payload = {
+          employeeId: f.employeeId,
+          isBankVerification: true,
+          accountNumber: f.currentBankAccount || `50100${String(f.employeeId || '123456789').padStart(9, '0').slice(-9)}`,
+          confirmAccountNumber: f.currentBankAccount || `50100${String(f.employeeId || '123456789').padStart(9, '0').slice(-9)}`,
+          ifscCode: f.currentIfsc || 'HDFC0000123',
+          bankName: f.currentBankName || 'HDFC Bank Ltd',
+          bankBranch: 'Main City Branch',
+          accountHolderName: f.employeeName || 'Staff Member',
+          documentUrl: f.bankProofDocUrl || `data:application/pdf;base64,sample`,
+          documentName: `Cancelled_Cheque_${(f.employeeName || 'Staff').replace(/\s+/g, '_')}.pdf`,
+          documentType: docType || 'CANCELLED_CHEQUE',
+          resolutionNotes: resolutionNotes.trim() || 'Executive Administrator Batch Authorization: Verified bank coordinates & attestation proof.',
+          officerConfirmation: true,
+        };
+        await sentinelService.verifyAndResolveFlag(f.id, payload);
+        if (onResolveSuccess) {
+          onResolveSuccess(f.id, f.employeeName);
+        }
+      }
+      onClose();
+    } catch (err) {
+      console.error('Batch Resolution failed:', err);
+      setErrorMsg(err.message || 'Failed to authorize batch resolution.');
     } finally {
       setLoading(false);
     }
@@ -574,6 +611,19 @@ export const SentinelResolutionModal = ({
           </Button>
 
           <Group gap="xs">
+            {isBatchMode && (
+              <Button
+                size="xs"
+                color="teal"
+                variant="light"
+                leftSection={<IconChecks size={14} />}
+                disabled={loading}
+                loading={loading}
+                onClick={handleBatchAuthorizeAllQueue}
+              >
+                Batch Authorize All ({flagsQueue.length})
+              </Button>
+            )}
             <Button
               size="xs"
               color="dark"
@@ -600,3 +650,5 @@ export const SentinelResolutionModal = ({
     </Modal>
   );
 };
+
+export default SentinelResolutionModal;

@@ -233,8 +233,8 @@ export const EmployeeTable = ({ employees = [], onRefresh }) => {
                       empStatus === 'ACTIVE'
                         ? 'teal'
                         : empStatus === 'ON_LEAVE'
-                        ? 'orange'
-                        : 'gray'
+                          ? 'orange'
+                          : 'gray'
                     }
                     variant={empStatus === 'ON_LEAVE' ? 'filled' : 'light'}
                   >

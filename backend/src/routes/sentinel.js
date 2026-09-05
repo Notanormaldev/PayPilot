@@ -51,6 +51,44 @@ sentinelRouter.get('/validate-ifsc', authenticate, (req, res) => {
   });
 });
 
+/**
+ * Helper to identify if an employee record belongs to HR Manager, Admin, or non-staff management.
+ * Only standard staff (role === 'EMPLOYEE' and non-HR/Admin roles) should be audited in Sentinel payroll flags.
+ */
+export function isManagementOrHrUser(emp) {
+  if (!emp) return false;
+
+  // Check linked user role if present
+  const userRole = emp.user?.role;
+  if (userRole && userRole !== 'EMPLOYEE') {
+    return true;
+  }
+
+  // Check job position, name, or email keywords
+  const position = (emp.jobPosition || '').toLowerCase();
+  const name = (emp.name || '').toLowerCase();
+  const email = (emp.workEmail || '').toLowerCase();
+
+  if (
+    position.includes('hr manager') ||
+    position.includes('hr lead') ||
+    position.includes('payroll lead') ||
+    position.includes('payroll manager') ||
+    position.includes('admin') ||
+    position.includes('administrator') ||
+    name.startsWith('hr_') ||
+    name.includes('hr manager') ||
+    name.includes('hr_manager') ||
+    name.includes('admin') ||
+    email.includes('hr_manager') ||
+    email.includes('admin')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 // GET /api/sentinel/flags - list active fraud & compliance flags with rich employee context
 sentinelRouter.get('/flags', authenticate, async (req, res) => {
   try {
@@ -67,7 +105,9 @@ sentinelRouter.get('/flags', authenticate, async (req, res) => {
         include: {
           payslip: {
             include: {
-              employee: true,
+              employee: {
+                include: { user: true },
+              },
               payrun: true,
             },
           },
@@ -83,8 +123,11 @@ sentinelRouter.get('/flags', authenticate, async (req, res) => {
 
     let formattedFlags = dbFlags
       .filter((f) => {
+        const emp = f.payslip?.employee;
+        if (isManagementOrHrUser(emp)) return false;
+
         if (f.flagType === 'MISSING_BANK_DETAILS') {
-          const acc = f.payslip?.employee?.bankAccount;
+          const acc = emp?.bankAccount;
           if (acc && String(acc).trim() !== '') return false;
         }
         return true;
@@ -136,6 +179,8 @@ sentinelRouter.get('/flags', authenticate, async (req, res) => {
       });
 
       for (const emp of missingBankEmployees) {
+        if (isManagementOrHrUser(emp)) continue;
+
         const flagId = `flag_missing_bank_${emp.id}`;
         // Exclude if already marked resolved
         if (!resolvedFlagIds.has(flagId) && !formattedFlags.some((f) => f.id === flagId)) {
