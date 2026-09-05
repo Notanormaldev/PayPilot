@@ -21,6 +21,7 @@ import { EmployeeTable } from './features/employees/components/EmployeeTable';
 import { PayrunView } from './features/payroll/components/PayrunView';
 import { SentinelDrawer } from './features/sentinel/components/SentinelDrawer';
 import { AttendanceView } from './features/attendance/components/AttendanceView';
+import { ApprovalsView } from './features/approvals';
 import { LandingPage } from './features/landing/LandingPage';
 
 // Employee Self-Service Portal Views (7 Core Facilities)
@@ -169,18 +170,9 @@ export const App = () => {
               )}
 
               {activeTab === 'approvals' && (
-                <Grid gutter="lg">
-                  <Grid.Col span={{ base: 12, md: 6 }}>
-                    <ToDoTasks />
-                  </Grid.Col>
-                  <Grid.Col span={{ base: 12, md: 6 }}>
-                    <AttendanceView
-                      attendances={attendances}
-                      leaveRequests={leaveRequests}
-                      onRefresh={handleRefreshAll}
-                    />
-                  </Grid.Col>
-                </Grid>
+                <Stack gap="lg">
+                  <ApprovalsView onRefresh={handleRefreshAll} />
+                </Stack>
               )}
 
               {activeTab === 'sentinel' && (

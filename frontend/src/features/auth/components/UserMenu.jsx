@@ -55,12 +55,26 @@ export const UserMenu = ({ onNavigateTab }) => {
               name={user?.name || 'Meera Krishnan'}
               id={user?.email || 'meera'}
             />
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-              <Text size="xs" fw={700} c="#09090B">
+            <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
+              <Text size="xs" fw={700} c="#09090B" style={{ whiteSpace: 'nowrap' }}>
                 {user?.name || 'Meera Krishnan'}
               </Text>
-              <Badge size="9px" color={roleColor} variant="light" px={4} py={0}>
-                {currentRole}
+              <Badge
+                size="xs"
+                color={roleColor}
+                variant="light"
+                styles={{
+                  root: {
+                    height: 16,
+                    fontSize: '9px',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    padding: '0 5px',
+                    marginTop: '2px',
+                  },
+                }}
+              >
+                {activeRoleLabel}
               </Badge>
             </div>
             <IconChevronDown size={14} color="#71717A" />
