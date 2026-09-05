@@ -1,96 +1,100 @@
 import React from 'react';
-import { Stack, UnstyledButton, Group, Text, Badge } from '@mantine/core';
+import { Stack, UnstyledButton, Group, Text, Badge, Box } from '@mantine/core';
 import {
-  IconLayoutDashboard,
+  IconDashboard,
   IconUsers,
   IconReceipt2,
-  IconCalendarEvent,
-  IconAdjustmentsHorizontal,
+  IconClock,
+  IconCheckupList,
   IconShieldExclamation,
+  IconFileText,
+  IconPigMoney,
+  IconChartBar,
+  IconSettings,
 } from '@tabler/icons-react';
 
-export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount }) => {
+export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) => {
   const navItems = [
-    { id: 'dashboard', label: 'Executive Dashboard', icon: IconLayoutDashboard },
-    { id: 'payroll', label: 'Payroll & Sentinel', icon: IconReceipt2, badge: openSentinelFlagsCount > 0 ? `${openSentinelFlagsCount} flags` : undefined, badgeColor: 'red' },
-    { id: 'employees', label: 'Employee Hub', icon: IconUsers },
-    { id: 'time-off', label: 'Attendance & Leaves', icon: IconCalendarEvent },
-    { id: 'structures', label: 'Salary Rules & CTC', icon: IconAdjustmentsHorizontal },
+    { id: 'dashboard', label: 'Dashboard', icon: IconDashboard },
+    { id: 'employees', label: 'Employees', icon: IconUsers },
+    { id: 'payroll', label: 'Pay Runs', icon: IconReceipt2 },
+    { id: 'time-off', label: 'Leave & Attendance', icon: IconClock },
+    { id: 'approvals', label: 'Approvals', icon: IconCheckupList },
+    {
+      id: 'sentinel',
+      label: 'Sentinel Audit',
+      icon: IconShieldExclamation,
+      badge: openSentinelFlagsCount > 0 ? `${openSentinelFlagsCount} Risk` : null,
+      badgeColor: 'red',
+    },
+    { id: 'taxes', label: 'Taxes & Forms', icon: IconFileText },
+    { id: 'loans', label: 'Loans', icon: IconPigMoney },
+    { id: 'reports', label: 'Reports', icon: IconChartBar },
+    { id: 'settings', label: 'Settings', icon: IconSettings },
   ];
 
   return (
     <aside
       style={{
         width: '240px',
-        backgroundColor: '#F8FAFC',
+        backgroundColor: '#FFFFFF',
         borderRight: '1px solid #E2E8F0',
         padding: '16px 12px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        height: 'calc(100vh - 60px)',
+        position: 'sticky',
+        top: '60px',
       }}
     >
-      <Stack gap="xs">
-        <Text size="xs" fw={700} c="#71717A" px="sm" style={{ letterSpacing: '0.05em' }}>
-          CORE PLATFORM
-        </Text>
-
+      <Stack gap={4}>
         {navItems.map((item) => {
-          const isActive = activeTab === item.id;
           const Icon = item.icon;
+          const isActive = activeTab === item.id;
           return (
             <UnstyledButton
               key={item.id}
               onClick={() => onTabChange(item.id)}
               style={{
-                display: 'block',
-                width: '100%',
-                padding: '9px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '8px 12px',
                 borderRadius: '6px',
-                backgroundColor: isActive ? '#FFFFFF' : 'transparent',
-                border: isActive ? '1px solid #E2E8F0' : '1px solid transparent',
-                boxShadow: isActive ? '0 1px 2px rgba(0, 0, 0, 0.04)' : 'none',
+                backgroundColor: isActive ? '#F1F5F9' : 'transparent',
+                color: isActive ? '#09090B' : '#64748B',
+                fontWeight: isActive ? 700 : 500,
+                fontSize: '13px',
                 transition: 'all 0.15s ease',
               }}
             >
-              <Group justify="space-between" wrap="nowrap">
-                <Group gap="sm" wrap="nowrap">
-                  <Icon size={18} color={isActive ? '#2563EB' : '#64748B'} />
-                  <Text size="sm" fw={isActive ? 600 : 500} c={isActive ? '#09090B' : '#64748B'}>
-                    {item.label}
-                  </Text>
-                </Group>
-                {item.badge && (
-                  <Badge size="xs" color={item.badgeColor} variant="filled">
-                    {item.badge}
-                  </Badge>
-                )}
+              <Group gap="xs">
+                <Icon size={16} color={isActive ? '#09090B' : '#94A3B8'} />
+                <Text size="xs" fw={isActive ? 700 : 500} c={isActive ? '#09090B' : '#64748B'}>
+                  {item.label}
+                </Text>
               </Group>
+
+              {item.badge && (
+                <Badge size="xs" color={item.badgeColor || 'gray'} variant="filled">
+                  {item.badge}
+                </Badge>
+              )}
             </UnstyledButton>
           );
         })}
       </Stack>
 
-      {/* Sentinel System Health Mini Widget */}
-      <div
-        style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E2E8F0',
-          borderRadius: '6px',
-          padding: '12px',
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
-        }}
-      >
-        <Group gap="xs" mb={4}>
-          <IconShieldExclamation size={14} color="#10B981" />
-          <Text size="xs" fw={700} c="#09090B">
-            Sentinel Guard v2.4
-          </Text>
-        </Group>
-        <Text size="xs" c="#64748B">
-          Autonomous compliance & fraud monitoring active.
+      {/* Bottom Contact Support / Help */}
+      <Box p="xs" style={{ borderTop: '1px solid #F1F5F9' }}>
+        <Text size="11px" c="#71717A" fw={600} style={{ cursor: 'pointer' }}>
+          Contact Support • Docs
         </Text>
-      </div>
+        <Text size="9px" c="#A1A1AA" mt={2}>
+          PayPilot Autonomous v2.4.0
+        </Text>
+      </Box>
     </aside>
   );
 };
