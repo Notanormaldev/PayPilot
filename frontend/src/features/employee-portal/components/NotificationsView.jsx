@@ -8,13 +8,11 @@ import {
   Button,
   Title,
   SegmentedControl,
-  UnstyledButton,
   ActionIcon,
   Tooltip,
-  Divider,
+  Box,
 } from '@mantine/core';
 import {
-  IconBell,
   IconCheck,
   IconReceipt2,
   IconCalendarEvent,
@@ -22,54 +20,13 @@ import {
   IconSpeakerphone,
   IconChecks,
 } from '@tabler/icons-react';
+import { useNotifications } from '../hooks/useNotifications';
 
 export const NotificationsView = () => {
   const [filter, setFilter] = useState('all');
-  const [items, setItems] = useState([
-    {
-      id: 'notif_1',
-      title: 'Leave Request Approved',
-      message: 'Your Casual Leave request for Sep 12 - Sep 14, 2026 was approved by Meera Krishnan.',
-      timestamp: '2 hours ago',
-      type: 'leave',
-      unread: true,
-    },
-    {
-      id: 'notif_2',
-      title: 'New Monthly Payslip Available',
-      message: 'Your official payslip statement for August 2026 has been generated and is ready for download.',
-      timestamp: '1 day ago',
-      type: 'payslip',
-      unread: true,
-    },
-    {
-      id: 'notif_3',
-      title: 'Attendance Correction Approved',
-      message: 'HR Manager approved your attendance correction for Sep 03, 2026. Entry updated to 09:00 AM.',
-      timestamp: '2 days ago',
-      type: 'attendance',
-      unread: false,
-    },
-    {
-      id: 'notif_4',
-      title: 'Company Holiday Announcement',
-      message: 'PayPilot Global Offices will be closed on Friday, October 02, 2026 in observance of Mahatma Gandhi Jayanti.',
-      timestamp: '4 days ago',
-      type: 'announcement',
-      unread: false,
-    },
-  ]);
+  const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
 
-  const markAllRead = () => {
-    setItems(items.map((i) => ({ ...i, unread: false })));
-  };
-
-  const markSingleRead = (id) => {
-    setItems(items.map((i) => (i.id === id ? { ...i, unread: false } : i)));
-  };
-
-  const filteredItems = items.filter((i) => (filter === 'unread' ? i.unread : true));
-  const unreadCount = items.filter((i) => i.unread).length;
+  const filteredItems = notifications.filter((i) => (filter === 'unread' ? i.unread : true));
 
   const getIcon = (type) => {
     switch (type) {
@@ -169,7 +126,7 @@ export const NotificationsView = () => {
 
               {item.unread && (
                 <Tooltip label="Mark as read" withArrow>
-                  <ActionIcon size="sm" variant="subtle" color="gray" onClick={() => markSingleRead(item.id)}>
+                  <ActionIcon size="sm" variant="subtle" color="gray" onClick={() => markRead(item.id)}>
                     <IconCheck size={14} />
                   </ActionIcon>
                 </Tooltip>

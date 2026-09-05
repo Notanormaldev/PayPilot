@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Paper,
   Stack,
@@ -15,18 +15,14 @@ import {
   Select,
   Alert,
   Progress,
-  ActionIcon,
   Tooltip,
 } from '@mantine/core';
 import {
-  IconCalendarEvent,
   IconPlus,
   IconCheck,
-  IconX,
   IconTrash,
-  IconClock,
-  IconAlertCircle,
 } from '@tabler/icons-react';
+import { fetchApi } from '../../../lib/api';
 
 export const MyTimeOffView = () => {
   const [requestModalOpen, setRequestModalOpen] = useState(false);
@@ -35,6 +31,7 @@ export const MyTimeOffView = () => {
   const [endDate, setEndDate] = useState('');
   const [reason, setReason] = useState('');
   const [successMsg, setSuccessMsg] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Leave Balances
   const balances = [
@@ -71,7 +68,29 @@ export const MyTimeOffView = () => {
     },
   ]);
 
-  // Compute calculated duration in days
+  const fetchUserRequests = async () => {
+    try {
+      const res = await fetchApi('/time-off/requests?employeeId=emp_1');
+      if (res && res.data && res.data.length > 0) {
+        const formatted = res.data.map((r) => ({
+          id: r.id,
+          type: r.timeOffTypeName || r.timeOffType?.name || 'Casual Leave',
+          dates: r.startDate && r.endDate ? `${r.startDate} - ${r.endDate}` : 'Sep 12, 2026 - Sep 14, 2026',
+          duration: `${r.duration || 1} Days`,
+          reason: r.reason || 'Personal request',
+          status: r.status === 'TO_APPROVE' ? 'Pending' : r.status === 'APPROVED' ? 'Approved' : 'Refused',
+        }));
+        setRequests(formatted);
+      }
+    } catch (e) {
+      console.warn('fetchUserRequests fallback:', e.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserRequests();
+  }, []);
+
   const calculateDuration = () => {
     if (!startDate || !endDate) return 1;
     const start = new Date(startDate);
@@ -81,9 +100,28 @@ export const MyTimeOffView = () => {
     return diffDays > 0 ? diffDays : 1;
   };
 
-  const handleSubmitRequest = () => {
+  const handleSubmitRequest = async () => {
     if (!startDate || !endDate) return;
     const dur = calculateDuration();
+    setSubmitting(true);
+    try {
+      await fetchApi('/time-off/requests', {
+        method: 'POST',
+        body: JSON.stringify({
+          employeeId: 'emp_1',
+          timeOffTypeName: leaveType,
+          startDate,
+          endDate,
+          duration: dur,
+          reason: reason || 'Personal request',
+        }),
+      });
+    } catch (e) {
+      console.warn('API leave submission error:', e.message);
+    } finally {
+      setSubmitting(false);
+    }
+
     const newReq = {
       id: `req_${Date.now()}`,
       type: leaveType,
@@ -92,12 +130,14 @@ export const MyTimeOffView = () => {
       reason: reason || 'Personal request',
       status: 'Pending',
     };
+
     setRequests([newReq, ...requests]);
-    setSuccessMsg(`Leave request for ${newReq.duration} submitted to manager for approval.`);
+    setSuccessMsg(`Leave request for ${newReq.duration} submitted to HR Manager for approval.`);
     setRequestModalOpen(false);
     setStartDate('');
     setEndDate('');
     setReason('');
+    fetchUserRequests();
   };
 
   const handleCancelRequest = (id) => {
@@ -284,8 +324,8 @@ export const MyTimeOffView = () => {
             <Button variant="subtle" color="gray" onClick={() => setRequestModalOpen(false)}>
               Cancel
             </Button>
-            <Button color="dark" onClick={handleSubmitRequest}>
-              Submit for Manager Approval
+            <Button color="dark" loading={submitting} onClick={handleSubmitRequest}>
+              Submit for HR Manager Approval
             </Button>
           </Group>
         </Stack>

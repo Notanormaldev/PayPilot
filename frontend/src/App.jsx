@@ -89,6 +89,7 @@ export const App = () => {
       <Header
         onOpenCopilot={() => setCopilotOpen(true)}
         onViewLanding={() => setViewLanding(true)}
+        onNavigateTab={(tab) => setActiveTab(tab)}
       />
 
       <div style={{ display: 'flex', flex: 1 }}>

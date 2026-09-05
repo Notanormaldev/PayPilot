@@ -14,6 +14,7 @@ import { salaryStructuresRouter } from './routes/salary-structures.js';
 import { payrunsRouter } from './routes/payruns.js';
 import { sentinelRouter } from './routes/sentinel.js';
 import { dashboardRouter } from './routes/dashboard.js';
+import { notificationsRouter } from './routes/notifications.js';
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ app.use('/api/salary-structures', salaryStructuresRouter);
 app.use('/api/payruns', payrunsRouter);
 app.use('/api/sentinel', sentinelRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
