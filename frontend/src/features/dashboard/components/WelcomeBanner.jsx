@@ -55,45 +55,45 @@ export const WelcomeBanner = ({ kpis, onRunPayroll, userName = 'Meera Krishnan' 
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, sm: 8, md: 4.5 }}>
-            <Group justify="space-between" align="baseline" mb={3}>
-              <Text size="11px" fw={700} c="#71717A" style={{ letterSpacing: '0.5px' }}>
-                TOTAL EMPLOYEES
+            <Text size="11px" fw={700} c="#71717A" style={{ letterSpacing: '0.5px' }} mb={3}>
+              NO. OF EMPLOYEES
+            </Text>
+            <Group gap="xs" align="center" wrap="nowrap">
+              <Text size="22px" fw={800} c="#09090B" style={{ fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>
+                {totalEmployees}
               </Text>
-              <Text size="11px" fw={800} c="#09090B">
-                {totalEmployees} Total Staff
-              </Text>
-            </Group>
-            <Group gap={6} wrap="wrap">
-              <Badge
-                size="sm"
-                variant="light"
-                color="teal"
-                radius="sm"
-                styles={{ root: { textTransform: 'none', paddingLeft: 6, paddingRight: 8, height: 24 } }}
-                leftSection={<Box style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#059669' }} />}
-              >
-                <Text span fw={800} inherit>{activeEmployees}</Text>&nbsp;Active
-              </Badge>
-              <Badge
-                size="sm"
-                variant="light"
-                color="yellow"
-                radius="sm"
-                styles={{ root: { textTransform: 'none', paddingLeft: 6, paddingRight: 8, height: 24 } }}
-                leftSection={<Box style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#D97706' }} />}
-              >
-                <Text span fw={800} inherit>{onLeaveEmployees}</Text>&nbsp;On Leave
-              </Badge>
-              <Badge
-                size="sm"
-                variant="light"
-                color="gray"
-                radius="sm"
-                styles={{ root: { textTransform: 'none', paddingLeft: 6, paddingRight: 8, height: 24 } }}
-                leftSection={<Box style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#64748B' }} />}
-              >
-                <Text span fw={800} inherit>{inactiveEmployees}</Text>&nbsp;Inactive
-              </Badge>
+              <Group gap={6} wrap="nowrap">
+                <Badge
+                  size="sm"
+                  variant="light"
+                  color="teal"
+                  radius="sm"
+                  styles={{ root: { textTransform: 'none', paddingLeft: 6, paddingRight: 8, height: 22 } }}
+                  leftSection={<Box style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#059669' }} />}
+                >
+                  <Text span fw={800} inherit>{activeEmployees}</Text>&nbsp;Active
+                </Badge>
+                <Badge
+                  size="sm"
+                  variant="light"
+                  color="yellow"
+                  radius="sm"
+                  styles={{ root: { textTransform: 'none', paddingLeft: 6, paddingRight: 8, height: 22 } }}
+                  leftSection={<Box style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#D97706' }} />}
+                >
+                  <Text span fw={800} inherit>{onLeaveEmployees}</Text>&nbsp;On Leave
+                </Badge>
+                <Badge
+                  size="sm"
+                  variant="light"
+                  color="gray"
+                  radius="sm"
+                  styles={{ root: { textTransform: 'none', paddingLeft: 6, paddingRight: 8, height: 22 } }}
+                  leftSection={<Box style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#64748B' }} />}
+                >
+                  <Text span fw={800} inherit>{inactiveEmployees}</Text>&nbsp;Inactive
+                </Badge>
+              </Group>
             </Group>
           </Grid.Col>
 
