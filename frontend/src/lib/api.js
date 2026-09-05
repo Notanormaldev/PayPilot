@@ -1,47 +1,64 @@
 // frontend/src/lib/api.js
-
 const API_BASE = '/api';
 
+/**
+ * Robust API Client with automatic JWT Token Refresh Lifecycle
+ */
 export async function fetchApi(endpoint, options = {}) {
   let token = localStorage.getItem('paypilot_auth_token') || 'dev-admin-token';
+
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 
   let res = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...defaultHeaders,
       ...options.headers,
     },
   });
 
-  // Auto token refresh on 401 if refresh token exists
+  // Intercept 401 Unauthorized to attempt auto-refresh using Refresh Token
   if (res.status === 401) {
     const refreshToken = localStorage.getItem('paypilot_refresh_token');
-    if (refreshToken) {
+
+    if (refreshToken && endpoint !== '/auth/login' && endpoint !== '/auth/register' && endpoint !== '/auth/refresh') {
       try {
         const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refreshToken }),
         });
-        if (refreshRes.ok) {
-          const { accessToken, refreshToken: newRefresh } = await refreshRes.json();
-          localStorage.setItem('paypilot_auth_token', accessToken);
-          if (newRefresh) localStorage.setItem('paypilot_refresh_token', newRefresh);
-          token = accessToken;
 
-          // Retry original request
-          res = await fetch(`${API_BASE}${endpoint}`, {
-            ...options,
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-              ...options.headers,
-            },
-          });
+        if (refreshRes.ok) {
+          const data = await refreshRes.json();
+          if (data.accessToken) {
+            localStorage.setItem('paypilot_auth_token', data.accessToken);
+            if (data.refreshToken) {
+              localStorage.setItem('paypilot_refresh_token', data.refreshToken);
+            }
+            token = data.accessToken;
+
+            // Re-attempt original request with the fresh Access Token
+            res = await fetch(`${API_BASE}${endpoint}`, {
+              ...options,
+              headers: {
+                ...options.headers,
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+            });
+          }
+        } else {
+          // Refresh token expired or invalidated: wipe session
+          localStorage.removeItem('paypilot_auth_token');
+          localStorage.removeItem('paypilot_refresh_token');
+          window.dispatchEvent(new Event('paypilot_auth_expired'));
         }
-      } catch (e) {
-        // Clear tokens on failed refresh
+      } catch (err) {
+        console.warn('Silent token refresh failed:', err);
       }
     }
   }
@@ -53,3 +70,4 @@ export async function fetchApi(endpoint, options = {}) {
 
   return res.json();
 }
+
