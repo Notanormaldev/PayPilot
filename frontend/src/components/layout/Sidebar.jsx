@@ -35,14 +35,15 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) 
 
   // Administrative Navigation Items
   const adminRoleNavPermissions = {
-    ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
-    HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'reports', 'settings'],
-    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
+    ADMIN: ['dashboard', 'employees', 'schedules', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_MANAGER: ['dashboard', 'employees', 'schedules', 'time-off', 'approvals', 'reports', 'settings'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'schedules', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
   };
 
   const adminNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: IconDashboard },
     { id: 'employees', label: 'Employees', icon: IconUsers },
+    { id: 'schedules', label: 'Work Schedules', icon: IconCalendarTime },
     { id: 'payroll', label: 'Pay Runs', icon: IconReceipt2 },
     { id: 'time-off', label: 'Leave & Attendance', icon: IconClock },
     { id: 'approvals', label: 'Approvals', icon: IconCheckupList },

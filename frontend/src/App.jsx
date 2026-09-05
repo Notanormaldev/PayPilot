@@ -23,6 +23,7 @@ import { PayrunView } from './features/payroll/components/PayrunView';
 import { SentinelDrawer, SentinelView } from './features/sentinel';
 import { AttendanceView } from './features/attendance/components/AttendanceView';
 import { ApprovalsView } from './features/approvals';
+import { WorkSchedulesView } from './features/schedules';
 import { LandingPage } from './features/landing/LandingPage';
 
 // Employee Self-Service Portal Views (7 Core Facilities)
@@ -51,9 +52,9 @@ export const App = () => {
 
   const employeeTabs = ['my-profile', 'my-attendance', 'my-time-off', 'my-contract', 'my-payslips', 'my-taxes', 'notifications', 'settings'];
   const adminRoleNavPermissions = {
-    ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
-    HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'reports', 'settings'],
-    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
+    ADMIN: ['dashboard', 'employees', 'schedules', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_MANAGER: ['dashboard', 'employees', 'schedules', 'time-off', 'approvals', 'reports', 'settings'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'schedules', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
   };
 
   // Adjust default activeTab when user switches persona or logs in
@@ -141,6 +142,12 @@ export const App = () => {
               {activeTab === 'employees' && (
                 <Stack gap="lg">
                   <EmployeesView employees={employees} onRefresh={handleRefreshAll} />
+                </Stack>
+              )}
+
+              {activeTab === 'schedules' && (
+                <Stack gap="lg">
+                  <WorkSchedulesView onRefresh={handleRefreshAll} />
                 </Stack>
               )}
 

@@ -17,6 +17,7 @@ import { dashboardRouter } from './routes/dashboard.js';
 import { notificationsRouter } from './routes/notifications.js';
 import { settingsRouter } from './routes/settings.js';
 import { taxRouter } from './routes/tax.js';
+import { schedulesRouter } from './routes/schedules.js';
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/tax', taxRouter);
+app.use('/api/schedules', schedulesRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
