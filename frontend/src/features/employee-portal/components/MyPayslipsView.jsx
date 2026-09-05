@@ -22,6 +22,7 @@ import {
   IconTrendingUp,
 } from '@tabler/icons-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
+import { generatePayslipPdf } from '../../../lib/payslipPdfGenerator';
 
 export const MyPayslipsView = () => {
   const [downloadingId, setDownloadingId] = useState(null);
@@ -91,46 +92,20 @@ export const MyPayslipsView = () => {
 
   const handleDownloadPdf = (ps) => {
     setDownloadingId(ps.id);
-
-    // Create client-side text download file simulating PDF receipt
-    const payslipText = `
-==================================================
-PAYPILOT AUTONOMOUS PAYROLL - OFFICIAL PAYSLIP
-==================================================
-Payslip ID : ${ps.id}
-Period     : ${ps.month} (${ps.payrunName})
-Pay Date   : ${ps.date}
-Employee   : Kartik Kumar (EMP-8492)
-Department : Product
-
---------------------------------------------------
-SALARY RULE BREAKDOWN:
---------------------------------------------------
-Basic Salary           : ₹ 72,500.00
-House Rent Allowance   : ₹ 29,000.00
-Special Allowance      : ₹ 14,500.00
-Provident Fund (PF)    : -₹ 7,250.00
-ESI Contribution       : -₹ 1,450.00
-TDS Tax Deduction      : -₹ 12,000.00
---------------------------------------------------
-TOTAL GROSS SALARY     : ₹ ${ps.gross.toLocaleString()}
-TOTAL DEDUCTIONS       : ₹ ${ps.deductions.toLocaleString()}
-NET TAKE-HOME SALARY   : ₹ ${ps.net.toLocaleString()}
-==================================================
-        `;
-
-    const blob = new Blob([payslipText], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Payslip_${ps.id}_${ps.month.replace(' ', '_')}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setTimeout(() => {
-      setDownloadingId(null);
-    }, 1000);
+    try {
+      generatePayslipPdf(ps, {
+        name: 'Kartik Kumar',
+        id: 'EMP-8492',
+        designation: 'Staff Member',
+        department: 'Product',
+      });
+    } catch (err) {
+      console.error('Payslip generation error:', err);
+    } finally {
+      setTimeout(() => {
+        setDownloadingId(null);
+      }, 500);
+    }
   };
 
   return (
