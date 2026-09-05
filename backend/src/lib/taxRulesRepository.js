@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { validateNoDuplicateKeys } from '../../scripts/validate-json.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -332,6 +333,10 @@ class TaxRulesRepository {
     try {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
+        const duplicates = validateNoDuplicateKeys(raw, 'tax_database.json');
+        if (duplicates.length > 0) {
+          throw new Error(`Duplicate JSON key(s) found in tax_database.json: ${duplicates.map((d) => d.key).join(', ')}`);
+        }
         const data = JSON.parse(raw);
         if (data.taxSlabs) this.taxSlabs = data.taxSlabs;
         if (data.deductions) this.deductions = data.deductions;

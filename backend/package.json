@@ -9,7 +9,9 @@
     "start": "node src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "prisma:seed": "node prisma/seed.js"
+    "prisma:seed": "node prisma/seed.js",
+    "validate:json": "node scripts/validate-json.js",
+    "test": "node scripts/validate-json.js"
   },
   "dependencies": {
     "@google/genai": "^2.21.0",
