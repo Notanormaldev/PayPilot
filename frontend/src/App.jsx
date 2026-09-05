@@ -33,6 +33,7 @@ import { MyTaxSummaryView } from './features/employee-portal/components/MyTaxSum
 import { NotificationsView } from './features/employee-portal/components/NotificationsView';
 import { SettingsView } from './features/settings';
 import { LoansView } from './features/loans';
+import { TaxCalculatorView } from './features/taxes';
 
 export const App = () => {
   const { user, isSignedIn, currentRole } = useAuthUser();
@@ -191,8 +192,7 @@ export const App = () => {
 
               {activeTab === 'taxes' && (
                 <Stack gap="lg">
-                  <DeductionSummary kpis={kpis} />
-                  <PayrunView payruns={payruns} onRefresh={handleRefreshAll} />
+                  <TaxCalculatorView />
                 </Stack>
               )}
 
