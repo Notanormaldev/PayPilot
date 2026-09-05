@@ -10,18 +10,13 @@ import {
   ActionIcon,
   Modal,
   Divider,
-  Alert,
-  Tooltip,
-  Box,
 } from '@mantine/core';
 import {
   IconPlayerPlay,
   IconDownload,
   IconEye,
   IconReceipt2,
-  IconCheck,
   IconAlertTriangle,
-  IconShieldExclamation,
   IconBuildingBank,
 } from '@tabler/icons-react';
 import { payrollService } from '../services/payrollService';
@@ -30,14 +25,11 @@ import { generatePayslipPdf } from '../../../lib/payslipPdfGenerator';
 
 export const PayrunView = ({ payruns, onRefresh }) => {
   const [computingId, setComputingId] = useState(null);
-  const [validatingId, setValidatingId] = useState(null);
   const [loadingPayslipsId, setLoadingPayslipsId] = useState(null);
   const [downloadingSlipId, setDownloadingSlipId] = useState(null);
   const [selectedPayslips, setSelectedPayslips] = useState(null);
   const [selectedPayrun, setSelectedPayrun] = useState(null);
   const [payslipModalOpen, setPayslipModalOpen] = useState(false);
-  const [warningModalOpen, setWarningModalOpen] = useState(false);
-  const [warningData, setWarningData] = useState(null);
 
   const handleCompute = async (payrunId) => {
     setComputingId(payrunId);
@@ -49,31 +41,6 @@ export const PayrunView = ({ payruns, onRefresh }) => {
     } finally {
       setComputingId(null);
     }
-  };
-
-  const handleValidate = async (payrunId, options = {}) => {
-    setValidatingId(payrunId);
-    try {
-      const res = await payrollService.validatePayrun(payrunId, options);
-      if (onRefresh) onRefresh();
-    } catch (err) {
-      if (err.data && (err.data.warning || err.data.code === 'MISSING_BANK_CREDENTIALS')) {
-        setWarningData({ payrunId, ...err.data });
-        setWarningModalOpen(true);
-      } else {
-        console.error('Validation error:', err);
-      }
-    } finally {
-      setValidatingId(null);
-    }
-  };
-
-  const handleConfirmPartialValidation = async () => {
-    if (!warningData?.payrunId) return;
-    const pid = warningData.payrunId;
-    setWarningModalOpen(false);
-    await handleValidate(pid, { processVerifiedOnly: true });
-    if (onRefresh) onRefresh();
   };
 
   const handleViewPayslips = async (payrun) => {
@@ -233,18 +200,6 @@ export const PayrunView = ({ payruns, onRefresh }) => {
                       >
                         Payslips
                       </Button>
-
-                      {(pr.status === 'COMPUTED' || pr.status === 'PARTIALLY_VALIDATED') && (
-                        <Button
-                          size="xs"
-                          color="teal"
-                          leftSection={<IconCheck size={12} />}
-                          loading={validatingId === pr.id}
-                          onClick={() => handleValidate(pr.id)}
-                        >
-                          {pr.status === 'PARTIALLY_VALIDATED' ? 'Validate Remaining' : 'Validate'}
-                        </Button>
-                      )}
 
                       <ActionIcon
                         size="sm"
@@ -424,64 +379,6 @@ export const PayrunView = ({ payruns, onRefresh }) => {
               No payslip details available for this payrun.
             </Text>
           )}
-        </Stack>
-      </Modal>
-
-      {/* Partial Validation Warning Modal */}
-      <Modal
-        opened={warningModalOpen}
-        onClose={() => setWarningModalOpen(false)}
-        title={
-          <Group gap="xs">
-            <IconShieldExclamation size={20} color="#DC2626" />
-            <Text fw={700} size="sm" c="#991B1B">
-              Bank Verification Warning: Unregistered Employee Accounts
-            </Text>
-          </Group>
-        }
-        size="md"
-        styles={{
-          content: { backgroundColor: '#FFFFFF', borderColor: '#FECACA' },
-          header: { backgroundColor: '#FEF2F2', borderBottom: '1px solid #FECACA' },
-        }}
-      >
-        <Stack gap="md">
-          <Alert color="red" icon={<IconAlertTriangle size={18} />} title="Direct Deposit Disbursal Warning">
-            <Text size="xs" c="#991B1B" fw={600}>
-              {warningData?.message || 'Some employees in this batch do not have registered banking credentials.'}
-            </Text>
-          </Alert>
-
-          <Paper p="sm" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-            <Text size="xs" fw={700} c="#09090B" mb={4}>
-              Employees Lacking Bank Details ({warningData?.unverifiedCount || 0}):
-            </Text>
-            <Stack gap={4}>
-              {warningData?.missingEmployees?.map((emp, idx) => (
-                <Group key={idx} justify="space-between">
-                  <Text size="xs" c="#3F3F46" fw={600}>
-                    • {emp.name} ({emp.department})
-                  </Text>
-                  <Badge size="xs" color="red" variant="filled">
-                    Missing Bank Details
-                  </Badge>
-                </Group>
-              ))}
-            </Stack>
-          </Paper>
-
-          <Text size="xs" c="#71717A">
-            Would you like to process and validate payroll for the <b>{warningData?.verifiedCount || 0} employee(s)</b> whose bank details are ready? Unverified employee payslips will remain pending until resolved in Sentinel.
-          </Text>
-
-          <Group justify="flex-end" gap="xs" mt="xs">
-            <Button size="xs" variant="default" onClick={() => setWarningModalOpen(false)}>
-              Cancel & Resolve in Sentinel
-            </Button>
-            <Button size="xs" color="teal" onClick={handleConfirmPartialValidation} leftSection={<IconCheck size={14} />}>
-              Process Verified Payslips ({warningData?.verifiedCount || 0})
-            </Button>
-          </Group>
         </Stack>
       </Modal>
     </Stack>
