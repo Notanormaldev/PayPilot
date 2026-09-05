@@ -27,11 +27,11 @@ import { useAuthUser } from '../../auth/hooks/useAuthUser';
 export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSuccess }) => {
   const { login, register } = useAuthUser();
   const [isRegister, setIsRegister] = useState(initialMode === 'register');
-  const [email, setEmail] = useState('meera.krishnan@paypilot.internal');
-  const [password, setPassword] = useState('PayPilot@2026');
-  const [name, setName] = useState('Meera Krishnan');
-  const [role, setRoleState] = useState('ADMIN');
-  const [department, setDepartment] = useState('Executive');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [role, setRoleState] = useState('EMPLOYEE');
+  const [department, setDepartment] = useState('Engineering');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -68,8 +68,7 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
   };
 
   const handleFastLogin = (empEmail, empRole) => {
-    setEmail(empEmail);
-    setRoleState(empRole);
+    // Directly login without populating the fields
     handleLogin(empEmail, empRole);
   };
 
