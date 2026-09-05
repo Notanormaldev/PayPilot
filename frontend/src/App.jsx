@@ -18,6 +18,7 @@ import { PayrollCostChart } from './features/dashboard/components/PayrollCostCha
 import { ToDoTasks } from './features/dashboard/components/ToDoTasks';
 import { SelfServicePortal } from './features/dashboard/components/SelfServicePortal';
 import { EmployeeTable } from './features/employees/components/EmployeeTable';
+import { EmployeesView } from './features/employees/components/EmployeesView';
 import { PayrunView } from './features/payroll/components/PayrunView';
 import { SentinelDrawer, SentinelView } from './features/sentinel';
 import { AttendanceView } from './features/attendance/components/AttendanceView';
@@ -139,7 +140,7 @@ export const App = () => {
 
               {activeTab === 'employees' && (
                 <Stack gap="lg">
-                  <EmployeeTable employees={employees} onRefresh={handleRefreshAll} />
+                  <EmployeesView employees={employees} onRefresh={handleRefreshAll} />
                 </Stack>
               )}
 
