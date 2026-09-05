@@ -8,21 +8,10 @@ import {
   Badge,
   Box,
   SimpleGrid,
-  SegmentedControl,
-  ThemeIcon,
-  ActionIcon,
-  Tooltip as MantineTooltip,
 } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
 import {
   IconCalendar,
-  IconChevronDown,
-  IconTrendingUp,
-  IconBuildingBank,
-  IconShieldCheck,
-  IconReceipt2,
-  IconFilter,
-  IconRefresh,
 } from '@tabler/icons-react';
 import {
   BarChart,
@@ -91,15 +80,29 @@ export const PayrollCostChart = ({ data }) => {
 
   const selectedYear = selectedDate ? selectedDate.getFullYear().toString() : '2026';
   const selectedMonthIndex = selectedDate ? selectedDate.getMonth() : 8; // 8 = September
-  const selectedMonthName = monthNames[selectedMonthIndex] || 'September';
   const selectedMonthShort = monthShortNames[selectedMonthIndex] || 'Sep';
 
-  // Compute chart series depending on viewMode & selected month/year
+  // Compute chart series enforcing realistic cutoff (no bars for future months after selectedDate)
   const chartData = useMemo(() => {
     const yearData = yearlyBaseData[selectedYear] || yearlyBaseData['2026'];
+    const targetYear = parseInt(selectedYear, 10);
 
-    // If live data has payruns, update the matching months
     const resolvedYearData = yearData.map((item, idx) => {
+      // Check if this month is in the future relative to the selected active month/year cutoff
+      const isFutureMonth = targetYear > 2026 || (targetYear === 2026 && idx > selectedMonthIndex);
+
+      if (isFutureMonth) {
+        return {
+          month: item.month,
+          netPay: 0,
+          taxes: 0,
+          statutories: 0,
+          deductions: 0,
+          isFuture: true,
+        };
+      }
+
+      // If live data has payruns, update matching months
       const liveItem = data?.find(
         (d) => d.month === item.month || d.period?.toLowerCase().includes(item.month.toLowerCase())
       );
@@ -110,20 +113,20 @@ export const PayrollCostChart = ({ data }) => {
           taxes: Math.round(liveItem.cost * 0.12),
           statutories: Math.round(liveItem.cost * 0.06),
           deductions: Math.round(liveItem.cost * 0.04),
+          isFuture: false,
         };
       }
-      return item;
+
+      return { ...item, isFuture: false };
     });
 
     if (viewMode === 'trailing-6') {
-      // 6 months ending at selectedMonthIndex
       const result = [];
       for (let i = 5; i >= 0; i--) {
         let targetIdx = selectedMonthIndex - i;
         if (targetIdx >= 0) {
           result.push(resolvedYearData[targetIdx]);
         } else {
-          // Wrap to previous year data
           const prevYearData = yearlyBaseData[(parseInt(selectedYear) - 1).toString()] || yearlyBaseData['2025'];
           result.push(prevYearData[12 + targetIdx]);
         }
@@ -132,45 +135,49 @@ export const PayrollCostChart = ({ data }) => {
     }
 
     if (viewMode === 'single-month') {
-      // 4 weekly cycles for the selected month
       const mData = resolvedYearData[selectedMonthIndex] || resolvedYearData[8];
+      const isFuture = mData.isFuture;
+
       return [
         {
           month: `W1 (1-7 ${selectedMonthShort})`,
-          netPay: Math.round(mData.netPay * 0.23),
-          taxes: Math.round(mData.taxes * 0.23),
-          statutories: Math.round(mData.statutories * 0.23),
-          deductions: Math.round(mData.deductions * 0.23),
+          netPay: isFuture ? 0 : Math.round(mData.netPay * 0.23),
+          taxes: isFuture ? 0 : Math.round(mData.taxes * 0.23),
+          statutories: isFuture ? 0 : Math.round(mData.statutories * 0.23),
+          deductions: isFuture ? 0 : Math.round(mData.deductions * 0.23),
+          isFuture,
         },
         {
           month: `W2 (8-14 ${selectedMonthShort})`,
-          netPay: Math.round(mData.netPay * 0.25),
-          taxes: Math.round(mData.taxes * 0.25),
-          statutories: Math.round(mData.statutories * 0.25),
-          deductions: Math.round(mData.deductions * 0.25),
+          netPay: isFuture ? 0 : Math.round(mData.netPay * 0.25),
+          taxes: isFuture ? 0 : Math.round(mData.taxes * 0.25),
+          statutories: isFuture ? 0 : Math.round(mData.statutories * 0.25),
+          deductions: isFuture ? 0 : Math.round(mData.deductions * 0.25),
+          isFuture,
         },
         {
           month: `W3 (15-21 ${selectedMonthShort})`,
-          netPay: Math.round(mData.netPay * 0.24),
-          taxes: Math.round(mData.taxes * 0.24),
-          statutories: Math.round(mData.statutories * 0.24),
-          deductions: Math.round(mData.deductions * 0.24),
+          netPay: isFuture ? 0 : Math.round(mData.netPay * 0.24),
+          taxes: isFuture ? 0 : Math.round(mData.taxes * 0.24),
+          statutories: isFuture ? 0 : Math.round(mData.statutories * 0.24),
+          deductions: isFuture ? 0 : Math.round(mData.deductions * 0.24),
+          isFuture,
         },
         {
           month: `W4 (22-30 ${selectedMonthShort})`,
-          netPay: Math.round(mData.netPay * 0.28),
-          taxes: Math.round(mData.taxes * 0.28),
-          statutories: Math.round(mData.statutories * 0.28),
-          deductions: Math.round(mData.deductions * 0.28),
+          netPay: isFuture ? 0 : Math.round(mData.netPay * 0.28),
+          taxes: isFuture ? 0 : Math.round(mData.taxes * 0.28),
+          statutories: isFuture ? 0 : Math.round(mData.statutories * 0.28),
+          deductions: isFuture ? 0 : Math.round(mData.deductions * 0.28),
+          isFuture,
         },
       ];
     }
 
-    // Default: 'full-year'
     return resolvedYearData;
   }, [selectedYear, selectedMonthIndex, selectedMonthShort, viewMode, data]);
 
-  // Aggregate stats for current chart view
+  // Aggregate stats for current chart view (summing only processed non-future months)
   const aggregates = useMemo(() => {
     let totalNet = 0;
     let totalTaxes = 0;
@@ -178,10 +185,12 @@ export const PayrollCostChart = ({ data }) => {
     let totalDeductions = 0;
 
     chartData.forEach((item) => {
-      totalNet += item.netPay || 0;
-      totalTaxes += item.taxes || 0;
-      totalStatutories += item.statutories || 0;
-      totalDeductions += item.deductions || 0;
+      if (!item.isFuture) {
+        totalNet += item.netPay || 0;
+        totalTaxes += item.taxes || 0;
+        totalStatutories += item.statutories || 0;
+        totalDeductions += item.deductions || 0;
+      }
     });
 
     const totalGross = totalNet + totalTaxes + totalStatutories + totalDeductions;
@@ -200,6 +209,8 @@ export const PayrollCostChart = ({ data }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const monthTotal = payload.reduce((sum, p) => sum + (Number(p.value) || 0), 0);
+      const isFuture = payload[0]?.payload?.isFuture || monthTotal === 0;
+
       return (
         <Paper
           p="sm"
@@ -215,31 +226,44 @@ export const PayrollCostChart = ({ data }) => {
         >
           <Group justify="space-between" mb={6} pb={4} style={{ borderBottom: '1px solid #27272A' }}>
             <Text fw={700} c="#F8FAFC" size="xs">
-              {label}
+              {label} {selectedYear}
             </Text>
-            <Text fw={800} c="#38BDF8" size="xs" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-              Total: {formatCurrency(monthTotal)}
-            </Text>
+            {isFuture ? (
+              <Badge size="xs" color="gray" variant="filled">
+                Unprocessed Future Month
+              </Badge>
+            ) : (
+              <Text fw={800} c="#38BDF8" size="xs" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                Total: {formatCurrency(monthTotal)}
+              </Text>
+            )}
           </Group>
-          <Stack gap={4}>
-            {payload.map((item, index) => {
-              const pct = monthTotal ? ((item.value / monthTotal) * 100).toFixed(1) : 0;
-              return (
-                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                  <Group gap={6}>
-                    <Box style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: item.color }} />
-                    <span style={{ color: '#E2E8F0', fontSize: '11px' }}>{item.name}</span>
-                  </Group>
-                  <Group gap={6}>
-                    <span style={{ color: '#94A3B8', fontSize: '10px' }}>({pct}%)</span>
-                    <span style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600, color: '#FFFFFF', fontSize: '11px' }}>
-                      ₹{(item.value / 100000).toFixed(2)}L
-                    </span>
-                  </Group>
-                </div>
-              );
-            })}
-          </Stack>
+
+          {isFuture ? (
+            <Text size="11px" c="#94A3B8" py={4}>
+              Future payroll run. No disbursals recorded yet.
+            </Text>
+          ) : (
+            <Stack gap={4}>
+              {payload.map((item, index) => {
+                const pct = monthTotal ? ((item.value / monthTotal) * 100).toFixed(1) : 0;
+                return (
+                  <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                    <Group gap={6}>
+                      <Box style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: item.color }} />
+                      <span style={{ color: '#E2E8F0', fontSize: '11px' }}>{item.name}</span>
+                    </Group>
+                    <Group gap={6}>
+                      <span style={{ color: '#94A3B8', fontSize: '10px' }}>({pct}%)</span>
+                      <span style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600, color: '#FFFFFF', fontSize: '11px' }}>
+                        ₹{(item.value / 100000).toFixed(2)}L
+                      </span>
+                    </Group>
+                  </div>
+                );
+              })}
+            </Stack>
+          )}
         </Paper>
       );
     }

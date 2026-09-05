@@ -3,14 +3,15 @@ import { authenticate } from '../middleware/auth.js';
 
 export const notificationsRouter = Router();
 
-// In-memory store for notifications (complemented by Prisma/system events)
+// In-memory store for notifications (complemented by system events)
 export let notificationsStore = [
   {
     id: 'notif_1',
     userEmail: 'employee@paypilot.com',
     employeeId: 'emp_1',
+    targetRole: 'EMPLOYEE',
     title: 'Leave Request Approved',
-    message: 'Your Casual Leave request for Sep 12 - Sep 14, 2026 was approved by Meera Krishnan.',
+    message: 'Your Casual Leave request for Sep 12 - Sep 14, 2026 was approved by the manager.',
     timestamp: '10 minutes ago',
     createdAt: new Date(Date.now() - 600000).toISOString(),
     type: 'leave',
@@ -20,6 +21,7 @@ export let notificationsStore = [
     id: 'notif_2',
     userEmail: 'employee@paypilot.com',
     employeeId: 'emp_1',
+    targetRole: 'EMPLOYEE',
     title: 'New Monthly Payslip Available',
     message: 'Your official payslip statement for August 2026 has been generated and is ready for download.',
     timestamp: '1 day ago',
@@ -27,13 +29,24 @@ export let notificationsStore = [
     type: 'payslip',
     unread: true,
   },
+  {
+    id: 'notif_hr_1',
+    targetRole: 'HR_MANAGER',
+    title: 'New Leave Request Received',
+    message: 'Employee Aarav Sharma submitted a new Casual Leave request (3 days: 2026-09-12 to 2026-09-14) awaiting your approval.',
+    timestamp: '15 minutes ago',
+    createdAt: new Date(Date.now() - 900000).toISOString(),
+    type: 'leave',
+    unread: true,
+  },
 ];
 
-export function addNotification({ userEmail, employeeId, title, message, type = 'leave' }) {
+export function addNotification({ userEmail, employeeId, targetRole, title, message, type = 'leave' }) {
   const newNotif = {
     id: `notif_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-    userEmail: userEmail || 'employee@paypilot.com',
-    employeeId: employeeId || 'emp_1',
+    userEmail: userEmail || null,
+    employeeId: employeeId || null,
+    targetRole: targetRole || null,
     title,
     message,
     timestamp: 'Just now',
@@ -48,11 +61,22 @@ export function addNotification({ userEmail, employeeId, title, message, type = 
 // GET /api/notifications
 notificationsRouter.get('/', authenticate, async (req, res) => {
   try {
+    const userRole = req.user?.role || 'EMPLOYEE';
     const userEmail = req.user?.email;
-    // Filter for current user if email exists, else return store
-    const userNotifs = userEmail
-      ? notificationsStore.filter((n) => !n.userEmail || n.userEmail === userEmail)
-      : notificationsStore;
+
+    const userNotifs = notificationsStore.filter((n) => {
+      // HR Manager & Admin see notifications targeted to HR_MANAGER/ADMIN
+      if (userRole === 'HR_MANAGER' || userRole === 'ADMIN') {
+        if (n.targetRole === 'HR_MANAGER' || n.targetRole === 'ADMIN') return true;
+        if (!n.targetRole && (!n.userEmail || n.userEmail === userEmail)) return true;
+        return false;
+      }
+      // Employee sees notifications targeted to EMPLOYEE or their userEmail
+      if (n.targetRole === 'EMPLOYEE') return true;
+      if (n.userEmail && n.userEmail === userEmail) return true;
+      if (!n.targetRole && (!n.userEmail || n.userEmail === 'employee@paypilot.com')) return true;
+      return false;
+    });
 
     const unreadCount = userNotifs.filter((n) => n.unread).length;
 

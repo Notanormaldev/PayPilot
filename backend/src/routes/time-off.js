@@ -116,12 +116,15 @@ timeOffRouter.post('/requests', authenticate, async (req, res) => {
       console.warn('Prisma create timeOffRequest fallback to memory store:', e.message);
     }
 
-    // Always record in memory store for immediate UI reactivity across roles
+    const empName = req.user?.name || 'Aarav Sharma';
+    const leaveName = timeOffTypeName || 'Casual Leave';
+
+    // Record in memory store
     const memReq = {
       id: createdRequest ? createdRequest.id : `req_${Date.now()}`,
       employeeId: employeeId || 'emp_1',
-      employeeName: req.user?.name || 'Aarav Sharma',
-      timeOffTypeName: timeOffTypeName || 'Casual Leave',
+      employeeName: empName,
+      timeOffTypeName: leaveName,
       startDate: startDate || new Date().toISOString().split('T')[0],
       endDate: endDate || new Date().toISOString().split('T')[0],
       duration: numDays,
@@ -132,6 +135,14 @@ timeOffRouter.post('/requests', authenticate, async (req, res) => {
 
     memoryTimeOffRequests.unshift(memReq);
 
+    // 1. Notify HR Manager about incoming leave request!
+    addNotification({
+      targetRole: 'HR_MANAGER',
+      title: 'New Leave Request Received',
+      message: `Employee ${empName} submitted a new ${leaveName} request (${numDays} day(s): ${memReq.startDate} to ${memReq.endDate}) awaiting your approval.`,
+      type: 'leave',
+    });
+
     res.status(201).json({
       message: 'Leave request submitted to HR Manager for approval',
       data: createdRequest || memReq,
@@ -141,12 +152,11 @@ timeOffRouter.post('/requests', authenticate, async (req, res) => {
   }
 });
 
-// POST /api/time-off/requests/:id/approve - approve leave request & send notification
+// POST /api/time-off/requests/:id/approve - approve leave request & notify employee
 timeOffRouter.post('/requests/:id/approve', authenticate, async (req, res) => {
   try {
     const requestId = req.params.id;
 
-    // 1. Update memory request if present
     const memReq = memoryTimeOffRequests.find((r) => r.id === requestId);
     if (memReq) {
       memReq.status = 'APPROVED';
@@ -177,12 +187,13 @@ timeOffRouter.post('/requests/:id/approve', authenticate, async (req, res) => {
     const leaveTypeName = memReq?.timeOffTypeName || 'Casual Leave';
     const datesFormatted = memReq ? `${memReq.startDate} to ${memReq.endDate}` : 'requested dates';
 
-    // 2. Trigger notification for the employee!
+    // 2. Trigger notification for Employee!
     const notif = addNotification({
       userEmail: 'employee@paypilot.com',
       employeeId: memReq?.employeeId || 'emp_1',
+      targetRole: 'EMPLOYEE',
       title: 'Leave Request Approved',
-      message: `Your ${leaveTypeName} request (${datesFormatted}) was approved by HR Manager.`,
+      message: `Your ${leaveTypeName} request (${datesFormatted}) has been approved by the manager.`,
       type: 'leave',
     });
 
@@ -196,7 +207,7 @@ timeOffRouter.post('/requests/:id/approve', authenticate, async (req, res) => {
   }
 });
 
-// POST /api/time-off/requests/:id/refuse - refuse leave request & send notification
+// POST /api/time-off/requests/:id/refuse - refuse leave request & notify employee
 timeOffRouter.post('/requests/:id/refuse', authenticate, async (req, res) => {
   try {
     const requestId = req.params.id;
@@ -211,8 +222,9 @@ timeOffRouter.post('/requests/:id/refuse', authenticate, async (req, res) => {
     const notif = addNotification({
       userEmail: 'employee@paypilot.com',
       employeeId: memReq?.employeeId || 'emp_1',
+      targetRole: 'EMPLOYEE',
       title: 'Leave Request Refused',
-      message: `Your ${leaveTypeName} request was reviewed and declined by HR Manager.`,
+      message: `Your ${leaveTypeName} request was reviewed and declined by the manager.`,
       type: 'leave',
     });
 

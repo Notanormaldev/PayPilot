@@ -3,14 +3,11 @@ import {
   Paper,
   Table,
   Group,
-  Avatar,
   Text,
   Badge,
   TextInput,
-  Stack,
-  Button,
 } from '@mantine/core';
-import { IconSearch, IconAlertCircle, IconCheck, IconUserPlus } from '@tabler/icons-react';
+import { IconSearch, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { UserAvatar } from '../../../components/ui';
 
 export const EmployeeTable = ({ employees = [] }) => {
@@ -18,12 +15,15 @@ export const EmployeeTable = ({ employees = [] }) => {
 
   const filtered = employees.filter((e) => {
     const term = search.toLowerCase();
+    const fullName = e.name || `${e.firstName || ''} ${e.lastName || ''}`.trim();
     return (
-      e.firstName?.toLowerCase().includes(term) ||
-      e.lastName?.toLowerCase().includes(term) ||
-      e.employeeNumber?.toLowerCase().includes(term) ||
-      e.department?.toLowerCase().includes(term) ||
-      e.jobTitle?.toLowerCase().includes(term)
+      fullName.toLowerCase().includes(term) ||
+      (e.employeeNumber && e.employeeNumber.toLowerCase().includes(term)) ||
+      (e.department && e.department.toLowerCase().includes(term)) ||
+      (e.jobTitle && e.jobTitle.toLowerCase().includes(term)) ||
+      (e.jobPosition && e.jobPosition.toLowerCase().includes(term)) ||
+      (e.workEmail && e.workEmail.toLowerCase().includes(term)) ||
+      (e.email && e.email.toLowerCase().includes(term))
     );
   });
 
@@ -39,11 +39,16 @@ export const EmployeeTable = ({ employees = [] }) => {
     >
       <Group justify="space-between" mb="md">
         <div>
-          <Text fw={700} size="sm" c="#09090B">
-            EMPLOYEE REGISTRY & ACTIVE CONTRACTS
-          </Text>
+          <Group gap="xs">
+            <Text fw={700} size="sm" c="#09090B">
+              EMPLOYEE REGISTRY & ACTIVE CONTRACTS
+            </Text>
+            <Badge size="xs" color="blue" variant="filled">
+              {employees.length} Total Registered
+            </Badge>
+          </Group>
           <Text size="xs" c="#71717A">
-            Master records, banking verification, and compensation status
+            Master records, banking verification, and active compensation status
           </Text>
         </div>
 
@@ -74,14 +79,17 @@ export const EmployeeTable = ({ employees = [] }) => {
         </Table.Thead>
         <Table.Tbody>
           {filtered.map((emp) => {
+            const fullName = emp.name || `${emp.firstName || ''} ${emp.lastName || ''}`.trim() || 'Employee';
+            const empIdDisplay = emp.employeeNumber || (emp.id ? `EMP-${emp.id.slice(-4).toUpperCase()}` : 'EMP-0000');
+            const roleDisplay = emp.jobPosition || emp.jobTitle || 'Software Engineer';
+            const deptDisplay = emp.department || 'Engineering';
+
             const hasContract = emp.contracts && emp.contracts.length > 0;
             const activeContract = hasContract
               ? emp.contracts.find((c) => c.status === 'RUNNING') || emp.contracts[0]
-              : null;
-            const hasBank = !!(emp.bankAccountNo && emp.bankIfsc);
+              : (emp.wage ? { contractType: 'Regular Full-Time', wage: emp.wage } : null);
 
-            const fullName = emp.name || `${emp.firstName || ''} ${emp.lastName || ''}`.trim() || 'Employee';
-            const empNumber = emp.employeeNumber || `EMP-${(emp.id || '').slice(-4).toUpperCase()}`;
+            const hasBank = !!(emp.bankAccountNo || emp.bankAccount || emp.bankName);
 
             return (
               <Table.Tr key={emp.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
@@ -92,32 +100,32 @@ export const EmployeeTable = ({ employees = [] }) => {
                       radius="xl"
                       src={emp.avatarUrl}
                       name={fullName}
-                      id={emp.id || empNumber}
+                      id={empIdDisplay}
                     />
                     <div>
                       <Text size="xs" fw={700} c="#09090B">
                         {fullName}
                       </Text>
                       <Text size="10px" c="#71717A">
-                        {empNumber}
+                        {emp.workEmail || emp.email || empIdDisplay}
                       </Text>
                     </div>
                   </Group>
                 </Table.Td>
 
                 <Table.Td>
-                  <Text size="xs" c="#09090B">
-                    {emp.jobTitle}
+                  <Text size="xs" c="#09090B" fw={600}>
+                    {roleDisplay}
                   </Text>
                   <Text size="10px" c="#71717A">
-                    {emp.department}
+                    {deptDisplay}
                   </Text>
                 </Table.Td>
 
                 <Table.Td>
                   {activeContract ? (
                     <Badge size="xs" color="blue" variant="light">
-                      {activeContract.contractType}
+                      {activeContract.contractType || activeContract.salaryStructure?.name || 'Full-Time'}
                     </Badge>
                   ) : (
                     <Badge size="xs" color="red" variant="filled">
@@ -128,7 +136,7 @@ export const EmployeeTable = ({ employees = [] }) => {
 
                 <Table.Td>
                   <Text size="xs" fw={700} c="#09090B" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                    {activeContract
+                    {activeContract && activeContract.wage
                       ? `₹${Number(activeContract.wage).toLocaleString('en-IN')}/mo`
                       : '—'}
                   </Text>
@@ -138,7 +146,7 @@ export const EmployeeTable = ({ employees = [] }) => {
                   {hasBank ? (
                     <Group gap={4}>
                       <IconCheck size={14} color="#16A34A" />
-                      <Text size="xs" c="#16A34A">
+                      <Text size="xs" c="#16A34A" fw={600}>
                         Verified
                       </Text>
                     </Group>
@@ -146,7 +154,7 @@ export const EmployeeTable = ({ employees = [] }) => {
                     <Group gap={4}>
                       <IconAlertCircle size={14} color="#DC2626" />
                       <Text size="xs" c="#DC2626" fw={600}>
-                        Missing IFSC/Acc
+                        Missing Bank Info
                       </Text>
                     </Group>
                   )}
@@ -158,12 +166,22 @@ export const EmployeeTable = ({ employees = [] }) => {
                     color={emp.status === 'ACTIVE' ? 'teal' : 'gray'}
                     variant="light"
                   >
-                    {emp.status}
+                    {emp.status || 'ACTIVE'}
                   </Badge>
                 </Table.Td>
               </Table.Tr>
             );
           })}
+
+          {filtered.length === 0 && (
+            <Table.Tr>
+              <Table.Td colSpan={6} style={{ textAlign: 'center', padding: '32px' }}>
+                <Text size="xs" c="#71717A">
+                  No employee records match the search filter.
+                </Text>
+              </Table.Td>
+            </Table.Tr>
+          )}
         </Table.Tbody>
       </Table>
     </Paper>
