@@ -1,8 +1,8 @@
-# HRMS OXP — API Specification
+# PayPilot — API Specification
 
 > REST API reference for the Node 22 + Express 4 backend.
-> Base URL: `https://api.oxp.io/api/v1`
-> Auth: Clerk JWT via `Authorization: Bearer <token>`
+> Base URL: `http://localhost:4000/api`
+> Auth: Pure JWT Access Token (15m) via `Authorization: Bearer <accessToken>` + Refresh Token (7d)
 
 ---
 
@@ -11,35 +11,40 @@
 | Convention | Detail |
 |---|---|
 | **Format** | JSON request/response bodies |
-| **Auth** | All routes (except `/webhooks/*`) require `Authorization: Bearer <clerk_jwt>` |
-| **IDs** | CUID strings |
+| **Auth** | Protected routes require `Authorization: Bearer <accessToken>` |
+| **IDs** | CUID / UUID strings |
 | **Dates** | ISO 8601 (`2026-09-01`, `2026-09-01T09:00:00Z`) |
-| **Pagination** | `?page=1&limit=20` → response includes `{ data, total, page, limit }` |
-| **Errors** | `{ error: string, message: string, details?: object }` |
-| **Money** | Decimal strings (e.g. `"42500.00"`) — never floats |
-
-### Standard HTTP Status Codes
-
-| Code | Meaning |
-|---|---|
-| `200` | OK |
-| `201` | Created |
-| `400` | Bad Request (validation error) |
-| `401` | Unauthenticated |
-| `403` | Forbidden (wrong role or resource ownership) |
-| `404` | Not Found |
-| `409` | Conflict (e.g. overlapping contract) |
-| `422` | Unprocessable Entity (business rule violation) |
-| `500` | Internal Server Error |
+| **Errors** | `{ error: string, message?: string, code?: string, details?: object }` |
+| **Money** | Float / formatted Indian Rupees (₹) |
 
 ---
 
-## AUTH
+## AUTHENTICATION
 
-### `POST /auth/sync`
-Called by Clerk webhook on user creation. Syncs the Clerk user to internal DB.
+### `POST /auth/register`
+Register a new employee user account and issue JWT access/refresh token pair.
+- **Body:** `{ email: string, password?: string, name?: string, role?: Role, department?: string }`
+- **Response 201:** `{ message: string, user: User, accessToken: string, refreshToken: string, expiresIn: number }`
 
-> Not called by clients directly. Clerk-signed only.
+### `POST /auth/login`
+Authenticate user or switch role persona. Issues fresh 15m Access Token + 7d Refresh Token.
+- **Body:** `{ email: string, password?: string, role?: Role }`
+- **Response 200:** `{ message: string, user: User, accessToken: string, refreshToken: string, expiresIn: number }`
+
+### `POST /auth/refresh`
+Exchange valid 7-day Refresh Token for a fresh Access Token and rotated Refresh Token.
+- **Body:** `{ refreshToken: string }`
+- **Response 200:** `{ message: string, accessToken: string, refreshToken: string, expiresIn: number }`
+
+### `GET /auth/me`
+Return currently authenticated user identity and role from live PostgreSQL session.
+- **Auth:** `Authorization: Bearer <accessToken>`
+- **Response 200:** `{ user: { id: string, email: string, role: string, employeeId: string, name: string, department: string } }`
+
+### `POST /auth/logout`
+Explicit session logout and revocation.
+- **Response 200:** `{ message: string }`
+
 
 ---
 
