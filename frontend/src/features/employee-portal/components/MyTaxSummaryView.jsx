@@ -21,6 +21,7 @@ import {
   IconCheck,
   IconLock,
 } from '@tabler/icons-react';
+import { TaxCalculatorView } from '../../taxes';
 
 export const MyTaxSummaryView = () => {
   const [taxRegime, setTaxRegime] = useState('new'); // 'new' | 'old'
@@ -46,11 +47,16 @@ export const MyTaxSummaryView = () => {
             </Text>
           </div>
 
-          <Badge size="md" color="blue" variant="light">
-            FY 2025 - 2026
-          </Badge>
+          <Group gap="xs">
+            <Badge size="md" color="blue" variant="light">
+              FY 2026 - 2027 (AY 2027-28)
+            </Badge>
+          </Group>
         </Group>
       </Paper>
+
+      {/* Tax Studio Calculator for Employee */}
+      <TaxCalculatorView />
 
       {regimeUpdated && (
         <Alert icon={<IconCheck size={16} />} color="teal" title="Tax Regime Selection Updated">
