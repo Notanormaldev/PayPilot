@@ -29,9 +29,14 @@ import {
   IconPaperclip,
   IconRefresh,
   IconInfoCircle,
+  IconShieldLock,
+  IconUserCheck,
+  IconUserX,
+  IconUsers,
 } from '@tabler/icons-react';
 import { UserAvatar } from '../../../components/ui';
 import { attendanceService } from '../../attendance/services/attendanceService';
+import { authService } from '../../auth/services/authService';
 import { fetchApi } from '../../../lib/api';
 
 const INITIAL_REIMBURSEMENTS = [
@@ -147,6 +152,10 @@ export const ApprovalsView = ({ onRefresh }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [feedback, setFeedback] = useState({ type: null, message: '' });
 
+  // Pending User Registrations (HR & Payroll)
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
   // Live Leave Requests
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [loadingLeaves, setLoadingLeaves] = useState(false);
@@ -162,6 +171,20 @@ export const ApprovalsView = ({ onRefresh }) => {
     setTimeout(() => {
       setFeedback({ type: null, message: '' });
     }, 4500);
+  };
+
+  const fetchPendingUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const users = await authService.getPendingUsers();
+      if (users) {
+        setPendingUsers(users);
+      }
+    } catch (e) {
+      console.warn('fetchPendingUsers error:', e.message);
+    } finally {
+      setLoadingUsers(false);
+    }
   };
 
   const fetchLeaveRequests = async () => {
@@ -180,7 +203,37 @@ export const ApprovalsView = ({ onRefresh }) => {
 
   useEffect(() => {
     fetchLeaveRequests();
-  }, []);
+    fetchPendingUsers();
+  }, [activeTab]);
+
+  // Handlers for Pending User Registrations
+  const handleApproveUser = async (id, userName, email) => {
+    setProcessingId(id);
+    try {
+      await authService.approveUser(id);
+      await fetchPendingUsers();
+      if (onRefresh) onRefresh();
+      showNotification('success', `Account registration for ${userName || email} has been approved. User can now sign in.`);
+    } catch (e) {
+      showNotification('error', e.message || 'Failed to approve user registration.');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleRejectUser = async (id, userName, email) => {
+    setProcessingId(id);
+    try {
+      await authService.rejectUser(id);
+      await fetchPendingUsers();
+      if (onRefresh) onRefresh();
+      showNotification('error', `Account registration for ${userName || email} has been declined.`);
+    } catch (e) {
+      showNotification('error', e.message || 'Failed to decline user registration.');
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
   // Handlers for Leave Requests
   const handleApproveLeave = async (id, empName) => {
@@ -274,13 +327,14 @@ export const ApprovalsView = ({ onRefresh }) => {
   };
 
   // Counts
+  const pendingUsersCount = pendingUsers.length;
   const pendingLeavesCount = leaveRequests.filter(
     (l) => l.status === 'TO_APPROVE' || l.status === 'Pending' || l.status === 'PENDING'
   ).length;
   const pendingReimbCount = reimbursements.filter((r) => r.status === 'PENDING').length;
   const pendingPoiCount = poiList.filter((p) => p.status === 'PENDING').length;
   const pendingSalCount = salaryRevisions.filter((s) => s.status === 'PENDING').length;
-  const totalPending = pendingLeavesCount + pendingReimbCount + pendingPoiCount + pendingSalCount;
+  const totalPending = pendingUsersCount + pendingLeavesCount + pendingReimbCount + pendingPoiCount + pendingSalCount;
 
   // Filter helper
   const matchesSearch = (text) => {
@@ -353,9 +407,10 @@ export const ApprovalsView = ({ onRefresh }) => {
               leftSection={<IconRefresh size={13} />}
               onClick={() => {
                 fetchLeaveRequests();
+                fetchPendingUsers();
                 if (onRefresh) onRefresh();
               }}
-              loading={loadingLeaves}
+              loading={loadingLeaves || loadingUsers}
             >
               Refresh
             </Button>
@@ -387,7 +442,43 @@ export const ApprovalsView = ({ onRefresh }) => {
       )}
 
       {/* KPI Cards */}
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 5 }} spacing="md">
+        <Paper
+          p="md"
+          radius="md"
+          onClick={() => setActiveTab('USERS')}
+          style={{
+            backgroundColor: '#FFFFFF',
+            border: activeTab === 'USERS' ? '1.5px solid #4F46E5' : '1px solid #E2E8F0',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <Group justify="space-between" align="flex-start">
+            <div>
+              <Text size="xs" fw={600} c="#64748B">
+                User Registrations
+              </Text>
+              <Text size="xl" fw={700} c="#09090B" mt={4}>
+                {pendingUsersCount}
+              </Text>
+              <Text size="10px" c="#94A3B8" mt={2}>
+                HR & Payroll applicants
+              </Text>
+            </div>
+            <Box
+              p={8}
+              style={{
+                borderRadius: '8px',
+                backgroundColor: '#EEF2FF',
+                color: '#4F46E5',
+              }}
+            >
+              <IconShieldLock size={20} />
+            </Box>
+          </Group>
+        </Paper>
+
         <Paper
           p="md"
           radius="md"
@@ -550,6 +641,9 @@ export const ApprovalsView = ({ onRefresh }) => {
               <Tabs.Tab value="ALL" leftSection={<IconCheckupList size={14} />}>
                 All ({totalPending})
               </Tabs.Tab>
+              <Tabs.Tab value="USERS" leftSection={<IconShieldLock size={14} />}>
+                User Registrations ({pendingUsersCount})
+              </Tabs.Tab>
               <Tabs.Tab value="LEAVE" leftSection={<IconCalendarEvent size={14} />}>
                 Leave & Time Off ({pendingLeavesCount})
               </Tabs.Tab>
@@ -567,7 +661,7 @@ export const ApprovalsView = ({ onRefresh }) => {
 
           <Group gap="xs">
             <TextInput
-              placeholder="Search by name or ID..."
+              placeholder="Search by name or email..."
               size="xs"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.currentTarget.value)}
@@ -590,8 +684,133 @@ export const ApprovalsView = ({ onRefresh }) => {
 
         {/* TAB CONTENTS */}
         <Stack gap="lg">
+          {/* 0. User Registrations (HR & Payroll) Section */}
+          {(activeTab === 'ALL' || activeTab === 'USERS') && (
+            <Box>
+              <Group justify="space-between" mb="xs">
+                <Group gap="xs">
+                  <IconShieldLock size={16} color="#4F46E5" />
+                  <Text size="sm" fw={700} c="#09090B">
+                    HR & Payroll Account Registrations
+                  </Text>
+                </Group>
+                <Badge size="xs" color="indigo" variant="light">
+                  Admin Authorization Required
+                </Badge>
+              </Group>
+
+              {pendingUsers.length === 0 ? (
+                activeTab === 'USERS' ? (
+                  <Paper p="xl" radius="md" style={{ backgroundColor: '#F8FAFC', border: '1px dashed #E2E8F0', textAlign: 'center' }}>
+                    <Text size="sm" c="#64748B" fw={500}>
+                      No pending HR or Payroll registration requests. All verified accounts are active.
+                    </Text>
+                  </Paper>
+                ) : null
+              ) : (
+                <Table verticalSpacing="sm" highlightOnHover style={{ border: '1px solid #F1F5F9', borderRadius: '8px', marginBottom: activeTab === 'ALL' ? '16px' : '0' }}>
+                  <Table.Thead style={{ backgroundColor: '#F8FAFC' }}>
+                    <Table.Tr>
+                      <Table.Th style={{ color: '#64748B', fontSize: '11px', width: '28%' }}>APPLICANT & EMAIL</Table.Th>
+                      <Table.Th style={{ color: '#64748B', fontSize: '11px', width: '20%' }}>REQUESTED ROLE</Table.Th>
+                      <Table.Th style={{ color: '#64748B', fontSize: '11px', width: '22%' }}>DEPARTMENT</Table.Th>
+                      <Table.Th style={{ color: '#64748B', fontSize: '11px', width: '15%' }}>REGISTERED AT</Table.Th>
+                      <Table.Th style={{ color: '#64748B', fontSize: '11px', width: '15%', textAlign: 'right' }}>ACTION</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {pendingUsers
+                      .filter((u) => {
+                        const name = u.name || u.employee?.name || u.email;
+                        return matchesSearch(name) || matchesSearch(u.email);
+                      })
+                      .map((u) => {
+                        const displayName = u.name || u.employee?.name || u.email.split('@')[0].replace('.', ' ');
+                        const roleLabel = u.role === 'HR_MANAGER' ? 'HR Manager' : u.role === 'HR_PAYROLL_MANAGER' ? 'Payroll Lead' : u.role;
+                        const roleColor = u.role === 'HR_MANAGER' ? 'teal' : 'indigo';
+                        const dept = u.department || u.employee?.department || 'HR & People';
+                        const jobPosition = u.jobPosition || u.employee?.jobPosition || 'Specialist';
+                        const createdDate = new Date(u.createdAt).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        });
+
+                        return (
+                          <Table.Tr key={u.id}>
+                            <Table.Td>
+                              <Group gap="xs" wrap="nowrap">
+                                <UserAvatar size={32} radius="xl" name={displayName} id={u.id} />
+                                <div>
+                                  <Text size="xs" fw={700} c="#09090B">
+                                    {displayName}
+                                  </Text>
+                                  <Text size="10px" c="#2563EB">
+                                    {u.email}
+                                  </Text>
+                                </div>
+                              </Group>
+                            </Table.Td>
+
+                            <Table.Td>
+                              <Badge size="xs" color={roleColor} variant="light">
+                                {roleLabel}
+                              </Badge>
+                            </Table.Td>
+
+                            <Table.Td>
+                              <Text size="xs" fw={600} c="#09090B">
+                                {dept}
+                              </Text>
+                              <Text size="10px" c="#64748B">
+                                {jobPosition}
+                              </Text>
+                            </Table.Td>
+
+                            <Table.Td>
+                              <Text size="xs" c="#64748B">
+                                {createdDate}
+                              </Text>
+                              <Badge size="xs" color="yellow" variant="dot">
+                                Email Verified
+                              </Badge>
+                            </Table.Td>
+
+                            <Table.Td style={{ textAlign: 'right' }}>
+                              <Group gap={6} justify="flex-end" wrap="nowrap">
+                                <Button
+                                  size="xs"
+                                  color="dark"
+                                  loading={processingId === u.id}
+                                  onClick={() => handleApproveUser(u.id, displayName, u.email)}
+                                  styles={{ root: { height: 26, fontSize: '11px', padding: '0 10px' } }}
+                                >
+                                  Approve
+                                </Button>
+                                <ActionIcon
+                                  size="sm"
+                                  variant="light"
+                                  color="red"
+                                  loading={processingId === u.id}
+                                  onClick={() => handleRejectUser(u.id, displayName, u.email)}
+                                  title="Decline Account"
+                                >
+                                  <IconX size={14} />
+                                </ActionIcon>
+                              </Group>
+                            </Table.Td>
+                          </Table.Tr>
+                        );
+                      })}
+                  </Table.Tbody>
+                </Table>
+              )}
+            </Box>
+          )}
+
           {/* 1. Leave & Time Off Section */}
           {(activeTab === 'ALL' || activeTab === 'LEAVE') && (
+
             <Box>
               <Group justify="space-between" mb="xs">
                 <Group gap="xs">

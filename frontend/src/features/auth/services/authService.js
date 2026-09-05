@@ -167,5 +167,38 @@ export const authService = {
       };
     }
   },
+
+  checkAdminExists: async () => {
+    try {
+      const res = await fetchApi('/auth/admin-exists');
+      return res?.adminExists ?? true;
+    } catch (e) {
+      return true; // fail safe: prevent creating rogue admin
+    }
+  },
+
+  getPendingUsers: async () => {
+    try {
+      const res = await fetchApi('/auth/pending-users');
+      return res?.users || res?.data || (Array.isArray(res) ? res : []);
+    } catch (e) {
+      console.warn('Failed to fetch pending users:', e.message);
+      return [];
+    }
+  },
+
+  approveUser: async (id, notes = '') => {
+    return fetchApi(`/auth/approve-user/${id}`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    });
+  },
+
+  rejectUser: async (id, notes = '') => {
+    return fetchApi(`/auth/reject-user/${id}`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    });
+  },
 };
 

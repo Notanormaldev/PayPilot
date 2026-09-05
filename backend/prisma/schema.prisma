@@ -38,6 +38,9 @@ model User {
   role                    Role                @default(EMPLOYEE)
   isActive                Boolean             @default(true)
   isVerified              Boolean             @default(true)
+  approvalStatus          String?             @default("APPROVED") // PENDING_APPROVAL | APPROVED | REJECTED
+  approvalNotes           String?
+  approvedAt              DateTime?
   otpCode                 String?
   otpExpiresAt            DateTime?
   employeeId              String?             @unique

@@ -17,6 +17,24 @@ const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : nul
 // In-Memory store for pending account OTP verifications
 const pendingOtpStore = new Map();
 
+// In-Memory fallback store for verified users awaiting Admin approval
+const memoryPendingApprovals = new Map();
+
+/**
+ * GET /api/auth/admin-exists
+ * Returns whether a primary Administrator account has already been initialized
+ */
+authRouter.get('/admin-exists', async (req, res) => {
+  try {
+    const adminUser = await prisma.user.findFirst({
+      where: { role: 'ADMIN' },
+    });
+    res.json({ adminExists: !!adminUser });
+  } catch (err) {
+    res.json({ adminExists: true });
+  }
+});
+
 /**
  * Generate standard JWT Access Token (15m) & Refresh Token (7d)
  */
@@ -53,7 +71,22 @@ authRouter.post('/register', async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Check if user already exists in DB
+    // 1. Single Admin Restriction: If registering as ADMIN, ensure no admin already exists
+    if (role === 'ADMIN') {
+      try {
+        const existingAdmin = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+        if (existingAdmin) {
+          return res.status(409).json({
+            error: 'Administrator account is already configured. New Admin registration is restricted.',
+            code: 'ADMIN_ALREADY_EXISTS',
+          });
+        }
+      } catch (dbErr) {
+        console.warn('DB admin check warning:', dbErr.message);
+      }
+    }
+
+    // 2. Check if user already exists in DB
     try {
       const existingUser = await prisma.user.findUnique({ where: { email: normalizedEmail } });
       if (existingUser) {
@@ -63,7 +96,7 @@ authRouter.post('/register', async (req, res) => {
       console.warn('DB user query check:', dbErr.message);
     }
 
-    // Generate strict 6-digit OTP code (valid for 10 minutes)
+    // 3. Generate strict 6-digit OTP code (valid for 10 minutes)
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiresAt = Date.now() + 10 * 60 * 1000;
 
@@ -138,6 +171,11 @@ authRouter.post('/verify-otp', async (req, res) => {
     // Clear pending OTP from memory upon successful verification
     pendingOtpStore.delete(normalizedEmail);
 
+    // HR and Payroll roles require Admin Approval. Employee & initial Admin are approved immediately.
+    const isHrOrPayroll = role === 'HR_MANAGER' || role === 'HR_PAYROLL_MANAGER' || role === 'HR_PAYROLL_USER';
+    const approvalStatus = isHrOrPayroll ? 'PENDING_APPROVAL' : 'APPROVED';
+    const isActive = !isHrOrPayroll;
+
     let user;
     try {
       // Ensure Organization exists
@@ -170,6 +208,9 @@ authRouter.post('/verify-otp', async (req, res) => {
             clerkId: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
             email: normalizedEmail,
             role,
+            approvalStatus,
+            isActive,
+            isVerified: true,
             employeeId: employee.id,
           },
           include: { employee: true },
@@ -177,7 +218,7 @@ authRouter.post('/verify-otp', async (req, res) => {
       } else {
         user = await prisma.user.update({
           where: { id: user.id },
-          data: { role },
+          data: { role, approvalStatus, isActive, isVerified: true },
           include: { employee: true },
         });
       }
@@ -187,15 +228,48 @@ authRouter.post('/verify-otp', async (req, res) => {
         id: `usr_${Date.now()}`,
         email: normalizedEmail,
         role,
+        approvalStatus,
+        isActive,
+        isVerified: true,
         employeeId: null,
         employee: { name, department, jobPosition },
       };
     }
 
+    // If HR or Payroll: do NOT issue session tokens; notify user to wait for Admin approval
+    if (isHrOrPayroll) {
+      memoryPendingApprovals.set(normalizedEmail, {
+        id: user.id,
+        email: normalizedEmail,
+        name: user.employee ? user.employee.name : name,
+        role,
+        department: user.employee?.department || department,
+        jobPosition: user.employee?.jobPosition || jobPosition,
+        approvalStatus: 'PENDING_APPROVAL',
+        isActive: false,
+        createdAt: new Date(),
+      });
+
+      return res.status(200).json({
+        message: 'Work email verified successfully! Your HR / Payroll account registration has been submitted and is waiting for Administrator approval.',
+        pendingApproval: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          name: user.employee ? user.employee.name : name,
+          department: user.employee?.department || department,
+          approvalStatus: 'PENDING_APPROVAL',
+        },
+      });
+    }
+
+    // Employee or Admin: issue tokens directly
     const tokens = generateTokens(user);
 
     res.status(200).json({
       message: 'Account verified successfully',
+      pendingApproval: false,
       user: {
         id: user.id,
         email: user.email,
@@ -204,6 +278,7 @@ authRouter.post('/verify-otp', async (req, res) => {
         name: user.employee ? user.employee.name : name,
         department: user.employee?.department || department,
         jobPosition: user.employee?.jobPosition || jobPosition,
+        approvalStatus: 'APPROVED',
       },
       ...tokens,
     });
@@ -258,7 +333,7 @@ authRouter.post('/resend-otp', async (req, res) => {
 
 /**
  * POST /api/auth/login
- * Standard email/password login
+ * Standard email/password login with approval gatekeeping
  */
 authRouter.post('/login', async (req, res) => {
   try {
@@ -280,60 +355,88 @@ authRouter.post('/login', async (req, res) => {
       console.warn('DB lookup fallback:', e.message);
     }
 
-    // Auto-provision if user does not exist in development mode
+    // Auto-provision default demo personas if they don't exist yet
+    const demoEmails = [
+      'meera.krishnan@paypilot.internal',
+      'neha.gupta@paypilot.internal',
+      'tanvi.kapoor@paypilot.internal',
+      'kartik.kumar@paypilot.internal',
+    ];
+
     if (!user) {
-      try {
-        let org = await prisma.organization.findFirst();
-        if (!org) {
-          org = await prisma.organization.create({
-            data: { name: 'PayPilot Global Inc.', timezone: 'Asia/Kolkata' },
-          });
-        }
+      if (demoEmails.includes(normalizedEmail)) {
+        try {
+          let org = await prisma.organization.findFirst();
+          if (!org) {
+            org = await prisma.organization.create({
+              data: { name: 'PayPilot Global Inc.', timezone: 'Asia/Kolkata' },
+            });
+          }
 
-        let employee = await prisma.employee.findUnique({ where: { workEmail: normalizedEmail } });
-        if (!employee) {
-          employee = await prisma.employee.create({
+          let employee = await prisma.employee.findUnique({ where: { workEmail: normalizedEmail } });
+          if (!employee) {
+            employee = await prisma.employee.create({
+              data: {
+                name: normalizedEmail.split('@')[0].replace('.', ' '),
+                workEmail: normalizedEmail,
+                department: 'Executive',
+                jobPosition: 'Officer',
+                orgId: org.id,
+              },
+            });
+          }
+
+          user = await prisma.user.create({
             data: {
-              name: normalizedEmail.split('@')[0].replace('.', ' '),
-              workEmail: normalizedEmail,
-              department: 'Executive',
-              jobPosition: 'Officer',
-              orgId: org.id,
+              clerkId: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+              email: normalizedEmail,
+              role: role || (normalizedEmail.includes('meera') ? 'ADMIN' : 'EMPLOYEE'),
+              approvalStatus: 'APPROVED',
+              isActive: true,
+              employeeId: employee.id,
             },
+            include: { employee: true },
           });
-        }
-
-        user = await prisma.user.create({
-          data: {
-            clerkId: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        } catch (e) {
+          user = {
+            id: `usr_${Date.now()}`,
             email: normalizedEmail,
             role: role || 'ADMIN',
-            employeeId: employee.id,
-          },
-          include: { employee: true },
+            approvalStatus: 'APPROVED',
+            isActive: true,
+            employeeId: null,
+            employee: { name: normalizedEmail.split('@')[0], department: 'Executive', jobPosition: 'Officer' },
+          };
+        }
+      } else {
+        return res.status(401).json({
+          error: 'Account not found. Please click Create Account to register.',
+          code: 'USER_NOT_FOUND',
         });
-      } catch (e) {
-        user = {
-          id: `usr_${Date.now()}`,
-          email: normalizedEmail,
-          role: role || 'ADMIN',
-          employeeId: null,
-          employee: { name: normalizedEmail.split('@')[0], department: 'Executive', jobPosition: 'Officer' },
-        };
       }
     }
 
-    // If user exists and specific role is requested, update role
-    if (user && role && user.role !== role) {
-      try {
-        user = await prisma.user.update({
-          where: { id: user.id },
-          data: { role },
-          include: { employee: true },
-        });
-      } catch (e) {
-        user.role = role;
-      }
+    // 4. Approval Gatekeeping: Check if account is pending approval
+    if (user.approvalStatus === 'PENDING_APPROVAL') {
+      return res.status(403).json({
+        error: 'Your account is waiting for Admin approval. Please wait for an administrator to approve your registration before signing in.',
+        code: 'PENDING_ADMIN_APPROVAL',
+        pendingApproval: true,
+      });
+    }
+
+    if (user.approvalStatus === 'REJECTED') {
+      return res.status(403).json({
+        error: 'Your account registration was rejected by the administrator.',
+        code: 'ACCOUNT_REJECTED',
+      });
+    }
+
+    if (user.isActive === false) {
+      return res.status(403).json({
+        error: 'Your account is currently inactive. Please contact your administrator.',
+        code: 'ACCOUNT_INACTIVE',
+      });
     }
 
     const tokens = generateTokens(user);
@@ -348,6 +451,7 @@ authRouter.post('/login', async (req, res) => {
         name: user.employee ? user.employee.name : normalizedEmail.split('@')[0],
         department: user.employee?.department || 'Executive',
         jobPosition: user.employee?.jobPosition || 'Officer',
+        approvalStatus: user.approvalStatus || 'APPROVED',
       },
       ...tokens,
     });
@@ -355,6 +459,169 @@ authRouter.post('/login', async (req, res) => {
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed', details: err.message });
+  }
+});
+
+/**
+ * GET /api/auth/pending-users
+ * Returns list of pending HR / Payroll accounts waiting for Admin approval
+ */
+authRouter.get('/pending-users', async (req, res) => {
+  try {
+    let pendingUsers = [];
+    try {
+      pendingUsers = await prisma.user.findMany({
+        where: { approvalStatus: 'PENDING_APPROVAL' },
+        include: { employee: true },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (e) {
+      console.warn('DB pending users query fallback:', e.message);
+    }
+
+    const formatted = pendingUsers.map((u) => ({
+      id: u.id,
+      email: u.email,
+      name: u.employee?.name || u.email.split('@')[0].replace('.', ' '),
+      role: u.role,
+      department: u.employee?.department || 'HR & People',
+      jobPosition: u.employee?.jobPosition || 'Specialist',
+      approvalStatus: u.approvalStatus,
+      createdAt: u.createdAt,
+    }));
+
+    // Merge in-memory pending approvals if not already in DB results
+    for (const [email, memUser] of memoryPendingApprovals.entries()) {
+      if (!formatted.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+        formatted.unshift({
+          id: memUser.id || `mem_${Date.now()}`,
+          email: memUser.email,
+          name: memUser.name,
+          role: memUser.role,
+          department: memUser.department || 'HR & People',
+          jobPosition: memUser.jobPosition || 'Specialist',
+          approvalStatus: 'PENDING_APPROVAL',
+          createdAt: memUser.createdAt || new Date(),
+        });
+      }
+    }
+
+    res.json({ success: true, users: formatted, data: formatted });
+  } catch (err) {
+    console.error('Fetch pending users error:', err);
+    res.status(500).json({ error: 'Failed to fetch pending users', details: err.message });
+  }
+});
+
+/**
+ * POST /api/auth/approve-user/:id
+ * Admin approves a pending HR / Payroll user
+ */
+authRouter.post('/approve-user/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    let user = null;
+
+    try {
+      user = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          approvalStatus: 'APPROVED',
+          isActive: true,
+          approvedAt: new Date(),
+        },
+        include: { employee: true },
+      });
+    } catch (dbErr) {
+      // Find in memoryPendingApprovals
+      for (const [email, memUser] of memoryPendingApprovals.entries()) {
+        if (memUser.id === userId || `mem_${email}` === userId || memUser.email === userId) {
+          memUser.approvalStatus = 'APPROVED';
+          memUser.isActive = true;
+          user = memUser;
+          memoryPendingApprovals.delete(email);
+          break;
+        }
+      }
+    }
+
+    if (!user) {
+      try {
+        const found = await prisma.user.findFirst({
+          where: { OR: [{ id: userId }, { email: userId }] },
+        });
+        if (found) {
+          user = await prisma.user.update({
+            where: { id: found.id },
+            data: { approvalStatus: 'APPROVED', isActive: true, approvedAt: new Date() },
+            include: { employee: true },
+          });
+        }
+      } catch (e) {}
+    }
+
+    // Clean up memory store
+    for (const [email, memUser] of memoryPendingApprovals.entries()) {
+      if (memUser.id === userId || memUser.email === userId) {
+        memoryPendingApprovals.delete(email);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `User ${user?.email || userId} has been approved successfully.`,
+      user,
+    });
+  } catch (err) {
+    console.error('Approve user error:', err);
+    res.status(500).json({ error: 'Failed to approve user', details: err.message });
+  }
+});
+
+/**
+ * POST /api/auth/reject-user/:id
+ * Admin rejects a pending HR / Payroll user
+ */
+authRouter.post('/reject-user/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    let user = null;
+
+    try {
+      user = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          approvalStatus: 'REJECTED',
+          isActive: false,
+        },
+      });
+    } catch (dbErr) {
+      for (const [email, memUser] of memoryPendingApprovals.entries()) {
+        if (memUser.id === userId || `mem_${email}` === userId || memUser.email === userId) {
+          memUser.approvalStatus = 'REJECTED';
+          memUser.isActive = false;
+          user = memUser;
+          memoryPendingApprovals.delete(email);
+          break;
+        }
+      }
+    }
+
+    // Clean up memory store
+    for (const [email, memUser] of memoryPendingApprovals.entries()) {
+      if (memUser.id === userId || memUser.email === userId) {
+        memoryPendingApprovals.delete(email);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `User ${user?.email || userId} registration was rejected.`,
+      user,
+    });
+  } catch (err) {
+    console.error('Reject user error:', err);
+    res.status(500).json({ error: 'Failed to reject user', details: err.message });
   }
 });
 
