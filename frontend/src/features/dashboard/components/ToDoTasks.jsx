@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Stack, Group, Text, Button, Badge, ThemeIcon, Skeleton, SimpleGrid } from '@mantine/core';
+import { Paper, Stack, Group, Text, Button, Badge, ThemeIcon, Skeleton, SimpleGrid, Box } from '@mantine/core';
 import { IconCheck, IconAlertCircle, IconClock, IconShieldExclamation, IconReceipt2, IconSparkles } from '@tabler/icons-react';
 import { fetchApi } from '../../../lib/api';
 
