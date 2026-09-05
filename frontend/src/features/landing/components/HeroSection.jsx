@@ -55,7 +55,7 @@ export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
       <div className="w-full max-w-[860px] flex flex-col justify-center items-center gap-4 text-center">
         <h1 className="w-full text-center text-[#37322F] text-[36px] sm:text-[44px] md:text-[52px] lg:text-[58px] font-normal leading-[1.15] font-serif px-2 sm:px-4">
           Effortless autonomous payroll{' '}
-          by <span className="italic">PayPilot</span>
+          by <span className="italic">Pay<span style={{ color: '#2563EB' }}>Pilot</span></span>
         </h1>
         <p className="w-full max-w-[520px] text-center text-[rgba(55,50,47,0.72)] text-sm sm:text-[15px] leading-relaxed font-sans px-4 font-normal">
           Streamline your workforce operations with deterministic rule calculation,
