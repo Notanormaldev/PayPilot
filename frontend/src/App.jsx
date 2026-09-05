@@ -11,40 +11,40 @@ import { AttendanceView } from './components/AttendanceView';
 import { CopilotModal } from './components/CopilotModal';
 import { fetchApi } from './lib/api';
 
-export const App: React.FC = () => {
+export const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [currentRole, setCurrentRole] = useState('ADMIN');
   const [copilotOpen, setCopilotOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [kpis, setKpis] = useState<any>(null);
-  const [flags, setFlags] = useState<any[]>([]);
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [trends, setTrends] = useState<any[]>([]);
-  const [payruns, setPayruns] = useState<any[]>([]);
-  const [attendances, setAttendances] = useState<any[]>([]);
-  const [leaveRequests, setLeaveRequests] = useState<any[]>([]);
+  const [kpis, setKpis] = useState(null);
+  const [flags, setFlags] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [trends, setTrends] = useState([]);
+  const [payruns, setPayruns] = useState([]);
+  const [attendances, setAttendances] = useState([]);
+  const [leaveRequests, setLeaveRequests] = useState([]);
 
   const loadData = async () => {
     try {
       const [kpiRes, flagsRes, empRes, trendRes, payrunsRes, attRes, leavesRes] = await Promise.all([
-        fetchApi<{ data: any }>('/dashboard/kpis').catch(() => ({ data: null })),
-        fetchApi<{ data: any[] }>('/sentinel/flags?status=OPEN').catch(() => ({ data: [] })),
-        fetchApi<{ data: any[] }>('/employees').catch(() => ({ data: [] })),
-        fetchApi<{ data: any[] }>('/dashboard/trends').catch(() => ({ data: [] })),
-        fetchApi<{ data: any[] }>('/payruns').catch(() => ({ data: [] })),
-        fetchApi<{ data: any[] }>('/attendance').catch(() => ({ data: [] })),
-        fetchApi<{ data: any[] }>('/time-off/requests').catch(() => ({ data: [] })),
+        fetchApi('/dashboard/kpis').catch(() => ({ data: null })),
+        fetchApi('/sentinel/flags?status=OPEN').catch(() => ({ data: [] })),
+        fetchApi('/employees').catch(() => ({ data: [] })),
+        fetchApi('/dashboard/trends').catch(() => ({ data: [] })),
+        fetchApi('/payruns').catch(() => ({ data: [] })),
+        fetchApi('/attendance').catch(() => ({ data: [] })),
+        fetchApi('/time-off/requests').catch(() => ({ data: [] })),
       ]);
 
-      if (kpiRes.data) setKpis(kpiRes.data);
-      setFlags(flagsRes.data || []);
-      setEmployees(empRes.data || []);
-      setTrends(trendRes.data || []);
-      setPayruns(payrunsRes.data || []);
-      setAttendances(attRes.data || []);
-      setLeaveRequests(leavesRes.data || []);
-    } catch (err: any) {
+      if (kpiRes?.data) setKpis(kpiRes.data);
+      setFlags(flagsRes?.data || []);
+      setEmployees(empRes?.data || []);
+      setTrends(trendRes?.data || []);
+      setPayruns(payrunsRes?.data || []);
+      setAttendances(attRes?.data || []);
+      setLeaveRequests(leavesRes?.data || []);
+    } catch (err) {
       console.error('Data load error:', err);
     } finally {
       setLoading(false);
@@ -55,7 +55,7 @@ export const App: React.FC = () => {
     loadData();
   }, []);
 
-  const handleRoleChange = (newRole: string) => {
+  const handleRoleChange = (newRole) => {
     setCurrentRole(newRole);
     let token = 'dev-admin-token';
     if (newRole === 'HR_OFFICER') token = 'dev-hr-token';

@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
 import { Paper, Stack, Group, Text, Badge, Button, Table, Grid } from '@mantine/core';
 import { IconClockPlay, IconClockStop } from '@tabler/icons-react';
-import { fetchApi } from '../lib/api';
+import { fetchApi } from '../lib/api.js';
 
-interface AttendanceViewProps {
-  attendances: any[];
-  leaveRequests: any[];
-  onRefresh: () => void;
-}
-
-export const AttendanceView: React.FC<AttendanceViewProps> = ({
-  attendances,
-  leaveRequests,
+export const AttendanceView = ({
+  attendances = [],
+  leaveRequests = [],
   onRefresh,
 }) => {
   const [checkingIn, setCheckingIn] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
-  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [approvingId, setApprovingId] = useState(null);
 
   const handleCheckIn = async () => {
     setCheckingIn(true);
@@ -26,7 +20,7 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
         body: JSON.stringify({ employeeId: 'emp_aarav_mehta' }),
       });
       onRefresh();
-    } catch (err: any) {
+    } catch (err) {
       alert(err.message);
     } finally {
       setCheckingIn(false);
@@ -41,19 +35,19 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
         body: JSON.stringify({ employeeId: 'emp_aarav_mehta' }),
       });
       onRefresh();
-    } catch (err: any) {
+    } catch (err) {
       alert(err.message);
     } finally {
       setCheckingOut(false);
     }
   };
 
-  const handleApproveLeave = async (reqId: string) => {
+  const handleApproveLeave = async (reqId) => {
     setApprovingId(reqId);
     try {
       await fetchApi(`/time-off/requests/${reqId}/approve`, { method: 'POST' });
       onRefresh();
-    } catch (err: any) {
+    } catch (err) {
       alert(err.message);
     } finally {
       setApprovingId(null);

@@ -1,8 +1,8 @@
-// frontend/src/lib/api.ts
+// frontend/src/lib/api.js
 
 const API_BASE = '/api';
 
-export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+export async function fetchApi(endpoint, options = {}) {
   const token = localStorage.getItem('paypilot_auth_token') || 'dev-admin-token';
 
   const res = await fetch(`${API_BASE}${endpoint}`, {

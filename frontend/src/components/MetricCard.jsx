@@ -1,16 +1,7 @@
 import React from 'react';
 import { Paper, Group, Text, Badge } from '@mantine/core';
 
-interface MetricCardProps {
-  label: string;
-  value: string | number;
-  badgeText?: string;
-  badgeColor?: string;
-  subtext?: string;
-  icon?: React.ReactNode;
-}
-
-export const MetricCard: React.FC<MetricCardProps> = ({
+export const MetricCard = ({
   label,
   value,
   badgeText,

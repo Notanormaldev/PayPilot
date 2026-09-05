@@ -10,11 +10,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 
-interface PayrollChartProps {
-  data: { month: string; payroll: number; employees: number }[];
-}
-
-export const PayrollChart: React.FC<PayrollChartProps> = ({ data }) => {
+export const PayrollChart = ({ data }) => {
   const chartData =
     data && data.length > 0
       ? data
@@ -60,7 +56,7 @@ export const PayrollChart: React.FC<PayrollChartProps> = ({ data }) => {
                 fontSize: '12px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
               }}
-              formatter={(value: any) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Net Spend']}
+              formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Net Spend']}
             />
             <Bar dataKey="payroll" fill="#09090B" radius={[4, 4, 0, 0]} maxBarSize={45} />
           </BarChart>

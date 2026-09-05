@@ -1,42 +1,20 @@
 import React, { useState } from 'react';
 import { Paper, Stack, Group, Text, Badge, Button, Modal, TextInput } from '@mantine/core';
 import { IconAlertTriangle, IconCheck, IconShieldX, IconSparkles } from '@tabler/icons-react';
-import { fetchApi } from '../lib/api';
+import { fetchApi } from '../lib/api.js';
 
-export interface SentinelFlagItem {
-  id: string;
-  flagType: string;
-  severity: string;
-  deterministicReasonJson: any;
-  aiExplanation?: string;
-  status: string;
-  payslip?: {
-    id: string;
-    employee: {
-      id: string;
-      name: string;
-      department: string;
-    };
-  };
-}
-
-interface SentinelDrawerProps {
-  flags: SentinelFlagItem[];
-  onFlagResolved: () => void;
-}
-
-export const SentinelDrawer: React.FC<SentinelDrawerProps> = ({ flags, onFlagResolved }) => {
-  const [resolvingId, setResolvingId] = useState<string | null>(null);
+export const SentinelDrawer = ({ flags, onFlagResolved }) => {
+  const [resolvingId, setResolvingId] = useState(null);
   const [overrideModalOpen, setOverrideModalOpen] = useState(false);
-  const [selectedFlag, setSelectedFlag] = useState<SentinelFlagItem | null>(null);
+  const [selectedFlag, setSelectedFlag] = useState(null);
   const [overrideNote, setOverrideNote] = useState('');
 
-  const handleResolve = async (flagId: string) => {
+  const handleResolve = async (flagId) => {
     setResolvingId(flagId);
     try {
       await fetchApi(`/sentinel/flags/${flagId}/resolve`, { method: 'POST' });
       onFlagResolved();
-    } catch (err: any) {
+    } catch (err) {
       alert(`Resolution failed: ${err.message}`);
     } finally {
       setResolvingId(null);
@@ -53,7 +31,7 @@ export const SentinelDrawer: React.FC<SentinelDrawerProps> = ({ flags, onFlagRes
       setOverrideModalOpen(false);
       setOverrideNote('');
       onFlagResolved();
-    } catch (err: any) {
+    } catch (err) {
       alert(`Override failed: ${err.message}`);
     }
   };

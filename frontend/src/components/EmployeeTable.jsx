@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { Paper, Table, Text, Badge, Group, TextInput, ActionIcon } from '@mantine/core';
 import { IconSearch, IconDotsVertical, IconCheck } from '@tabler/icons-react';
 
-interface EmployeeTableProps {
-  employees: any[];
-  onSelectEmployee?: (emp: any) => void;
-}
-
-export const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, onSelectEmployee }) => {
+export const EmployeeTable = ({ employees = [], onSelectEmployee }) => {
   const [search, setSearch] = useState('');
 
   const filtered = employees.filter((e) => {

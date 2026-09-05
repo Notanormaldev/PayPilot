@@ -3,37 +3,32 @@ import { Modal, Stack, Group, TextInput, Button, Text, Badge } from '@mantine/co
 import { IconSparkles, IconSend } from '@tabler/icons-react';
 import { fetchApi } from '../lib/api';
 
-interface CopilotModalProps {
-  opened: boolean;
-  onClose: () => void;
-}
-
-export const CopilotModal: React.FC<CopilotModalProps> = ({ opened, onClose }) => {
+export const CopilotModal = ({ opened, onClose }) => {
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([
+  const [messages, setMessages] = useState([
     {
       role: 'assistant',
       text: 'Hello! I am your Sentinel Executive Copilot. Ask me about payroll anomalies, employee contracts, or budget trends.',
     },
   ]);
 
-  const handleAsk = async (promptText?: string) => {
+  const handleAsk = async (promptText) => {
     const q = promptText || question;
     if (!q.trim()) return;
 
-    const newMessages = [...messages, { role: 'user' as const, text: q }];
+    const newMessages = [...messages, { role: 'user', text: q }];
     setMessages(newMessages);
     setQuestion('');
     setLoading(true);
 
     try {
-      const res = await fetchApi<{ answer: string }>('/dashboard/copilot', {
+      const res = await fetchApi('/dashboard/copilot', {
         method: 'POST',
         body: JSON.stringify({ question: q }),
       });
       setMessages([...newMessages, { role: 'assistant', text: res.answer }]);
-    } catch (err: any) {
+    } catch (err) {
       setMessages([...newMessages, { role: 'assistant', text: `Error: ${err.message}` }]);
     } finally {
       setLoading(false);

@@ -1,7 +1,7 @@
-import { createTheme, MantineColorsTuple } from '@mantine/core';
+import { createTheme } from '@mantine/core';
 
 // Executive Precision - Linear/Apple Fintech Light Scale
-const executiveSlate: MantineColorsTuple = [
+const executiveSlate = [
   '#09090B', // deep ink
   '#18181B',
   '#27272A',

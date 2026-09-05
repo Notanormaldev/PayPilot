@@ -9,13 +9,7 @@ import {
   IconShieldExclamation,
 } from '@tabler/icons-react';
 
-interface SidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-  openSentinelFlagsCount: number;
-}
-
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, openSentinelFlagsCount }) => {
+export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount }) => {
   const navItems = [
     { id: 'dashboard', label: 'Executive Dashboard', icon: IconLayoutDashboard },
     { id: 'payroll', label: 'Payroll & Sentinel', icon: IconReceipt2, badge: openSentinelFlagsCount > 0 ? `${openSentinelFlagsCount} flags` : undefined, badgeColor: 'red' },

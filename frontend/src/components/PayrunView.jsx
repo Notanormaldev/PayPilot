@@ -1,27 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Paper, Stack, Group, Text, Badge, Button, Table, ActionIcon } from '@mantine/core';
 import { IconDownload, IconPlayerPlay } from '@tabler/icons-react';
-import { fetchApi } from '../lib/api';
+import { fetchApi } from '../lib/api.js';
 
-interface PayrunViewProps {
-  payruns: any[];
-  onRefresh: () => void;
-}
-
-export const PayrunView: React.FC<PayrunViewProps> = ({ payruns, onRefresh }) => {
+export const PayrunView = ({ payruns = [], onRefresh }) => {
   const [computing, setComputing] = useState(false);
-  const [selectedPayrunId, setSelectedPayrunId] = useState<string | null>(payruns[0]?.id || null);
-  const [payrunDetail, setPayrunDetail] = useState<any>(null);
+  const [selectedPayrunId, setSelectedPayrunId] = useState(payruns[0]?.id || null);
+  const [payrunDetail, setPayrunDetail] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (payruns.length > 0 && !selectedPayrunId) {
       setSelectedPayrunId(payruns[0].id);
     }
   }, [payruns, selectedPayrunId]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedPayrunId) {
-      fetchApi<{ data: any }>(`/payruns/${selectedPayrunId}`)
+      fetchApi(`/payruns/${selectedPayrunId}`)
         .then((res) => setPayrunDetail(res.data))
         .catch(() => {});
     }
@@ -33,16 +28,16 @@ export const PayrunView: React.FC<PayrunViewProps> = ({ payruns, onRefresh }) =>
     try {
       await fetchApi(`/payruns/${selectedPayrunId}/compute`, { method: 'POST' });
       onRefresh();
-      const res = await fetchApi<{ data: any }>(`/payruns/${selectedPayrunId}`);
+      const res = await fetchApi(`/payruns/${selectedPayrunId}`);
       setPayrunDetail(res.data);
-    } catch (err: any) {
+    } catch (err) {
       alert(`Computation error: ${err.message}`);
     } finally {
       setComputing(false);
     }
   };
 
-  const handleDownloadPdf = (payslipId: string) => {
+  const handleDownloadPdf = (payslipId) => {
     const token = localStorage.getItem('paypilot_auth_token') || 'dev-admin-token';
     window.open(`/api/payruns/payslips/${payslipId}/pdf?token=${token}`, '_blank');
   };
@@ -102,14 +97,14 @@ export const PayrunView: React.FC<PayrunViewProps> = ({ payruns, onRefresh }) =>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {payrunDetail?.payslips?.map((slip: any) => {
-              const basicLine = slip.lines?.find((l: any) => l.code === 'BASIC');
-              const grossLine = slip.lines?.find((l: any) => l.code === 'GROSS');
-              const netLine = slip.lines?.find((l: any) => l.code === 'NET');
-              const pfLine = slip.lines?.find((l: any) => l.code === 'PF');
-              const ptLine = slip.lines?.find((l: any) => l.code === 'PT');
+            {payrunDetail?.payslips?.map((slip) => {
+              const basicLine = slip.lines?.find((l) => l.code === 'BASIC');
+              const grossLine = slip.lines?.find((l) => l.code === 'GROSS');
+              const netLine = slip.lines?.find((l) => l.code === 'NET');
+              const pfLine = slip.lines?.find((l) => l.code === 'PF');
+              const ptLine = slip.lines?.find((l) => l.code === 'PT');
               const totalDeductions = (pfLine ? Number(pfLine.amount) : 0) + (ptLine ? Number(ptLine.amount) : 0);
-              const openFlags = slip.flags?.filter((f: any) => f.status === 'OPEN') || [];
+              const openFlags = slip.flags?.filter((f) => f.status === 'OPEN') || [];
 
               return (
                 <Table.Tr key={slip.id}>

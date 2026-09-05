@@ -2,13 +2,7 @@ import React from 'react';
 import { Group, Badge, TextInput, Avatar, Menu, Text, Button } from '@mantine/core';
 import { IconSearch, IconSparkles, IconChevronDown } from '@tabler/icons-react';
 
-interface HeaderProps {
-  onOpenCopilot: () => void;
-  currentRole: string;
-  onSelectRole: (role: string) => void;
-}
-
-export const Header: React.FC<HeaderProps> = ({ onOpenCopilot, currentRole, onSelectRole }) => {
+export const Header = ({ onOpenCopilot, currentRole, onSelectRole }) => {
   return (
     <header
       style={{
