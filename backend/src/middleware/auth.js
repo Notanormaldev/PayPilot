@@ -86,16 +86,23 @@ export async function getOrCreateDevUser(role) {
   const email = `dev-${String(role).toLowerCase()}@paypilot.internal`;
 
   try {
-    const user = await prisma.user.upsert({
-      where: { clerkId },
-      update: { role, email },
-      create: {
-        clerkId,
-        email,
-        role,
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [{ clerkId }, { email }],
       },
       include: { employee: true },
     });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          clerkId,
+          email,
+          role,
+        },
+        include: { employee: true },
+      });
+    }
 
     return {
       id: user.id,
