@@ -241,4 +241,50 @@ employeesRouter.post('/', authenticate, async (req, res) => {
   }
 });
 
+// POST /api/employees/avatar - upload profile photo to ImageKit
+employeesRouter.post('/avatar', async (req, res) => {
+  try {
+    const { image, fileName } = req.body;
+    if (!image) {
+      return res.status(400).json({ error: 'No image data provided' });
+    }
+
+    const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
+    if (!privateKey) {
+      return res.status(500).json({ error: 'IMAGEKIT_PRIVATE_KEY not configured on server' });
+    }
+
+    const authHeader = 'Basic ' + Buffer.from(privateKey + ':').toString('base64');
+    const form = new FormData();
+    const base64Data = image.includes(',') ? image.split(',')[1] : image;
+    form.append('file', base64Data);
+    form.append('fileName', fileName || `avatar_${Date.now()}.png`);
+    form.append('folder', '/paypilot/avatars');
+
+    const ikRes = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+      method: 'POST',
+      headers: { Authorization: authHeader },
+      body: form,
+    });
+
+    const ikData = await ikRes.json();
+    if (!ikRes.ok) {
+      return res.status(ikRes.status || 500).json({
+        error: 'ImageKit upload failed',
+        details: ikData.message || ikData,
+      });
+    }
+
+    res.json({
+      success: true,
+      url: ikData.url,
+      thumbnailUrl: ikData.thumbnailUrl || ikData.url,
+      fileId: ikData.fileId,
+    });
+  } catch (err) {
+    console.error('ImageKit avatar upload error:', err);
+    res.status(500).json({ error: 'Failed to upload avatar', details: err.message });
+  }
+});
+
 export default employeesRouter;

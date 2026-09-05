@@ -11,6 +11,7 @@ import {
   Button,
 } from '@mantine/core';
 import { IconSearch, IconAlertCircle, IconCheck, IconUserPlus } from '@tabler/icons-react';
+import { UserAvatar } from '../../../components/ui';
 
 export const EmployeeTable = ({ employees = [] }) => {
   const [search, setSearch] = useState('');
@@ -83,10 +84,12 @@ export const EmployeeTable = ({ employees = [] }) => {
               <Table.Tr key={emp.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
                 <Table.Td>
                   <Group gap="xs">
-                    <Avatar
-                      size={28}
+                    <UserAvatar
+                      size={32}
                       radius="xl"
-                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${emp.firstName}+${emp.lastName}`}
+                      src={emp.avatarUrl}
+                      name={`${emp.firstName} ${emp.lastName}`}
+                      id={emp.id || emp.employeeNumber}
                     />
                     <div>
                       <Text size="xs" fw={700} c="#09090B">

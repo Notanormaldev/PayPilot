@@ -2,9 +2,17 @@ import React from 'react';
 import { Group, Avatar, Menu, Text, UnstyledButton, Badge, Box } from '@mantine/core';
 import { IconChevronDown, IconShieldCheck, IconUser, IconLogout } from '@tabler/icons-react';
 import { useAuthUser } from '../hooks/useAuthUser';
+import { UserAvatar } from '../../../components/ui';
 
 export const UserMenu = () => {
   const { user, currentRole, logout } = useAuthUser();
+  const [avatarUrl, setAvatarUrl] = React.useState(() => localStorage.getItem('paypilot_user_avatar') || null);
+
+  React.useEffect(() => {
+    const handleUpdate = (e) => setAvatarUrl(e.detail);
+    window.addEventListener('paypilot_avatar_updated', handleUpdate);
+    return () => window.removeEventListener('paypilot_avatar_updated', handleUpdate);
+  }, []);
 
   const roleColors = {
     ADMIN: 'blue',
@@ -40,11 +48,12 @@ export const UserMenu = () => {
           }}
         >
           <Group gap="xs">
-            <Avatar
+            <UserAvatar
               size={30}
               radius="xl"
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120"
-              alt={user?.name || 'User'}
+              src={avatarUrl}
+              name={user?.name || 'Meera Krishnan'}
+              id={user?.email || 'meera'}
             />
             <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
               <Text size="xs" fw={700} c="#09090B">

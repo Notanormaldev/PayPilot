@@ -4,3 +4,4 @@ export { Button } from './Button';
 export { Card } from './Card';
 export { MetricCard } from './MetricCard';
 export { BrandLogo } from './BrandLogo';
+export { UserAvatar } from './UserAvatar';
