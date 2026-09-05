@@ -6,6 +6,7 @@ import {
   Text,
   Badge,
   TextInput,
+  Tooltip,
 } from '@mantine/core';
 import { IconSearch, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { UserAvatar } from '../../../components/ui';
@@ -151,12 +152,14 @@ export const EmployeeTable = ({ employees = [] }) => {
                       </Text>
                     </Group>
                   ) : (
-                    <Group gap={4}>
-                      <IconAlertCircle size={14} color="#DC2626" />
-                      <Text size="xs" c="#DC2626" fw={600}>
-                        Missing Bank Info
-                      </Text>
-                    </Group>
+                    <Tooltip label="Flagged in Sentinel Audit Section: Action Required" withArrow>
+                      <Group gap={4}>
+                        <IconAlertCircle size={14} color="#DC2626" />
+                        <Badge size="xs" color="red" variant="light">
+                          Missing Bank Info (Sentinel Audit)
+                        </Badge>
+                      </Group>
+                    </Tooltip>
                   )}
                 </Table.Td>
 
