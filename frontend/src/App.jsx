@@ -21,12 +21,13 @@ import { EmployeeTable } from './features/employees/components/EmployeeTable';
 import { PayrunView } from './features/payroll/components/PayrunView';
 import { SentinelDrawer } from './features/sentinel/components/SentinelDrawer';
 import { AttendanceView } from './features/attendance/components/AttendanceView';
+import { AuthPage } from './features/auth/components/AuthPage';
 
 export const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [copilotOpen, setCopilotOpen] = useState(false);
 
-  const { user } = useAuthUser();
+  const { user, isSignedIn } = useAuthUser();
   const { kpis, trends, loading: dashboardLoading, refreshDashboard } = useDashboard();
   const { payruns, fetchPayruns } = usePayroll();
   const { flags, fetchFlags } = useSentinel();
@@ -40,6 +41,10 @@ export const App = () => {
     fetchEmployees();
     fetchAttendanceData();
   };
+
+  if (!isSignedIn) {
+    return <AuthPage onAuthSuccess={handleRefreshAll} />;
+  }
 
   return (
     <div

@@ -95,6 +95,20 @@ export const UserMenu = () => {
             {currentRole === 'EMPLOYEE' && <Badge size="xs" color="gray">Active</Badge>}
           </Group>
         </Menu.Item>
+
+        <Menu.Divider />
+        <Menu.Item
+          color="red"
+          onClick={() => {
+            localStorage.removeItem('paypilot_auth_token');
+            localStorage.removeItem('paypilot_refresh_token');
+            window.location.reload();
+          }}
+        >
+          <Text size="xs" c="red" fw={600}>
+            Sign Out / Switch Account
+          </Text>
+        </Menu.Item>
       </Menu.Dropdown>
     </Menu>
   );
