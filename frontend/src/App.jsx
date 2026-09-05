@@ -27,7 +27,8 @@ import { WorkSchedulesView } from './features/schedules';
 import { SalaryStructuresView } from './features/salary-structures';
 import { LandingPage } from './features/landing/LandingPage';
 
-// Employee Self-Service Portal Views (7 Core Facilities)
+// Employee Self-Service Portal Views (Core Facilities & ESS Hub)
+import { EmployeeDashboardView } from './features/employee-portal/components/EmployeeDashboardView';
 import { MyProfileView } from './features/employee-portal/components/MyProfileView';
 import { MyAttendanceView } from './features/employee-portal/components/MyAttendanceView';
 import { MyTimeOffView } from './features/employee-portal/components/MyTimeOffView';
@@ -42,7 +43,7 @@ import { ReportsView } from './features/reports';
 export const App = () => {
   const { user, isSignedIn, currentRole } = useAuthUser();
   const isEmployee = currentRole === 'EMPLOYEE';
-  const [activeTab, setActiveTab] = useState(isEmployee ? 'my-profile' : 'dashboard');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [copilotOpen, setCopilotOpen] = useState(false);
   const [viewLanding, setViewLanding] = useState(false);
 
@@ -52,7 +53,7 @@ export const App = () => {
   const { employees, fetchEmployees } = useEmployees();
   const { attendances, leaveRequests, fetchAttendanceData } = useAttendance();
 
-  const employeeTabs = ['my-profile', 'my-attendance', 'my-time-off', 'my-contract', 'my-payslips', 'my-taxes', 'notifications', 'settings'];
+  const employeeTabs = ['dashboard', 'my-profile', 'my-attendance', 'my-time-off', 'my-contract', 'my-payslips', 'my-taxes', 'notifications', 'settings'];
   const adminRoleNavPermissions = {
     ADMIN: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
     HR_MANAGER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'time-off', 'approvals', 'reports', 'settings'],
@@ -63,8 +64,8 @@ export const App = () => {
   useEffect(() => {
     if (isSignedIn) {
       if (isEmployee && !employeeTabs.includes(activeTab)) {
-        setActiveTab('my-profile');
-      } else if (!isEmployee && employeeTabs.includes(activeTab)) {
+        setActiveTab('dashboard');
+      } else if (!isEmployee && employeeTabs.includes(activeTab) && activeTab !== 'dashboard' && activeTab !== 'settings') {
         setActiveTab('dashboard');
       }
     }
@@ -114,6 +115,7 @@ export const App = () => {
           {/* EMPLOYEE PORTAL VIEWS */}
           {isEmployee ? (
             <>
+              {activeTab === 'dashboard' && <EmployeeDashboardView onNavigate={(tab) => setActiveTab(tab)} />}
               {activeTab === 'my-profile' && <MyProfileView />}
               {activeTab === 'my-attendance' && <MyAttendanceView />}
               {activeTab === 'my-time-off' && <MyTimeOffView />}

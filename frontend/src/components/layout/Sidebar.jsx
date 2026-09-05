@@ -24,6 +24,7 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) 
 
   // Employee Self-Service Navigation Items
   const employeeNavItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: IconDashboard },
     { id: 'my-profile', label: 'My Profile', icon: IconUser },
     { id: 'my-attendance', label: 'My Attendance', icon: IconClock },
     { id: 'my-time-off', label: 'My Time Off', icon: IconCalendarTime },

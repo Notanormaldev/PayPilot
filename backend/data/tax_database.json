@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-01T00:00:00.000Z",
+  "updatedAt": "2026-09-05T23:35:49.282Z",
   "financialYears": [
     {
       "id": "FY_2026_27",
@@ -544,6 +544,1814 @@
       "active": true
     }
   ],
-  "employeeDeclarations": {},
-  "calculationLogs": []
+  "employeeDeclarations": {
+    "EMP-8492": {
+      "financialYearId": "FY_2026_27",
+      "regimeCode": "NEW",
+      "claimedDeductions": {},
+      "updatedAt": "2026-09-05T23:35:49.282Z"
+    }
+  },
+  "calculationLogs": [
+    {
+      "id": "LOG_1788651313487_svkg",
+      "createdAt": "2026-09-05T23:35:13.487Z",
+      "regime": "NEW",
+      "grossIncome": 1189269,
+      "taxableIncome": 1114270,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651313486_oqtg",
+      "createdAt": "2026-09-05T23:35:13.486Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313486_317g",
+      "createdAt": "2026-09-05T23:35:13.486Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313486_efw3",
+      "createdAt": "2026-09-05T23:35:13.486Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_n5a2",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_ea87",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_kf9t",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_3vfg",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_xtl6",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_9qhv",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_bg4n",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_92vp",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_bcw6",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_qd62",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_huhi",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_ss5s",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_u4pl",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_4kqp",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_4d8v",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_f3kp",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_vv97",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_voxm",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651313485_jdyx",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313485_mtm0",
+      "createdAt": "2026-09-05T23:35:13.485Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651313483_8fob",
+      "createdAt": "2026-09-05T23:35:13.483Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651313480_djcw",
+      "createdAt": "2026-09-05T23:35:13.480Z",
+      "regime": "NEW",
+      "grossIncome": 1189269,
+      "taxableIncome": 1114270,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651313478_splz",
+      "createdAt": "2026-09-05T23:35:13.478Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313478_spi7",
+      "createdAt": "2026-09-05T23:35:13.478Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313478_djw3",
+      "createdAt": "2026-09-05T23:35:13.478Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313477_r8fd",
+      "createdAt": "2026-09-05T23:35:13.477Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313477_9jr4",
+      "createdAt": "2026-09-05T23:35:13.477Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313477_c1nh",
+      "createdAt": "2026-09-05T23:35:13.477Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313477_5spq",
+      "createdAt": "2026-09-05T23:35:13.477Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313477_q0nk",
+      "createdAt": "2026-09-05T23:35:13.477Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313477_wot2",
+      "createdAt": "2026-09-05T23:35:13.477Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_qxdu",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_grwo",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_djw3",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_37wv",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_pmob",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_05mh",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_s0yb",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_v3v0",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_1178",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_judu",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_e964",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_e3qs",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651313476_48em",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651313476_9adw",
+      "createdAt": "2026-09-05T23:35:13.476Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651313471_y392",
+      "createdAt": "2026-09-05T23:35:13.471Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651221183_nrxq",
+      "createdAt": "2026-09-05T23:33:41.183Z",
+      "regime": "NEW",
+      "grossIncome": 1189269,
+      "taxableIncome": 1114270,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651221182_zw4g",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_hbiq",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_fuwc",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_q3uo",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_dx7d",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_9vss",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_xx2y",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_b0s4",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_r5m9",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_hm6d",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_gx3m",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_m37x",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_k6q6",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_hf1y",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_2h8t",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_ulag",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_ylpk",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_g6lz",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_93wb",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_el4u",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_dina",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651221182_iea8",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221182_mc91",
+      "createdAt": "2026-09-05T23:33:41.182Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651221180_tuky",
+      "createdAt": "2026-09-05T23:33:41.180Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651221178_en1w",
+      "createdAt": "2026-09-05T23:33:41.178Z",
+      "regime": "NEW",
+      "grossIncome": 1189269,
+      "taxableIncome": 1114270,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651221177_clu3",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_wqt8",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_ahv7",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_gqt9",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_wbs3",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_xm4f",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_ygnc",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_c8mn",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_s80x",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_s9hx",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_amwa",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_qxh8",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_u3hq",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_epp4",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_lx4g",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_7z1u",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_6758",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_fp79",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_ygo3",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_o7pr",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_myj6",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651221177_xm6y",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788651221177_sar3",
+      "createdAt": "2026-09-05T23:33:41.177Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788651221175_ysxd",
+      "createdAt": "2026-09-05T23:33:41.175Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650812360_1y9p",
+      "createdAt": "2026-09-05T23:26:52.360Z",
+      "regime": "NEW",
+      "grossIncome": 1189269,
+      "taxableIncome": 1114270,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650812352_hjr1",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_8ki8",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_mmot",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_2i1r",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_2kgx",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_5x34",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_6aa6",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_o5ry",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_wjja",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_6k71",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_y562",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_ky9d",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_atm0",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812352_otzn",
+      "createdAt": "2026-09-05T23:26:52.352Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812351_j0bn",
+      "createdAt": "2026-09-05T23:26:52.351Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812351_ftoj",
+      "createdAt": "2026-09-05T23:26:52.351Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812351_28ot",
+      "createdAt": "2026-09-05T23:26:52.351Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812351_ht1s",
+      "createdAt": "2026-09-05T23:26:52.351Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812351_j80s",
+      "createdAt": "2026-09-05T23:26:52.351Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812351_luly",
+      "createdAt": "2026-09-05T23:26:52.351Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812351_15p3",
+      "createdAt": "2026-09-05T23:26:52.351Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650812351_xo3d",
+      "createdAt": "2026-09-05T23:26:52.351Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812351_8sa2",
+      "createdAt": "2026-09-05T23:26:52.351Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650812350_u8up",
+      "createdAt": "2026-09-05T23:26:52.350Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650812348_25ro",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_qgeq",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_gw5f",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_zeji",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_sb03",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_61hp",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_vcro",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_yp4g",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_w17x",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_jzxc",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_8kub",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_p5j2",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_wdlq",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812348_vhxx",
+      "createdAt": "2026-09-05T23:26:52.348Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812347_datb",
+      "createdAt": "2026-09-05T23:26:52.347Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812347_2v6o",
+      "createdAt": "2026-09-05T23:26:52.347Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812347_cmg5",
+      "createdAt": "2026-09-05T23:26:52.347Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812347_2cl1",
+      "createdAt": "2026-09-05T23:26:52.347Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812347_8p2s",
+      "createdAt": "2026-09-05T23:26:52.347Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812347_0kg1",
+      "createdAt": "2026-09-05T23:26:52.347Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812347_f0k4",
+      "createdAt": "2026-09-05T23:26:52.347Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650812347_x09l",
+      "createdAt": "2026-09-05T23:26:52.347Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 667500,
+      "taxPayable": 47840,
+      "effectiveTaxRate": 3.75
+    },
+    {
+      "id": "LOG_1788650812347_axue",
+      "createdAt": "2026-09-05T23:26:52.347Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650812345_i894",
+      "createdAt": "2026-09-05T23:26:52.345Z",
+      "regime": "NEW",
+      "grossIncome": 1189269,
+      "taxableIncome": 1114270,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650812342_mo86",
+      "createdAt": "2026-09-05T23:26:52.342Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650736299_uz50",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_2j2j",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_yd7e",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_kol9",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_vwqv",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_3eo4",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_kr3v",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_8jgr",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_0tjz",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_v98c",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_7gum",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_eczn",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_ebrg",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736299_mkp6",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736298_p5x8",
+      "createdAt": "2026-09-05T23:25:36.299Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736298_yg40",
+      "createdAt": "2026-09-05T23:25:36.298Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736298_0qa3",
+      "createdAt": "2026-09-05T23:25:36.298Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736298_j0ji",
+      "createdAt": "2026-09-05T23:25:36.298Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736298_ru1t",
+      "createdAt": "2026-09-05T23:25:36.298Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736298_062c",
+      "createdAt": "2026-09-05T23:25:36.298Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 772500,
+      "taxPayable": 69680,
+      "effectiveTaxRate": 5.47
+    },
+    {
+      "id": "LOG_1788650736298_z0r1",
+      "createdAt": "2026-09-05T23:25:36.298Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650736298_gh9t",
+      "createdAt": "2026-09-05T23:25:36.298Z",
+      "regime": "OLD",
+      "grossIncome": 1275000,
+      "taxableIncome": 972500,
+      "taxPayable": 111280,
+      "effectiveTaxRate": 8.73
+    },
+    {
+      "id": "LOG_1788650736298_nu9g",
+      "createdAt": "2026-09-05T23:25:36.298Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650736297_5v0h",
+      "createdAt": "2026-09-05T23:25:36.297Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650736295_9pw3",
+      "createdAt": "2026-09-05T23:25:36.295Z",
+      "regime": "NEW",
+      "grossIncome": 1189269,
+      "taxableIncome": 1114270,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    },
+    {
+      "id": "LOG_1788650734656_5ncu",
+      "createdAt": "2026-09-05T23:25:34.656Z",
+      "regime": "OLD",
+      "grossIncome": 3264660,
+      "taxableIncome": 3212160,
+      "taxPayable": 807190,
+      "effectiveTaxRate": 24.73
+    },
+    {
+      "id": "LOG_1788650734654_dvba",
+      "createdAt": "2026-09-05T23:25:34.654Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734654_ga20",
+      "createdAt": "2026-09-05T23:25:34.654Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734654_jaql",
+      "createdAt": "2026-09-05T23:25:34.654Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734654_1vpm",
+      "createdAt": "2026-09-05T23:25:34.654Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734654_xzcv",
+      "createdAt": "2026-09-05T23:25:34.654Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734654_5xqw",
+      "createdAt": "2026-09-05T23:25:34.654Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734654_mnoz",
+      "createdAt": "2026-09-05T23:25:34.654Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_6thy",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_8e7d",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_xoh7",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_rpm6",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_dyus",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_rvrk",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_5ul0",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_tgs1",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_91xw",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_fuc8",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_uia3",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_ngsa",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_2ldo",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3147500,
+      "taxPayable": 787020,
+      "effectiveTaxRate": 21.56
+    },
+    {
+      "id": "LOG_1788650734653_7jk0",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "NEW",
+      "grossIncome": 3650000,
+      "taxableIncome": 3575000,
+      "taxPayable": 678600,
+      "effectiveTaxRate": 18.59
+    },
+    {
+      "id": "LOG_1788650734653_7osh",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3347500,
+      "taxPayable": 849420,
+      "effectiveTaxRate": 23.27
+    },
+    {
+      "id": "LOG_1788650734652_4u83",
+      "createdAt": "2026-09-05T23:25:34.653Z",
+      "regime": "NEW",
+      "grossIncome": 3650000,
+      "taxableIncome": 3575000,
+      "taxPayable": 678600,
+      "effectiveTaxRate": 18.59
+    },
+    {
+      "id": "LOG_1788650734651_jonq",
+      "createdAt": "2026-09-05T23:25:34.651Z",
+      "regime": "OLD",
+      "grossIncome": 3650000,
+      "taxableIncome": 3347500,
+      "taxPayable": 849420,
+      "effectiveTaxRate": 23.27
+    }
+  ]
 }
