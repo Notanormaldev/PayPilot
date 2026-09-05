@@ -1,5 +1,3 @@
-import { jsPDF } from 'jspdf';
-
 /**
  * Converts a numeric amount to Indian Currency Words
  */
@@ -45,8 +43,24 @@ function numberToWordsINR(amount) {
 /**
  * Generates and downloads a high-fidelity corporate PayPilot Payslip PDF
  */
-export function generatePayslipPdf(psData, employeeDetails = {}) {
-  const doc = new jsPDF({
+export async function generatePayslipPdf(psData, employeeDetails = {}) {
+  let jsPDFClass;
+  try {
+    const mod = await import(/* @vite-ignore */ 'jspdf');
+    jsPDFClass = mod.jsPDF || mod.default;
+  } catch (err) {
+    console.warn('jsPDF dynamic import warning:', err);
+    if (typeof window !== 'undefined' && window.jspdf) {
+      jsPDFClass = window.jspdf.jsPDF;
+    }
+  }
+
+  if (!jsPDFClass) {
+    alert('PDF generator module is currently initializing. Please try again.');
+    return;
+  }
+
+  const doc = new jsPDFClass({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
@@ -78,43 +92,33 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
   const payDate = psData.date || '31-Aug-2026';
   const payslipId = psData.id || 'PS-2026-08';
 
-  // -------------------------------------------------------------
-  // 1. TOP HEADER BRANDING BANNER
-  // -------------------------------------------------------------
-  // Top subtle decorative bar (PayPilot Blue)
-  doc.setFillColor(37, 99, 235); // #2563EB
+  // Top header bar
+  doc.setFillColor(37, 99, 235);
   doc.rect(margin, 12, contentWidth, 3, 'F');
 
-  // PayPilot Logo Symbol (Geometric Wing + Shield Icon)
   const logoX = margin + 2;
   const logoY = 20;
 
-  // Dark wing
-  doc.setFillColor(15, 23, 42); // #0F172A
+  doc.setFillColor(15, 23, 42);
   doc.roundedRect(logoX, logoY, 11, 11, 2, 2, 'F');
 
-  // White inner loop
   doc.setFillColor(255, 255, 255);
   doc.rect(logoX + 3, logoY + 3, 3, 3, 'F');
 
-  // Blue Accent Wing
   doc.setFillColor(37, 99, 235);
   doc.triangle(logoX + 7, logoY + 2, logoX + 13, logoY - 2, logoX + 13, logoY + 6, 'F');
 
-  // Amber Sentinel Security Dot
   doc.setFillColor(245, 158, 11);
   doc.circle(logoX + 11, logoY + 8, 1.2, 'F');
 
-  // "PayPilot" Wordmark
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
   doc.setTextColor(15, 23, 42);
   doc.text('Pay', logoX + 16, logoY + 7.5);
 
-  doc.setTextColor(37, 99, 235); // Pilot in brand blue
+  doc.setTextColor(37, 99, 235);
   doc.text('Pilot', logoX + 28.5, logoY + 7.5);
 
-  // Sub-brand / Company Details
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(71, 85, 105);
@@ -122,10 +126,9 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
   doc.text('CIN: U72200KA2024PTC184920  |  GSTIN: 29AABCP9284F1ZT', logoX, logoY + 17.5);
   doc.text('Orbit Cyber Park, Whitefield, Bengaluru, Karnataka - 560066', logoX, logoY + 21);
 
-  // Right Header Card: Document Metadata
   const metaBoxX = pageWidth - margin - 62;
-  doc.setFillColor(248, 250, 252); // #F8FAFC
-  doc.setDrawColor(226, 232, 240); // #E2E8F0
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(226, 232, 240);
   doc.roundedRect(metaBoxX, 18, 62, 26, 2, 2, 'FD');
 
   doc.setFont('helvetica', 'bold');
@@ -155,25 +158,19 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
   doc.setTextColor(5, 150, 105);
   doc.text('• STATUS: DISBURSED (VERIFIED)', metaBoxX + 4, 41.5);
 
-  // Divider line
   doc.setDrawColor(226, 232, 240);
   doc.setLineWidth(0.4);
   doc.line(margin, 48, pageWidth - margin, 48);
 
-  // -------------------------------------------------------------
-  // 2. EMPLOYEE DETAILS GRID (2 Columns)
-  // -------------------------------------------------------------
   const gridY = 52;
   const gridHeight = 36;
   doc.setFillColor(248, 250, 252);
   doc.setDrawColor(226, 232, 240);
   doc.roundedRect(margin, gridY, contentWidth, gridHeight, 2, 2, 'FD');
 
-  // Middle divider line
   const midX = margin + contentWidth / 2;
   doc.line(midX, gridY, midX, gridY + gridHeight);
 
-  // Column 1 - Employment Info
   const col1X = margin + 5;
   const col1ValX = margin + 35;
   let rowY = gridY + 6;
@@ -194,7 +191,6 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
   renderInfoRow('Department:', emp.department, col1X, col1ValX, (rowY += 6));
   renderInfoRow('Date of Joining:', emp.doj, col1X, col1ValX, (rowY += 6));
 
-  // Column 2 - Bank & Statutory Info
   const col2X = midX + 5;
   const col2ValX = midX + 35;
   rowY = gridY + 6;
@@ -205,13 +201,9 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
   renderInfoRow('UAN / PF No.:', `${emp.uan}`, col2X, col2ValX, (rowY += 6));
   renderInfoRow('Days Worked:', `${emp.payableDays} Days (LOP: ${emp.lopDays})`, col2X, col2ValX, (rowY += 6));
 
-  // -------------------------------------------------------------
-  // 3. EARNINGS & DEDUCTIONS BREAKDOWN TABLE
-  // -------------------------------------------------------------
   const tableStartY = 93;
-  const colWidth = (contentWidth - 4) / 2; // ~89mm each
+  const colWidth = (contentWidth - 4) / 2;
 
-  // Separate earnings and deductions from psData.lines
   const lines = psData.lines || [
     { code: 'BASIC', name: 'Basic Salary', category: 'BASIC', amount: 72500 },
     { code: 'HRA', name: 'House Rent Allowance', category: 'ALLOWANCE', amount: 29000 },
@@ -224,9 +216,8 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
   const earnings = lines.filter((l) => Number(l.amount) > 0);
   const deductions = lines.filter((l) => Number(l.amount) < 0 || l.category === 'DEDUCTION');
 
-  // Header 1: EARNINGS
   const earnX = margin;
-  doc.setFillColor(15, 23, 42); // #0F172A
+  doc.setFillColor(15, 23, 42);
   doc.rect(earnX, tableStartY, colWidth, 7, 'F');
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
@@ -234,14 +225,12 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
   doc.text('EARNINGS & ALLOWANCES', earnX + 4, tableStartY + 5);
   doc.text('AMOUNT (INR)', earnX + colWidth - 25, tableStartY + 5);
 
-  // Header 2: DEDUCTIONS
   const dedX = margin + colWidth + 4;
   doc.setFillColor(15, 23, 42);
   doc.rect(dedX, tableStartY, colWidth, 7, 'F');
   doc.text('STATUTORY DEDUCTIONS', dedX + 4, tableStartY + 5);
   doc.text('AMOUNT (INR)', dedX + colWidth - 25, tableStartY + 5);
 
-  // Rows
   const maxRows = Math.max(earnings.length, deductions.length, 5);
   let currentY = tableStartY + 7;
   const rowHeight = 6.5;
@@ -254,19 +243,16 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
     const earnItem = earnings[i];
     const dedItem = deductions[i];
 
-    // Background zebra striping
     if (isEven) {
       doc.setFillColor(248, 250, 252);
       doc.rect(earnX, currentY, colWidth, rowHeight, 'F');
       doc.rect(dedX, currentY, colWidth, rowHeight, 'F');
     }
 
-    // Border
     doc.setDrawColor(241, 245, 249);
     doc.line(earnX, currentY + rowHeight, earnX + colWidth, currentY + rowHeight);
     doc.line(dedX, currentY + rowHeight, dedX + colWidth, currentY + rowHeight);
 
-    // Earnings cell
     if (earnItem) {
       const amt = Math.abs(Number(earnItem.amount));
       totalGross += amt;
@@ -278,7 +264,6 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
       doc.text(`Rs. ${amt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, earnX + colWidth - 4, currentY + 4.5, { align: 'right' });
     }
 
-    // Deductions cell
     if (dedItem) {
       const amt = Math.abs(Number(dedItem.amount));
       totalDeductions += amt;
@@ -294,12 +279,10 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
     currentY += rowHeight;
   }
 
-  // If psData has override values, use them
   if (psData.gross) totalGross = psData.gross;
   if (psData.deductions) totalDeductions = psData.deductions;
   const netSalary = psData.net || totalGross - totalDeductions;
 
-  // Subtotal Rows
   doc.setFillColor(241, 245, 249);
   doc.setDrawColor(203, 213, 225);
   doc.rect(earnX, currentY, colWidth, 8, 'FD');
@@ -317,31 +300,25 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
 
   currentY += 12;
 
-  // -------------------------------------------------------------
-  // 4. NET SALARY CALLOUT CARD
-  // -------------------------------------------------------------
   const netCardHeight = 22;
-  doc.setFillColor(240, 253, 244); // Light Green #F0FDF4
-  doc.setDrawColor(187, 247, 208); // Green border #BBF7D0
+  doc.setFillColor(240, 253, 244);
+  doc.setDrawColor(187, 247, 208);
   doc.roundedRect(margin, currentY, contentWidth, netCardHeight, 2, 2, 'FD');
 
-  // Left Net Pay Callout
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.5);
-  doc.setTextColor(5, 150, 105); // #059669
+  doc.setTextColor(5, 150, 105);
   doc.text('NET TAKE-HOME SALARY PAYABLE:', margin + 6, currentY + 6.5);
 
   doc.setFontSize(15);
-  doc.setTextColor(6, 78, 59); // Deep Emerald #064E3B
+  doc.setTextColor(6, 78, 59);
   doc.text(`Rs. ${netSalary.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, margin + 6, currentY + 14);
 
-  // In Words
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(71, 85, 105);
   doc.text(`Amount in Words: ${numberToWordsINR(netSalary)}`, margin + 6, currentY + 19);
 
-  // Right Side Disbursement Stamp
   const stampX = pageWidth - margin - 58;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7.5);
@@ -362,15 +339,11 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
 
   currentY += netCardHeight + 8;
 
-  // -------------------------------------------------------------
-  // 5. SENTINEL AI AUDIT & STATUTORY CLEARANCE BANNER
-  // -------------------------------------------------------------
   const auditBoxHeight = 16;
   doc.setFillColor(248, 250, 252);
   doc.setDrawColor(226, 232, 240);
   doc.roundedRect(margin, currentY, contentWidth, auditBoxHeight, 2, 2, 'FD');
 
-  // Shield Icon / Badge
   doc.setFillColor(37, 99, 235);
   doc.roundedRect(margin + 4, currentY + 3.5, 9, 9, 1.5, 1.5, 'F');
   doc.setTextColor(255, 255, 255);
@@ -394,10 +367,6 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
 
   currentY += auditBoxHeight + 10;
 
-  // -------------------------------------------------------------
-  // 6. SIGNATURES & AUTHENTICATION FOOTER
-  // -------------------------------------------------------------
-  // Left: Legal notice
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(7);
   doc.setTextColor(148, 163, 184);
@@ -405,7 +374,6 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
   doc.text('PayPilot Autonomous HRMS. It is digitally signed and does not require a physical signature.', margin, currentY + 4);
   doc.text('For payroll grievances or tax declaration updates, write to: payroll@paypilot.internal', margin, currentY + 8);
 
-  // Right: Authorized Signatory Seal
   const sigX = pageWidth - margin - 45;
   doc.setDrawColor(203, 213, 225);
   doc.line(sigX, currentY + 6, sigX + 45, currentY + 6);
@@ -420,11 +388,9 @@ export function generatePayslipPdf(psData, employeeDetails = {}) {
   doc.setTextColor(100, 116, 139);
   doc.text('Authorized Payroll Signatory', sigX, currentY + 14);
 
-  // Bottom Border
   doc.setFillColor(15, 23, 42);
   doc.rect(margin, 285, contentWidth, 1.5, 'F');
 
-  // Trigger browser download
   const sanitizedMonth = month.replace(/\s+/g, '_');
   const filename = `PayPilot_Payslip_${payslipId}_${sanitizedMonth}.pdf`;
   doc.save(filename);
