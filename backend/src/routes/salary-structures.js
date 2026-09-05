@@ -203,7 +203,9 @@ salaryStructuresRouter.post('/', authenticate, requireRole('ADMIN', 'HR_MANAGER'
             category: r.category || 'ALLOWANCE',
             sequence: r.sequence !== undefined ? Number(r.sequence) : (idx + 1) * 10,
             computationMethod: r.computationMethod || 'FIXED',
-            amount: r.amount !== null && r.amount !== undefined && r.amount !== '' ? Number(r.amount) : null,
+            amount: (r.amount !== null && r.amount !== undefined && r.amount !== '') 
+              ? Number(r.amount) 
+              : (r.fixedAmount !== null && r.fixedAmount !== undefined && r.fixedAmount !== '' ? Number(r.fixedAmount) : null),
             percentageOf: r.percentageOf ? String(r.percentageOf).toUpperCase() : null,
             percentageValue: r.percentageValue !== null && r.percentageValue !== undefined && r.percentageValue !== '' ? Number(r.percentageValue) : null,
             formulaExpression: r.formulaExpression ? String(r.formulaExpression).trim() : null,
@@ -255,7 +257,9 @@ salaryStructuresRouter.put('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGE
               category: r.category || 'ALLOWANCE',
               sequence: r.sequence !== undefined ? Number(r.sequence) : (idx + 1) * 10,
               computationMethod: r.computationMethod || 'FIXED',
-              amount: r.amount !== null && r.amount !== undefined && r.amount !== '' ? Number(r.amount) : null,
+              amount: (r.amount !== null && r.amount !== undefined && r.amount !== '') 
+                ? Number(r.amount) 
+                : (r.fixedAmount !== null && r.fixedAmount !== undefined && r.fixedAmount !== '' ? Number(r.fixedAmount) : null),
               percentageOf: r.percentageOf ? String(r.percentageOf).toUpperCase() : null,
               percentageValue: r.percentageValue !== null && r.percentageValue !== undefined && r.percentageValue !== '' ? Number(r.percentageValue) : null,
               formulaExpression: r.formulaExpression ? String(r.formulaExpression).trim() : null,
