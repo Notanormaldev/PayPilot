@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-05T14:30:21.600Z",
+  "updatedAt": "2026-09-05T14:32:14.614Z",
   "financialYears": [
     {
       "id": "FY_2026_27",
@@ -546,12 +546,24 @@
   ],
   "employeeDeclarations": {
     "EMP-8492": {
-      "selectedRegime": "NEW",
+      "financialYearId": "FY_2026_27",
+      "regimeCode": "NEW",
       "claimedDeductions": {
-        "80C": 150000
+        "80C": 150000,
+        "80D": 25000
       },
-      "updatedAt": "2026-09-05T14:30:21.599Z"
+      "updatedAt": "2026-09-05T14:32:14.607Z"
     }
   },
-  "calculationLogs": []
+  "calculationLogs": [
+    {
+      "id": "LOG_1788618734614_ifjd",
+      "createdAt": "2026-09-05T14:32:14.614Z",
+      "regime": "NEW",
+      "grossIncome": 1275000,
+      "taxableIncome": 1200000,
+      "taxPayable": 0,
+      "effectiveTaxRate": 0
+    }
+  ]
 }
