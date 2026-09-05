@@ -323,7 +323,7 @@ export const UserAvatar = ({
 
       {/* Editable Overlay Camera Badge */}
       {editable && !uploading && (
-        <Tooltip label={currentSrc ? 'Change photo' : 'Upload photo (ImageKit)'} withArrow>
+        <Tooltip label={currentSrc ? 'Change photo' : 'Upload photo'} withArrow>
           <ActionIcon
             size={Math.max(22, Math.round(size * 0.34))}
             radius="xl"

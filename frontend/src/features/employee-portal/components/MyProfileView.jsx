@@ -112,7 +112,7 @@ export const MyProfileView = () => {
               editable={true}
               onPhotoUploaded={(url) => {
                 setAvatarUrl(url);
-                setSuccessMsg('Profile photo updated via ImageKit successfully!');
+                setSuccessMsg('Profile photo updated successfully!');
               }}
               onPhotoRemoved={() => {
                 setAvatarUrl(null);
