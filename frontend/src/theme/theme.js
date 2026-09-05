@@ -1,28 +1,76 @@
 import { createTheme } from '@mantine/core';
 
-// Executive Precision - Linear/Apple Fintech Light Scale
-const executiveSlate = [
-  '#09090B', // deep ink
-  '#18181B',
-  '#27272A',
-  '#52525B',
-  '#71717A',
-  '#A1A1AA',
-  '#E4E4E7', // border hover
-  '#E2E8F0', // primary border
-  '#F1F5F9', // secondary surface
-  '#FFFFFF', // pure white surface
-];
-
 export const theme = createTheme({
-  primaryColor: 'dark',
+  primaryColor: 'blue',
   fontFamily: 'Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, sans-serif',
   fontFamilyMonospace: 'JetBrains Mono, Menlo, monospace',
   defaultRadius: 'sm',
-  colors: {
-    gray: executiveSlate,
-  },
   components: {
+    Select: {
+      defaultProps: {
+        checkIconPosition: 'right',
+      },
+      styles: {
+        input: {
+          backgroundColor: '#F8FAFC',
+          borderColor: '#E2E8F0',
+          color: '#09090B',
+          fontWeight: 500,
+        },
+        dropdown: {
+          backgroundColor: '#FFFFFF',
+          borderColor: '#E2E8F0',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+        },
+        option: {
+          color: '#09090B',
+          fontSize: '13px',
+          fontWeight: 500,
+          '&:hover': {
+            backgroundColor: '#F1F5F9',
+            color: '#09090B',
+          },
+        },
+      },
+    },
+    Combobox: {
+      styles: {
+        dropdown: {
+          backgroundColor: '#FFFFFF',
+          borderColor: '#E2E8F0',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+        },
+        option: {
+          color: '#09090B',
+          fontSize: '13px',
+          fontWeight: 500,
+          '&:hover': {
+            backgroundColor: '#F1F5F9',
+            color: '#09090B',
+          },
+        },
+      },
+    },
+    TextInput: {
+      styles: {
+        input: {
+          backgroundColor: '#F8FAFC',
+          borderColor: '#E2E8F0',
+          color: '#09090B',
+        },
+      },
+    },
+    PasswordInput: {
+      styles: {
+        innerInput: {
+          color: '#09090B',
+        },
+        input: {
+          backgroundColor: '#F8FAFC',
+          borderColor: '#E2E8F0',
+        },
+      },
+    },
     Card: {
       defaultProps: {
         bg: '#FFFFFF',
@@ -71,3 +119,4 @@ export const theme = createTheme({
     },
   },
 });
+

@@ -1,0 +1,78 @@
+/* Global Styles and High-Contrast Mantine UI Overrides */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: light;
+  background-color: #F8FAFC;
+  color: #09090B;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #F8FAFC;
+  color: #09090B;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure all Mantine Select and Combobox options have high-contrast visible text */
+.mantine-Select-dropdown,
+.mantine-Combobox-dropdown,
+.mantine-Menu-dropdown {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
+}
+
+.mantine-Select-option,
+.mantine-Combobox-option,
+.mantine-Menu-item {
+  color: #09090B !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+/* Hover & Active / Highlighted state in Select & Combobox */
+.mantine-Select-option:hover,
+.mantine-Select-option[data-hovered],
+.mantine-Combobox-option:hover,
+.mantine-Combobox-option[data-hovered],
+.mantine-Combobox-option[data-combobox-active],
+.mantine-Menu-item:hover,
+.mantine-Menu-item[data-hovered] {
+  background-color: #F1F5F9 !important;
+  color: #09090B !important;
+}
+
+/* Selected option in Select & Combobox */
+.mantine-Select-option[data-checked],
+.mantine-Combobox-option[data-checked],
+.mantine-Combobox-option[data-combobox-selected] {
+  background-color: #EFF6FF !important;
+  color: #1D4ED8 !important;
+  font-weight: 600 !important;
+}
+
+/* Ensure inputs have clean background and border */
+.mantine-TextInput-input,
+.mantine-PasswordInput-innerInput,
+.mantine-Select-input {
+  color: #09090B !important;
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  font-size: 13px !important;
+}
+
+.mantine-TextInput-input:focus,
+.mantine-PasswordInput-input:focus-within,
+.mantine-Select-input:focus {
+  border-color: #2563EB !important;
+  background-color: #FFFFFF !important;
+}

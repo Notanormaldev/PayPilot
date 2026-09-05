@@ -150,7 +150,12 @@ export const AuthPage = ({ onAuthSuccess }) => {
                   data={['Executive', 'Engineering', 'Product', 'HR & People', 'Finance', 'Sales', 'Operations']}
                   value={department}
                   onChange={setDepartment}
-                  styles={{ input: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' } }}
+                  comboboxProps={{ shadow: 'md', transitionProps: { transition: 'fade', duration: 100 } }}
+                  styles={{
+                    input: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0', color: '#09090B' },
+                    dropdown: { backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' },
+                    option: { color: '#09090B' },
+                  }}
                 />
 
                 <Select
@@ -163,8 +168,14 @@ export const AuthPage = ({ onAuthSuccess }) => {
                   ]}
                   value={role}
                   onChange={setRoleState}
-                  styles={{ input: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' } }}
+                  comboboxProps={{ shadow: 'md', transitionProps: { transition: 'fade', duration: 100 } }}
+                  styles={{
+                    input: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0', color: '#09090B' },
+                    dropdown: { backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' },
+                    option: { color: '#09090B' },
+                  }}
                 />
+
               </>
             )}
 

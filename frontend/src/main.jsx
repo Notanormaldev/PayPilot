@@ -11,6 +11,8 @@ import { App } from './App.jsx';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
+import './index.css';
+
 
 const queryClient = new QueryClient();
 
