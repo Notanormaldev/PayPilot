@@ -37,6 +37,7 @@ import {
 import { UserAvatar } from '../../../components/ui';
 import { attendanceService } from '../../attendance/services/attendanceService';
 import { authService } from '../../auth/services/authService';
+import { useAuthUser } from '../../auth/hooks/useAuthUser';
 import { fetchApi } from '../../../lib/api';
 
 const INITIAL_REIMBURSEMENTS = [
@@ -147,10 +148,20 @@ const INITIAL_SALARY_REVISIONS = [
 ];
 
 export const ApprovalsView = ({ onRefresh }) => {
+  const { currentRole, user } = useAuthUser();
+  const isAdmin = currentRole === 'ADMIN' || user?.role === 'ADMIN';
+
   const [activeTab, setActiveTab] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [feedback, setFeedback] = useState({ type: null, message: '' });
+
+  // Auto-switch away from USERS tab if non-admin
+  useEffect(() => {
+    if (!isAdmin && activeTab === 'USERS') {
+      setActiveTab('ALL');
+    }
+  }, [isAdmin, activeTab]);
 
   // Pending User Registrations (HR & Payroll)
   const [pendingUsers, setPendingUsers] = useState([]);
@@ -174,6 +185,7 @@ export const ApprovalsView = ({ onRefresh }) => {
   };
 
   const fetchPendingUsers = async () => {
+    if (!isAdmin) return;
     setLoadingUsers(true);
     try {
       const users = await authService.getPendingUsers();
@@ -203,8 +215,12 @@ export const ApprovalsView = ({ onRefresh }) => {
 
   useEffect(() => {
     fetchLeaveRequests();
-    fetchPendingUsers();
-  }, [activeTab]);
+    if (isAdmin) {
+      fetchPendingUsers();
+    } else {
+      setPendingUsers([]);
+    }
+  }, [activeTab, isAdmin]);
 
   // Handlers for Pending User Registrations
   const handleApproveUser = async (id, userName, email) => {
@@ -327,7 +343,7 @@ export const ApprovalsView = ({ onRefresh }) => {
   };
 
   // Counts
-  const pendingUsersCount = pendingUsers.length;
+  const pendingUsersCount = isAdmin ? pendingUsers.length : 0;
   const pendingLeavesCount = leaveRequests.filter(
     (l) => l.status === 'TO_APPROVE' || l.status === 'Pending' || l.status === 'PENDING'
   ).length;
@@ -407,10 +423,10 @@ export const ApprovalsView = ({ onRefresh }) => {
               leftSection={<IconRefresh size={13} />}
               onClick={() => {
                 fetchLeaveRequests();
-                fetchPendingUsers();
+                if (isAdmin) fetchPendingUsers();
                 if (onRefresh) onRefresh();
               }}
-              loading={loadingLeaves || loadingUsers}
+              loading={loadingLeaves || (isAdmin && loadingUsers)}
             >
               Refresh
             </Button>
@@ -442,42 +458,44 @@ export const ApprovalsView = ({ onRefresh }) => {
       )}
 
       {/* KPI Cards */}
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 5 }} spacing="md">
-        <Paper
-          p="md"
-          radius="md"
-          onClick={() => setActiveTab('USERS')}
-          style={{
-            backgroundColor: '#FFFFFF',
-            border: activeTab === 'USERS' ? '1.5px solid #4F46E5' : '1px solid #E2E8F0',
-            cursor: 'pointer',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <Group justify="space-between" align="flex-start">
-            <div>
-              <Text size="xs" fw={600} c="#64748B">
-                User Registrations
-              </Text>
-              <Text size="xl" fw={700} c="#09090B" mt={4}>
-                {pendingUsersCount}
-              </Text>
-              <Text size="10px" c="#94A3B8" mt={2}>
-                HR & Payroll applicants
-              </Text>
-            </div>
-            <Box
-              p={8}
-              style={{
-                borderRadius: '8px',
-                backgroundColor: '#EEF2FF',
-                color: '#4F46E5',
-              }}
-            >
-              <IconShieldLock size={20} />
-            </Box>
-          </Group>
-        </Paper>
+      <SimpleGrid cols={{ base: 1, sm: 2, md: isAdmin ? 5 : 4 }} spacing="md">
+        {isAdmin && (
+          <Paper
+            p="md"
+            radius="md"
+            onClick={() => setActiveTab('USERS')}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: activeTab === 'USERS' ? '1.5px solid #4F46E5' : '1px solid #E2E8F0',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Group justify="space-between" align="flex-start">
+              <div>
+                <Text size="xs" fw={600} c="#64748B">
+                  User Registrations
+                </Text>
+                <Text size="xl" fw={700} c="#09090B" mt={4}>
+                  {pendingUsersCount}
+                </Text>
+                <Text size="10px" c="#94A3B8" mt={2}>
+                  HR & Payroll applicants
+                </Text>
+              </div>
+              <Box
+                p={8}
+                style={{
+                  borderRadius: '8px',
+                  backgroundColor: '#EEF2FF',
+                  color: '#4F46E5',
+                }}
+              >
+                <IconShieldLock size={20} />
+              </Box>
+            </Group>
+          </Paper>
+        )}
 
         <Paper
           p="md"
@@ -641,9 +659,11 @@ export const ApprovalsView = ({ onRefresh }) => {
               <Tabs.Tab value="ALL" leftSection={<IconCheckupList size={14} />}>
                 All ({totalPending})
               </Tabs.Tab>
-              <Tabs.Tab value="USERS" leftSection={<IconShieldLock size={14} />}>
-                User Registrations ({pendingUsersCount})
-              </Tabs.Tab>
+              {isAdmin && (
+                <Tabs.Tab value="USERS" leftSection={<IconShieldLock size={14} />}>
+                  User Registrations ({pendingUsersCount})
+                </Tabs.Tab>
+              )}
               <Tabs.Tab value="LEAVE" leftSection={<IconCalendarEvent size={14} />}>
                 Leave & Time Off ({pendingLeavesCount})
               </Tabs.Tab>
@@ -684,8 +704,8 @@ export const ApprovalsView = ({ onRefresh }) => {
 
         {/* TAB CONTENTS */}
         <Stack gap="lg">
-          {/* 0. User Registrations (HR & Payroll) Section */}
-          {(activeTab === 'ALL' || activeTab === 'USERS') && (
+          {/* 0. User Registrations (HR & Payroll) Section - ADMIN ONLY */}
+          {isAdmin && (activeTab === 'ALL' || activeTab === 'USERS') && (
             <Box>
               <Group justify="space-between" mb="xs">
                 <Group gap="xs">

@@ -37,8 +37,8 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) 
   // Administrative Navigation Items
   const adminRoleNavPermissions = {
     ADMIN: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
-    HR_MANAGER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'time-off', 'approvals', 'reports', 'settings'],
-    HR_PAYROLL_MANAGER: ['dashboard', 'schedules', 'salary-structures', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_MANAGER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
   };
 
   const adminNavItems = [
