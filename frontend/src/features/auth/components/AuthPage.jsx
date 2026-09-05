@@ -19,16 +19,13 @@ import {
   IconShieldCheck,
   IconUser,
   IconBuildingSkyscraper,
-  IconBrandGoogle,
   IconArrowRight,
 } from '@tabler/icons-react';
 import { BrandLogo } from '../../../components/BrandLogo';
-import { fetchApi } from '../../../lib/api';
-import { useDispatch } from 'react-redux';
-import { setRole, setUser, setSignedIn } from '../state/authSlice';
+import { useAuthUser } from '../hooks/useAuthUser';
 
 export const AuthPage = ({ onAuthSuccess }) => {
-  const dispatch = useDispatch();
+  const { login, register } = useAuthUser();
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('meera.krishnan@paypilot.internal');
   const [password, setPassword] = useState('PayPilot@2026');
@@ -45,22 +42,8 @@ export const AuthPage = ({ onAuthSuccess }) => {
     const targetRole = overrideRole || role;
 
     try {
-      const res = await fetchApi('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email: targetEmail, role: targetRole }),
-      });
-
-      if (res.accessToken) {
-        localStorage.setItem('paypilot_auth_token', res.accessToken);
-        if (res.refreshToken) localStorage.setItem('paypilot_refresh_token', res.refreshToken);
-        localStorage.setItem('paypilot_active_role', res.user?.role || targetRole);
-
-        dispatch(setRole(res.user?.role || targetRole));
-        dispatch(setUser(res.user));
-        dispatch(setSignedIn(true));
-
-        if (onAuthSuccess) onAuthSuccess();
-      }
+      await login(targetEmail, password, targetRole);
+      if (onAuthSuccess) onAuthSuccess();
     } catch (err) {
       setError(err.message || 'Authentication failed');
     } finally {
@@ -73,22 +56,8 @@ export const AuthPage = ({ onAuthSuccess }) => {
     setError(null);
 
     try {
-      const res = await fetchApi('/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({ email, name, role, department }),
-      });
-
-      if (res.accessToken) {
-        localStorage.setItem('paypilot_auth_token', res.accessToken);
-        if (res.refreshToken) localStorage.setItem('paypilot_refresh_token', res.refreshToken);
-        localStorage.setItem('paypilot_active_role', res.user?.role || role);
-
-        dispatch(setRole(res.user?.role || role));
-        dispatch(setUser(res.user));
-        dispatch(setSignedIn(true));
-
-        if (onAuthSuccess) onAuthSuccess();
-      }
+      await register({ email, password, name, role, department });
+      if (onAuthSuccess) onAuthSuccess();
     } catch (err) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -291,3 +260,4 @@ export const AuthPage = ({ onAuthSuccess }) => {
     </div>
   );
 };
+

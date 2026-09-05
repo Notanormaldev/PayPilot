@@ -1,14 +1,16 @@
 import React from 'react';
 import { Group, Avatar, Menu, Text, UnstyledButton, Badge } from '@mantine/core';
-import { IconChevronDown, IconShieldCheck, IconUser, IconSwitchHorizontal } from '@tabler/icons-react';
+import { IconChevronDown, IconShieldCheck, IconUser, IconSwitchHorizontal, IconLogout } from '@tabler/icons-react';
 import { useAuthUser } from '../hooks/useAuthUser';
 
 export const UserMenu = () => {
-  const { user, currentRole, changeRole } = useAuthUser();
+  const { user, currentRole, changeRole, logout } = useAuthUser();
 
   const roleColors = {
     ADMIN: 'blue',
+    HR_MANAGER: 'teal',
     HR_OFFICER: 'teal',
+    HR_PAYROLL_MANAGER: 'indigo',
     PAYROLL_OFFICER: 'indigo',
     EMPLOYEE: 'gray',
   };
@@ -29,11 +31,11 @@ export const UserMenu = () => {
               size={30}
               radius="xl"
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120"
-              alt={user.name}
+              alt={user?.name || 'User'}
             />
             <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
               <Text size="xs" fw={700} c="#09090B">
-                {user.name}
+                {user?.name || 'Meera Krishnan'}
               </Text>
               <Badge size="9px" color={roleColors[currentRole] || 'blue'} variant="light" px={4} py={0}>
                 {currentRole}
@@ -49,10 +51,10 @@ export const UserMenu = () => {
         <Menu.Item leftSection={<IconUser size={14} />}>
           <div>
             <Text size="xs" fw={600} c="#09090B">
-              {user.name}
+              {user?.name || 'Meera Krishnan'}
             </Text>
             <Text size="10px" c="#71717A">
-              {user.email}
+              {user?.email || 'meera.krishnan@paypilot.internal'}
             </Text>
           </div>
         </Menu.Item>
@@ -70,20 +72,20 @@ export const UserMenu = () => {
         </Menu.Item>
         <Menu.Item
           leftSection={<IconSwitchHorizontal size={14} color="#0D9488" />}
-          onClick={() => changeRole('HR_OFFICER')}
+          onClick={() => changeRole('HR_MANAGER')}
         >
           <Group justify="space-between">
-            <Text size="xs">HR Officer</Text>
-            {currentRole === 'HR_OFFICER' && <Badge size="xs" color="teal">Active</Badge>}
+            <Text size="xs">HR Manager</Text>
+            {currentRole === 'HR_MANAGER' && <Badge size="xs" color="teal">Active</Badge>}
           </Group>
         </Menu.Item>
         <Menu.Item
           leftSection={<IconSwitchHorizontal size={14} color="#4F46E5" />}
-          onClick={() => changeRole('PAYROLL_OFFICER')}
+          onClick={() => changeRole('HR_PAYROLL_MANAGER')}
         >
           <Group justify="space-between">
             <Text size="xs">Payroll Specialist</Text>
-            {currentRole === 'PAYROLL_OFFICER' && <Badge size="xs" color="indigo">Active</Badge>}
+            {currentRole === 'HR_PAYROLL_MANAGER' && <Badge size="xs" color="indigo">Active</Badge>}
           </Group>
         </Menu.Item>
         <Menu.Item
@@ -99,11 +101,8 @@ export const UserMenu = () => {
         <Menu.Divider />
         <Menu.Item
           color="red"
-          onClick={() => {
-            localStorage.removeItem('paypilot_auth_token');
-            localStorage.removeItem('paypilot_refresh_token');
-            window.location.reload();
-          }}
+          leftSection={<IconLogout size={14} color="#DC2626" />}
+          onClick={logout}
         >
           <Text size="xs" c="red" fw={600}>
             Sign Out / Switch Account
@@ -113,3 +112,4 @@ export const UserMenu = () => {
     </Menu>
   );
 };
+
