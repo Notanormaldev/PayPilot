@@ -619,6 +619,16 @@ export const SentinelView = ({ flags = [], onFlagResolved }) => {
                       <Group gap="xs" style={{ flexShrink: 0 }}>
                         <Button
                           size="xs"
+                          variant="light"
+                          color="teal"
+                          onClick={() => handleOpenResolutionModal(flag)}
+                          leftSection={<IconSparkles size={13} />}
+                          styles={{ root: { height: 30, fontSize: '11px', padding: '0 12px' } }}
+                        >
+                          Live Payslip Preview
+                        </Button>
+                        <Button
+                          size="xs"
                           color="dark"
                           onClick={() => handleOpenResolutionModal(flag)}
                           leftSection={<IconFileCheck size={13} />}

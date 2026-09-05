@@ -182,21 +182,22 @@ enum AttendanceStatus {
 }
 
 model Attendance {
-  id            String           @id @default(cuid())
-  employeeId    String
-  employee      Employee         @relation(fields: [employeeId], references: [id])
-  date          DateTime         @db.Date
-  checkIn       DateTime?
-  checkOut      DateTime?
-  workedHours   Decimal?         @db.Decimal(5, 2)
-  overtimeHours Decimal?         @db.Decimal(5, 2)
-  status        AttendanceStatus @default(ABSENT)
-  isCorrected   Boolean          @default(false)
-  correctedById String?
-  correctedBy   User?            @relation("CorrectedBy", fields: [correctedById], references: [id])
-  correctedAt   DateTime?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  id               String           @id @default(cuid())
+  employeeId       String
+  employee         Employee         @relation(fields: [employeeId], references: [id])
+  date             DateTime         @db.Date
+  checkIn          DateTime?
+  checkOut         DateTime?
+  workedHours      Decimal?         @db.Decimal(5, 2)
+  overtimeHours    Decimal?         @db.Decimal(5, 2)
+  status           AttendanceStatus @default(ABSENT)
+  isCorrected      Boolean          @default(false)
+  correctionReason String?
+  correctedById    String?
+  correctedBy      User?            @relation("CorrectedBy", fields: [correctedById], references: [id])
+  correctedAt      DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@unique([employeeId, date])
   @@index([employeeId, date])

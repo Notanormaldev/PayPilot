@@ -19,6 +19,7 @@ import {
   Tooltip,
   Progress,
   Box,
+  SegmentedControl,
 } from '@mantine/core';
 import {
   IconShieldCheck,
@@ -39,6 +40,7 @@ import {
 } from '@tabler/icons-react';
 import { sentinelService } from '../services/sentinelService';
 import { UserAvatar } from '../../../components/ui';
+import { SentinelPayslipLivePreview } from './SentinelPayslipLivePreview';
 
 const POPULAR_BANKS = [
   { value: 'HDFC Bank Ltd', label: 'HDFC Bank Ltd' },
@@ -91,6 +93,7 @@ export const SentinelResolutionModal = ({
   );
   const [officerConfirmation, setOfficerConfirmation] = useState(true);
   
+  const [activeModalTab, setActiveModalTab] = useState('PREVIEW');
   const [loading, setLoading] = useState(false);
   const [ifscValid, setIfscValid] = useState(true);
   const [ifscHint, setIfscHint] = useState('HDFC Bank Ltd - Branch Verified');
@@ -362,240 +365,294 @@ export const SentinelResolutionModal = ({
             </Badge>
           </Group>
         </Paper>
-
-        {/* SECTION 1: Banking Coordinates */}
-        <div>
-          <Group gap={6} mb={8}>
-            <ThemeIcon size={20} radius="xl" color="blue" variant="light">
-              <IconBuildingBank size={12} />
-            </ThemeIcon>
-            <Text size="xs" fw={700} c="#09090B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              1. Official Banking Coordinates
-            </Text>
-          </Group>
-
-          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
-            <Select
-              label="Bank Institution"
-              size="xs"
-              data={POPULAR_BANKS}
-              value={bankName}
-              onChange={(val) => setBankName(val || 'HDFC Bank Ltd')}
-              searchable
-              required
-            />
-            <TextInput
-              label="Bank Branch"
-              size="xs"
-              placeholder="e.g., Nariman Point Branch, Mumbai"
-              value={bankBranch}
-              onChange={(e) => setBankBranch(e.target.value)}
-              required
-            />
-            
-            <TextInput
-              label="Bank Account Number"
-              size="xs"
-              placeholder="e.g. 50100234567890"
-              type={showAccount ? 'text' : 'password'}
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              rightSection={
-                <ActionIcon size="xs" variant="subtle" color="gray" onClick={() => setShowAccount(!showAccount)}>
-                  {showAccount ? <IconEyeOff size={13} /> : <IconEye size={13} />}
-                </ActionIcon>
-              }
-              error={
-                accountNumber && !isAccountValid
-                  ? 'Must contain at least 8 numerical digits'
-                  : false
-              }
-              required
-            />
-
-            <TextInput
-              label="Re-Enter Account Number (Confirmation)"
-              size="xs"
-              placeholder="Re-enter same account number"
-              type={showAccount ? 'text' : 'password'}
-              value={confirmAccountNumber}
-              onChange={(e) => setConfirmAccountNumber(e.target.value)}
-              rightSection={
-                confirmAccountNumber && (
-                  isAccountMatch ? (
-                    <IconCheck size={14} color="#16A34A" />
-                  ) : (
-                    <IconX size={14} color="#DC2626" />
-                  )
-                )
-              }
-              error={
-                confirmAccountNumber && !isAccountMatch
-                  ? 'Account numbers do not match'
-                  : false
-              }
-              required
-            />
-
-            <TextInput
-              label="IFSC Code"
-              size="xs"
-              placeholder="e.g. HDFC0000123"
-              value={ifscCode}
-              onChange={(e) => handleIfscChange(e.target.value)}
-              description={
-                <Text size="10px" c={ifscValid && ifscCode.length === 11 ? '#16A34A' : '#64748B'}>
-                  {ifscHint}
-                </Text>
-              }
-              error={!ifscValid ? 'Invalid IFSC Code format' : false}
-              required
-            />
-
-            <TextInput
-              label="Beneficiary Account Holder Name"
-              size="xs"
-              placeholder="Full name as printed in Bank Records"
-              value={accountHolderName}
-              onChange={(e) => setAccountHolderName(e.target.value)}
-              required
-            />
-          </SimpleGrid>
-        </div>
-
-        <Divider />
-
-        {/* SECTION 2: Mandatory Verification Document */}
-        <div>
-          <Group justify="space-between" align="center" mb={8}>
-            <Group gap={6}>
-              <ThemeIcon size={20} radius="xl" color="teal" variant="light">
-                <IconFileUpload size={12} />
-              </ThemeIcon>
-              <Text size="xs" fw={700} c="#09090B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                2. Mandatory Supporting Document Proof
-              </Text>
-            </Group>
-            <Button
-              size="compact-xs"
-              variant="subtle"
-              color="blue"
-              onClick={handleUseDemoCheque}
-              leftSection={<IconSparkles size={12} />}
-            >
-              Attach Verified Voucher
-            </Button>
-          </Group>
-
-          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm" mb="xs">
-            <Select
-              label="Document Classification"
-              size="xs"
-              data={DOC_TYPES}
-              value={docType}
-              onChange={(val) => setDocType(val || 'CANCELLED_CHEQUE')}
-              required
-            />
-            
-            <div>
-              <Text size="xs" fw={500} c="#334155" mb={4}>
-                Upload Document (PDF / Image) <Text span c="red">*</Text>
-              </Text>
-              <input
-                type="file"
-                id="kyc-doc-upload"
-                style={{ display: 'none' }}
-                accept=".pdf,.png,.jpg,.jpeg"
-                onChange={handleFileChange}
-              />
-              <Button
-                component="label"
-                htmlFor="kyc-doc-upload"
-                size="xs"
-                variant="outline"
-                color="gray"
-                fullWidth
-                leftSection={<IconFileUpload size={14} />}
-                style={{ height: 32 }}
-              >
-                {documentName ? 'Replace Document' : 'Select Cheque / Passbook PDF'}
-              </Button>
-            </div>
-          </SimpleGrid>
-
-          {/* Attached Document Card */}
-          {documentUrl ? (
-            <Paper p="xs" radius="sm" style={{ backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-              <Group justify="space-between" align="center">
-                <Group gap="xs">
-                  <ThemeIcon size={26} radius="xl" color="teal" variant="light">
-                    <IconFileCheck size={16} />
-                  </ThemeIcon>
-                  <div>
-                    <Text size="xs" fw={600} c="#166534">
-                      {documentName || 'Document_Proof_Attached.pdf'}
-                    </Text>
-                    <Text size="10px" c="#15803D">
-                      Status: Ready for statutory compliance audit • Certified copy
-                    </Text>
-                  </div>
+        {/* Interactive Tab Switcher: Live Preview vs KYC Override Form */}
+        <SegmentedControl
+          fullWidth
+          size="xs"
+          value={activeModalTab}
+          onChange={setActiveModalTab}
+          data={[
+            {
+              value: 'PREVIEW',
+              label: (
+                <Group gap={6} justify="center">
+                  <IconSparkles size={14} color="#059669" />
+                  <Text size="xs" fw={700}>⚡ Sentinel Live Payslip Preview</Text>
                 </Group>
-                <Badge size="xs" color="teal" variant="filled">
-                  Proof Attached
+              ),
+            },
+            {
+              value: 'FORM',
+              label: (
+                <Group gap={6} justify="center">
+                  <IconBuildingBank size={14} color="#2563EB" />
+                  <Text size="xs" fw={700}>📝 KYC & Verification Form</Text>
+                </Group>
+              ),
+            },
+          ]}
+          styles={{
+            root: { backgroundColor: '#F1F5F9', padding: 4, borderRadius: 8 },
+          }}
+        />
+
+        {/* TAB 1: LIVE PAYSLIP PREVIEW (BEFORE VS AFTER) */}
+        {activeModalTab === 'PREVIEW' && (
+          <SentinelPayslipLivePreview
+            flagId={currentFlag.id}
+            flagData={currentFlag}
+            customBankInfo={{ bankName, accountNumber, ifscCode }}
+          />
+        )}
+
+        {/* TAB 2: VERIFICATION & OVERRIDE FORM */}
+        {activeModalTab === 'FORM' && (
+          <Stack gap="md">
+            {/* SECTION 1: Banking Coordinates */}
+            <div>
+              <Group gap={6} mb={8}>
+                <ThemeIcon size={20} radius="xl" color="blue" variant="light">
+                  <IconBuildingBank size={12} />
+                </ThemeIcon>
+                <Text size="xs" fw={700} c="#09090B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  1. Official Banking Coordinates
+                </Text>
+              </Group>
+
+              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+                <Select
+                  label="Bank Institution"
+                  size="xs"
+                  data={POPULAR_BANKS}
+                  value={bankName}
+                  onChange={(val) => setBankName(val || 'HDFC Bank Ltd')}
+                  searchable
+                  required
+                />
+                <TextInput
+                  label="Bank Branch"
+                  size="xs"
+                  placeholder="e.g., Nariman Point Branch, Mumbai"
+                  value={bankBranch}
+                  onChange={(e) => setBankBranch(e.target.value)}
+                  required
+                />
+                
+                <TextInput
+                  label="Bank Account Number"
+                  size="xs"
+                  placeholder="e.g. 50100234567890"
+                  type={showAccount ? 'text' : 'password'}
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value)}
+                  rightSection={
+                    <ActionIcon size="xs" variant="subtle" color="gray" onClick={() => setShowAccount(!showAccount)}>
+                      {showAccount ? <IconEyeOff size={13} /> : <IconEye size={13} />}
+                    </ActionIcon>
+                  }
+                  error={
+                    accountNumber && !isAccountValid
+                      ? 'Must contain at least 8 numerical digits'
+                      : false
+                  }
+                  required
+                />
+
+                <TextInput
+                  label="Re-Enter Account Number (Confirmation)"
+                  size="xs"
+                  placeholder="Re-enter same account number"
+                  type={showAccount ? 'text' : 'password'}
+                  value={confirmAccountNumber}
+                  onChange={(e) => setConfirmAccountNumber(e.target.value)}
+                  rightSection={
+                    confirmAccountNumber && (
+                      isAccountMatch ? (
+                        <IconCheck size={14} color="#16A34A" />
+                      ) : (
+                        <IconX size={14} color="#DC2626" />
+                      )
+                    )
+                  }
+                  error={
+                    confirmAccountNumber && !isAccountMatch
+                      ? 'Account numbers do not match'
+                      : false
+                  }
+                  required
+                />
+
+                <TextInput
+                  label="IFSC Code"
+                  size="xs"
+                  placeholder="e.g. HDFC0000123"
+                  value={ifscCode}
+                  onChange={(e) => handleIfscChange(e.target.value)}
+                  description={
+                    <Text size="10px" c={ifscValid && ifscCode.length === 11 ? '#16A34A' : '#64748B'}>
+                      {ifscHint}
+                    </Text>
+                  }
+                  error={ifscCode && !ifscValid ? 'Invalid IFSC code pattern' : false}
+                  required
+                />
+
+                <TextInput
+                  label="Account Holder Name (As per Cheque)"
+                  size="xs"
+                  placeholder="Full Legal Name"
+                  value={accountHolderName}
+                  onChange={(e) => setAccountHolderName(e.target.value)}
+                  required
+                />
+              </SimpleGrid>
+            </div>
+
+            <Divider />
+
+            {/* SECTION 2: Document Proof Attachment */}
+            <div>
+              <Group justify="space-between" align="center" mb={8}>
+                <Group gap={6}>
+                  <ThemeIcon size={20} radius="xl" color="teal" variant="light">
+                    <IconFileCheck size={12} />
+                  </ThemeIcon>
+                  <Text size="xs" fw={700} c="#09090B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    2. Statutory Verification Document (Mandatory)
+                  </Text>
+                </Group>
+                <Badge size="xs" color="red" variant="filled">
+                  Strict Audit Block
                 </Badge>
               </Group>
-            </Paper>
-          ) : (
-            <Alert color="red" variant="light" p="xs" icon={<IconAlertTriangle size={14} />}>
-              <Text size="xs">
-                A valid cancelled cheque or bank statement document is mandatory before this flag can be resolved.
-              </Text>
-            </Alert>
-          )}
-        </div>
 
-        <Divider />
+              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm" mb="xs">
+                <Select
+                  label="Document Type"
+                  size="xs"
+                  data={DOC_TYPES}
+                  value={docType}
+                  onChange={(val) => setDocType(val || 'CANCELLED_CHEQUE')}
+                  required
+                />
+                
+                <TextInput
+                  label="Verified Document Name"
+                  size="xs"
+                  value={documentName}
+                  readOnly
+                  placeholder="Upload document or attach sample"
+                  leftSection={<IconFileDescription size={14} color="#64748B" />}
+                />
+              </SimpleGrid>
 
-        {/* SECTION 3: Compliance Declaration & Audit Trail */}
-        <div>
-          <Group gap={6} mb={8}>
-            <ThemeIcon size={20} radius="xl" color="indigo" variant="light">
-              <IconLock size={12} />
-            </ThemeIcon>
-            <Text size="xs" fw={700} c="#09090B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              3. Officer Attestation & Resolution Notes
-            </Text>
-          </Group>
+              {/* Upload Dropzone Bar */}
+              <Paper
+                p="xs"
+                radius="sm"
+                style={{
+                  backgroundColor: '#F8FAFC',
+                  border: isDocAttached ? '1px solid #86EFAC' : '1px dashed #CBD5E1',
+                }}
+              >
+                <Group justify="space-between" align="center" wrap="wrap">
+                  <Group gap="xs">
+                    {isDocAttached ? (
+                      <IconFileCheck size={18} color="#16A34A" />
+                    ) : (
+                      <IconFileUpload size={18} color="#64748B" />
+                    )}
+                    <div>
+                      <Text size="xs" fw={600} c={isDocAttached ? '#15803D' : '#334155'}>
+                        {isDocAttached ? `Attached: ${documentName}` : 'Attach physical cancelled cheque / passbook file'}
+                      </Text>
+                      <Text size="10px" c="#64748B">
+                        PDF, PNG, JPEG up to 10MB
+                      </Text>
+                    </div>
+                  </Group>
 
-          <Textarea
-            label="Audit Resolution Justification"
-            size="xs"
-            placeholder="Explain verification procedure, matching confirmation, and authorization rationale..."
-            value={resolutionNotes}
-            onChange={(e) => setResolutionNotes(e.target.value)}
-            rows={2}
-            required
-            error={
-              resolutionNotes.trim().length > 0 && resolutionNotes.trim().length < 10
-                ? 'Minimum 10 characters required for statutory audit logs'
-                : false
-            }
-            mb="xs"
-          />
+                  <Group gap={6}>
+                    <input
+                      type="file"
+                      id="sentinel-file-upload"
+                      style={{ display: 'none' }}
+                      accept=".pdf,.png,.jpg,.jpeg"
+                      onChange={handleFileChange}
+                    />
+                    <Button
+                      size="compact-xs"
+                      variant="light"
+                      color="blue"
+                      onClick={() => document.getElementById('sentinel-file-upload')?.click()}
+                    >
+                      Browse Device
+                    </Button>
+                    <Button
+                      size="compact-xs"
+                      variant="subtle"
+                      color="gray"
+                      onClick={handleUseDemoCheque}
+                    >
+                      Use Certified Sample
+                    </Button>
+                  </Group>
+                </Group>
+              </Paper>
 
-          <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-            <Checkbox
-              size="xs"
-              checked={officerConfirmation}
-              onChange={(e) => setOfficerConfirmation(e.currentTarget.checked)}
-              label={
-                <Text size="xs" fw={500} c="#1E293B">
-                  I solemnly declare and confirm that I have cross-verified the account number, IFSC code, and beneficiary name against the attached banking proof.
+              {!isDocAttached && (
+                <Alert color="orange" variant="light" size="xs" mt="xs">
+                  <Text size="xs">
+                    A valid cancelled cheque or bank statement document is mandatory before this flag can be resolved.
+                  </Text>
+                </Alert>
+              )}
+            </div>
+
+            <Divider />
+
+            {/* SECTION 3: Compliance Declaration & Audit Trail */}
+            <div>
+              <Group gap={6} mb={8}>
+                <ThemeIcon size={20} radius="xl" color="indigo" variant="light">
+                  <IconLock size={12} />
+                </ThemeIcon>
+                <Text size="xs" fw={700} c="#09090B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  3. Officer Attestation & Resolution Notes
                 </Text>
-              }
-            />
-          </Paper>
-        </div>
+              </Group>
+
+              <Textarea
+                label="Audit Resolution Justification"
+                size="xs"
+                placeholder="Explain verification procedure, matching confirmation, and authorization rationale..."
+                value={resolutionNotes}
+                onChange={(e) => setResolutionNotes(e.target.value)}
+                rows={2}
+                required
+                error={
+                  resolutionNotes.trim().length > 0 && resolutionNotes.trim().length < 10
+                    ? 'Minimum 10 characters required for statutory audit logs'
+                    : false
+                }
+                mb="xs"
+              />
+
+              <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <Checkbox
+                  size="xs"
+                  checked={officerConfirmation}
+                  onChange={(e) => setOfficerConfirmation(e.currentTarget.checked)}
+                  label={
+                    <Text size="xs" fw={500} c="#1E293B">
+                      I solemnly declare and confirm that I have cross-verified the account number, IFSC code, and beneficiary name against the attached banking proof.
+                    </Text>
+                  }
+                />
+              </Paper>
+            </div>
+          </Stack>
+        )}
 
         {/* Error Alert */}
         {errorMsg && (
@@ -611,6 +668,28 @@ export const SentinelResolutionModal = ({
           </Button>
 
           <Group gap="xs">
+            {activeModalTab === 'PREVIEW' ? (
+              <Button
+                size="xs"
+                variant="light"
+                color="blue"
+                onClick={() => setActiveModalTab('FORM')}
+                leftSection={<IconBuildingBank size={14} />}
+              >
+                Verification & KYC Form
+              </Button>
+            ) : (
+              <Button
+                size="xs"
+                variant="light"
+                color="teal"
+                onClick={() => setActiveModalTab('PREVIEW')}
+                leftSection={<IconSparkles size={14} />}
+              >
+                Live Payslip Preview
+              </Button>
+            )}
+
             {isBatchMode && (
               <Button
                 size="xs"

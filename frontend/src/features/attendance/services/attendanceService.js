@@ -16,9 +16,18 @@ export const attendanceService = {
     return await fetchApi('/time-off/requests');
   },
 
-  approveLeave: async (requestId) => {
-    return await fetchApi(`/time-off/requests/${requestId}/approve`, {
+  correctAttendance: async (attendanceId, payload) => {
+    return await fetchApi(`/attendance/${attendanceId}/correct`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  createManualAttendance: async (payload) => {
+    return await fetchApi('/attendance/manual-entry', {
       method: 'POST',
+      body: JSON.stringify(payload),
     });
   },
 };
+

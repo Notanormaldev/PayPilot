@@ -26,4 +26,9 @@ export const sentinelService = {
       body: JSON.stringify(payload),
     });
   },
+
+  previewImpact: async (flagId) => {
+    return await fetchApi(`/sentinel/flags/${flagId}/preview-impact`);
+  },
 };
+

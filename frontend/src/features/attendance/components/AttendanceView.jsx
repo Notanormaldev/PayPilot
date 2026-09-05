@@ -8,11 +8,23 @@ import {
   Button,
   Grid,
   Stack,
+  ActionIcon,
+  Tooltip,
 } from '@mantine/core';
-import { IconFingerprint, IconCalendarCheck, IconClock, IconX } from '@tabler/icons-react';
+import {
+  IconFingerprint,
+  IconCalendarCheck,
+  IconClock,
+  IconX,
+  IconAdjustments,
+  IconPlus,
+  IconShieldCheck,
+  IconAlertTriangle,
+} from '@tabler/icons-react';
 import { attendanceService } from '../services/attendanceService';
 import { fetchApi } from '../../../lib/api';
 import { UserAvatar } from '../../../components/ui';
+import { AttendanceCorrectionModal } from './AttendanceCorrectionModal';
 
 export const AttendanceView = ({
   attendances = [],
@@ -24,6 +36,10 @@ export const AttendanceView = ({
   const [approvingId, setApprovingId] = useState(null);
   const [refusingId, setRefusingId] = useState(null);
   const [liveRequests, setLiveRequests] = useState([]);
+
+  // Attendance Correction Modal State
+  const [correctionModalOpen, setCorrectionModalOpen] = useState(false);
+  const [selectedAttendanceForCorrection, setSelectedAttendanceForCorrection] = useState(null);
 
   const fetchRequests = async () => {
     try {
@@ -57,6 +73,16 @@ export const AttendanceView = ({
     }
   };
 
+  const handleOpenCorrection = (att) => {
+    setSelectedAttendanceForCorrection(att);
+    setCorrectionModalOpen(true);
+  };
+
+  const handleOpenNewManualEntry = () => {
+    setSelectedAttendanceForCorrection(null);
+    setCorrectionModalOpen(true);
+  };
+
   const handleApprove = async (reqId) => {
     setApprovingId(reqId);
     try {
@@ -85,7 +111,7 @@ export const AttendanceView = ({
 
   return (
     <Stack gap="lg">
-      {/* Top Quick Punch Simulation Bar */}
+      {/* Top Quick Punch Simulation Bar & HR Manual Override Action */}
       <Paper
         p="md"
         radius="md"
@@ -100,15 +126,25 @@ export const AttendanceView = ({
             <IconFingerprint size={20} color="#2563EB" />
             <div>
               <Text fw={700} size="sm" c="#09090B">
-                PUNCH CLOCK TERMINAL SIMULATOR
+                PUNCH CLOCK TERMINAL & HR ATTENDANCE OVERRIDE
               </Text>
               <Text size="xs" c="#71717A">
-                Record real-time RFID/Biometric check-in/out telemetry
+                Record real-time RFID telemetry or perform statutory punch adjustments with mandatory reason
               </Text>
             </div>
           </Group>
 
           <Group gap="xs">
+            <Button
+              size="xs"
+              variant="light"
+              color="blue"
+              onClick={handleOpenNewManualEntry}
+              leftSection={<IconPlus size={13} />}
+            >
+              Manual Punch Override
+            </Button>
+
             <Button
               size="xs"
               color="dark"
@@ -145,27 +181,44 @@ export const AttendanceView = ({
             }}
           >
             <Group justify="space-between" mb="md">
-              <Text fw={700} size="sm" c="#09090B">
-                RECENT ATTENDANCE LOGS
-              </Text>
-              <Badge size="xs" color="teal" variant="light">
-                Auto-Synced
-              </Badge>
+              <Group gap="xs">
+                <Text fw={700} size="sm" c="#09090B">
+                  RECENT ATTENDANCE LOGS
+                </Text>
+                <Badge size="xs" color="teal" variant="light">
+                  Auto-Synced
+                </Badge>
+              </Group>
+
+              <Button
+                size="compact-xs"
+                variant="subtle"
+                color="blue"
+                leftSection={<IconAdjustments size={12} />}
+                onClick={handleOpenNewManualEntry}
+              >
+                + Fix Missing Punch
+              </Button>
             </Group>
 
             <Table verticalSpacing="xs" highlightOnHover>
               <Table.Thead>
                 <Table.Tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '38%', whiteSpace: 'nowrap' }}>EMPLOYEE</Table.Th>
-                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '22%', whiteSpace: 'nowrap' }}>DATE</Table.Th>
-                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '20%', whiteSpace: 'nowrap' }}>HOURS</Table.Th>
+                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '34%', whiteSpace: 'nowrap' }}>EMPLOYEE</Table.Th>
+                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '18%', whiteSpace: 'nowrap' }}>DATE</Table.Th>
+                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '16%', whiteSpace: 'nowrap' }}>HOURS</Table.Th>
                   <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '20%', whiteSpace: 'nowrap' }}>STATUS</Table.Th>
+                  <Table.Th style={{ color: '#71717A', fontSize: '11px', width: '12%', textAlign: 'right' }}>ACTION</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {attendances.slice(0, 8).map((att) => {
+                {attendances.slice(0, 10).map((att) => {
                   const empName = att.employee?.firstName || att.employee?.name || 'Aarav Sharma';
                   const empNum = att.employee?.employeeNumber || 'EMP-2024-001';
+                  const isCorrected = Boolean(att.isCorrected);
+                  const reason = att.correctionReason || 'Manual adjustment';
+                  const corrector = att.correctedBy?.employee?.name || att.correctedBy?.email || 'HR Admin';
+
                   return (
                     <Table.Tr key={att.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
                       <Table.Td>
@@ -195,20 +248,54 @@ export const AttendanceView = ({
                       </Table.Td>
 
                       <Table.Td>
-                        <Badge
-                          size="xs"
-                          color={
-                            att.status === 'PRESENT'
-                              ? 'teal'
-                              : att.status === 'HALF_DAY'
-                              ? 'orange'
-                              : 'red'
-                          }
-                          variant="light"
-                          styles={{ root: { height: 20, fontSize: '10px', whiteSpace: 'nowrap' } }}
-                        >
-                          {att.status || 'PRESENT'}
-                        </Badge>
+                        <Stack gap={2}>
+                          <Badge
+                            size="xs"
+                            color={
+                              att.status === 'PRESENT'
+                                ? 'teal'
+                                : att.status === 'HALF_DAY'
+                                ? 'orange'
+                                : att.status === 'LATE'
+                                ? 'yellow'
+                                : 'red'
+                            }
+                            variant="light"
+                            styles={{ root: { height: 20, fontSize: '10px', whiteSpace: 'nowrap' } }}
+                          >
+                            {att.status || 'PRESENT'}
+                          </Badge>
+
+                          {isCorrected && (
+                            <Tooltip
+                              label={`Overridden: ${reason} (by ${corrector})`}
+                              withArrow
+                              position="top"
+                            >
+                              <Badge
+                                size="xs"
+                                color="indigo"
+                                variant="outline"
+                                styles={{ root: { height: 18, fontSize: '9px', cursor: 'pointer' } }}
+                              >
+                                ⚡ {reason.length > 18 ? `${reason.substring(0, 16)}...` : reason}
+                              </Badge>
+                            </Tooltip>
+                          )}
+                        </Stack>
+                      </Table.Td>
+
+                      <Table.Td style={{ textAlign: 'right' }}>
+                        <Tooltip label="HR Override / Punch Correction (Biometric Failure, etc.)" withArrow>
+                          <ActionIcon
+                            size="sm"
+                            variant="subtle"
+                            color="blue"
+                            onClick={() => handleOpenCorrection(att)}
+                          >
+                            <IconAdjustments size={15} />
+                          </ActionIcon>
+                        </Tooltip>
                       </Table.Td>
                     </Table.Tr>
                   );
@@ -329,6 +416,18 @@ export const AttendanceView = ({
           </Paper>
         </Grid.Col>
       </Grid>
+
+      {/* HR Attendance Correction Modal */}
+      <AttendanceCorrectionModal
+        opened={correctionModalOpen}
+        onClose={() => setCorrectionModalOpen(false)}
+        attendance={selectedAttendanceForCorrection}
+        employees={attendances.map((a) => a.employee).filter(Boolean)}
+        onSuccess={() => {
+          if (onRefresh) onRefresh();
+        }}
+      />
     </Stack>
   );
 };
+
