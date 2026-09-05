@@ -452,7 +452,9 @@ class TaxRulesRepository {
       ...logEntry,
     };
     this.calculationLogs.unshift(entry);
-    this.saveToDisk();
+    if (this.calculationLogs.length > 200) {
+      this.calculationLogs = this.calculationLogs.slice(0, 200);
+    }
     return entry;
   }
 }
