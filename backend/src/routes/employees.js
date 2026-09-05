@@ -94,9 +94,9 @@ employeesRouter.put('/me', authenticate, async (req, res) => {
 // GET /api/employees - list employees with contracts & smart counts
 employeesRouter.get('/', authenticate, async (req, res) => {
   try {
-    const { department, status, search, page = '1', limit = '50' } = req.query;
+    const { department, status, search, page = '1', limit = '1000' } = req.query;
     const pageNum = parseInt(page, 10) || 1;
-    const limitNum = parseInt(limit, 10) || 50;
+    const limitNum = parseInt(limit, 10) || 1000;
 
     const where = {};
     if (department) where.department = String(department);

@@ -133,13 +133,13 @@ export const App = () => {
                   <ToDoTasks />
                   <PayrollCostChart data={trends} />
                   <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
-                  <EmployeeTable employees={employees} />
+                  <EmployeeTable employees={employees} onRefresh={handleRefreshAll} />
                 </Stack>
               )}
 
               {activeTab === 'employees' && (
                 <Stack gap="lg">
-                  <EmployeeTable employees={employees} />
+                  <EmployeeTable employees={employees} onRefresh={handleRefreshAll} />
                 </Stack>
               )}
 
