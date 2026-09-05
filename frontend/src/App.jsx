@@ -10,7 +10,7 @@ import { useDashboard } from './features/dashboard/hooks/useDashboard';
 import { usePayroll } from './features/payroll/hooks/usePayroll';
 import { useSentinel } from './features/sentinel/hooks/useSentinel';
 import { useEmployees } from './features/employees/hooks/useEmployees';
-import { useAttendance } from './features/attendance/hooks/useAttendance';
+import { useAttendance } from './features/attendance/hooks/useAttendance'; 
 
 import { WelcomeBanner } from './features/dashboard/components/WelcomeBanner';
 import { DeductionSummary } from './features/dashboard/components/DeductionSummary';

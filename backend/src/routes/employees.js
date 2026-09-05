@@ -4,14 +4,6 @@ import { authenticate } from '../middleware/auth.js';
 
 export const employeesRouter = Router();
 
-// Global in-memory & shared avatar store so avatars persist across all PCs, browsers, and sessions
-export const globalAvatarStore = new Map();
-
-// GET /api/employees/avatars - get map of all uploaded ImageKit avatars
-employeesRouter.get('/avatars', (req, res) => {
-  res.json({ data: Object.fromEntries(globalAvatarStore) });
-});
-
 // GET /api/employees/me - get current user employee profile
 employeesRouter.get('/me', authenticate, async (req, res) => {
   try {
@@ -33,20 +25,12 @@ employeesRouter.get('/me', authenticate, async (req, res) => {
       },
     });
 
-    const userAvatar =
-      globalAvatarStore.get(email.toLowerCase()) ||
-      globalAvatarStore.get(String(req.user.name || '').toLowerCase()) ||
-      globalAvatarStore.get(String(req.user.id || '').toLowerCase()) ||
-      globalAvatarStore.get('global_user_avatar') ||
-      null;
-
     if (!employee) {
       // Fallback response for authenticated user persona
       employee = {
         id: req.user.employeeId || `emp_${req.user.id || 'me'}`,
         name: req.user.name || 'Employee',
         workEmail: email,
-        avatarUrl: userAvatar,
         department: req.user.department || 'Executive',
         jobPosition: req.user.jobPosition || 'Specialist',
         status: 'ACTIVE',
@@ -65,11 +49,6 @@ employeesRouter.get('/me', authenticate, async (req, res) => {
             salaryStructure: { name: 'Executive Compensation Scale v2.1' },
           },
         ],
-      };
-    } else {
-      employee = {
-        ...employee,
-        avatarUrl: userAvatar,
       };
     }
 
@@ -174,11 +153,6 @@ employeesRouter.get('/', authenticate, async (req, res) => {
         jobTitle: emp.jobPosition,
         jobPosition: emp.jobPosition,
         status: emp.status,
-        avatarUrl:
-          globalAvatarStore.get(emp.id.toLowerCase()) ||
-          globalAvatarStore.get((emp.workEmail || '').toLowerCase()) ||
-          globalAvatarStore.get((emp.name || '').toLowerCase()) ||
-          null,
         bankAccount: emp.bankAccount,
         bankName: emp.bankName || (emp.bankAccount ? 'Verified Direct Deposit' : null),
         bankAccountNo: emp.bankAccount,
@@ -222,13 +196,7 @@ employeesRouter.get('/:id', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Employee not found' });
     }
 
-    const avatarUrl =
-      globalAvatarStore.get(employee.id.toLowerCase()) ||
-      globalAvatarStore.get((employee.workEmail || '').toLowerCase()) ||
-      globalAvatarStore.get((employee.name || '').toLowerCase()) ||
-      null;
-
-    res.json({ data: { ...employee, avatarUrl } });
+    res.json({ data: employee });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch employee', details: err.message });
   }
@@ -270,7 +238,7 @@ employeesRouter.post('/', authenticate, async (req, res) => {
 // POST /api/employees/avatar - upload profile photo to ImageKit
 employeesRouter.post('/avatar', async (req, res) => {
   try {
-    const { image, fileName, employeeId, email, name } = req.body;
+    const { image, fileName } = req.body;
     if (!image) {
       return res.status(400).json({ error: 'No image data provided' });
     }
@@ -301,23 +269,10 @@ employeesRouter.post('/avatar', async (req, res) => {
       });
     }
 
-    // Persist to global shared avatar store so any connected PC/browser receives it immediately
-    const ikUrl = ikData.url;
-    globalAvatarStore.set('global_user_avatar', ikUrl);
-    if (employeeId) {
-      globalAvatarStore.set(String(employeeId).toLowerCase(), ikUrl);
-    }
-    if (email) {
-      globalAvatarStore.set(String(email).toLowerCase(), ikUrl);
-    }
-    if (name) {
-      globalAvatarStore.set(String(name).toLowerCase(), ikUrl);
-    }
-
     res.json({
       success: true,
-      url: ikUrl,
-      thumbnailUrl: ikData.thumbnailUrl || ikUrl,
+      url: ikData.url,
+      thumbnailUrl: ikData.thumbnailUrl || ikData.url,
       fileId: ikData.fileId,
     });
   } catch (err) {

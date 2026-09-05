@@ -74,7 +74,7 @@ export const SettingsView = () => {
   const [bio, setBio] = useState('Leading people operations, compensation strategy, and compliance automation at PayPilot.');
 
   // 2. Organization State
-  const [orgData, setOrgData] = useState({
+  const [orgData, setOrgData] = useState({ 
     legalName: 'OXP Technologies Private Limited',
     brandName: 'PayPilot Technologies',
     cin: 'U72900DL2021PTC389421',
