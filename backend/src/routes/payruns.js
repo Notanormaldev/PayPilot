@@ -574,8 +574,8 @@ payrunsRouter.get('/:id/export-pdf', async (req, res) => {
       });
 
       page.drawText('RULE CODE', { x: margin + 10, y: tableHeaderY - 14, size: 7.5, font: fontBold, color: rgb(1, 1, 1) });
-      page.drawText('DESCRIPTION / SALARY COMPONENT', { x: margin + 85, y: tableHeaderY - 14, size: 7.5, font: fontBold, color: rgb(1, 1, 1) });
-      page.drawText('CATEGORY', { x: margin + 300, y: tableHeaderY - 14, size: 7.5, font: fontBold, color: rgb(1, 1, 1) });
+      page.drawText('DESCRIPTION / SALARY COMPONENT', { x: margin + 125, y: tableHeaderY - 14, size: 7.5, font: fontBold, color: rgb(1, 1, 1) });
+      page.drawText('CATEGORY', { x: margin + 325, y: tableHeaderY - 14, size: 7.5, font: fontBold, color: rgb(1, 1, 1) });
 
       const amtHeader = 'AMOUNT (INR)';
       const amtHeaderW = fontBold.widthOfTextAtSize(amtHeader, 7.5);
@@ -608,8 +608,8 @@ payrunsRouter.get('/:id/export-pdf', async (req, res) => {
         });
 
         page.drawText(line.code, { x: margin + 10, y: rowY + 6, size: 7.5, font, color: rgb(0.12, 0.16, 0.22) });
-        page.drawText(line.name, { x: margin + 85, y: rowY + 6, size: 7.5, font, color: rgb(0.12, 0.16, 0.22) });
-        page.drawText(line.category, { x: margin + 300, y: rowY + 6, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
+        page.drawText(line.name, { x: margin + 125, y: rowY + 6, size: 7.5, font, color: rgb(0.12, 0.16, 0.22) });
+        page.drawText(line.category, { x: margin + 325, y: rowY + 6, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
 
         const amt = Number(line.amount);
         const isDeduction = line.category === 'DEDUCTION' || amt < 0;
@@ -650,7 +650,7 @@ payrunsRouter.get('/:id/export-pdf', async (req, res) => {
 
       page.drawText('TOTAL GROSS PAY:', { x: margin + 10, y: subtotalY + 7, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
       page.drawText(`Rs. ${totalGross.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, {
-        x: margin + 115,
+        x: margin + 125,
         y: subtotalY + 7,
         size: 7.5,
         font: fontBold,
