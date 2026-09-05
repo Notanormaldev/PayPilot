@@ -222,14 +222,14 @@ export async function generatePayslipPdf(psData, employeeDetails = {}) {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(255, 255, 255);
-  doc.text('EARNINGS & ALLOWANCES', earnX + 4, tableStartY + 5);
-  doc.text('AMOUNT (INR)', earnX + colWidth - 25, tableStartY + 5);
+  doc.text('EARNINGS & ALLOWANCES', earnX + 4, tableStartY + 4.8);
+  doc.text('AMOUNT (INR)', earnX + colWidth - 4, tableStartY + 4.8, { align: 'right' });
 
   const dedX = margin + colWidth + 4;
   doc.setFillColor(15, 23, 42);
   doc.rect(dedX, tableStartY, colWidth, 7, 'F');
-  doc.text('STATUTORY DEDUCTIONS', dedX + 4, tableStartY + 5);
-  doc.text('AMOUNT (INR)', dedX + colWidth - 25, tableStartY + 5);
+  doc.text('STATUTORY DEDUCTIONS', dedX + 4, tableStartY + 4.8);
+  doc.text('AMOUNT (INR)', dedX + colWidth - 4, tableStartY + 4.8, { align: 'right' });
 
   const maxRows = Math.max(earnings.length, deductions.length, 5);
   let currentY = tableStartY + 7;

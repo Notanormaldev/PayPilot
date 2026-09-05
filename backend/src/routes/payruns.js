@@ -314,7 +314,49 @@ payrunsRouter.post('/:id/validate', authenticate, async (req, res) => {
   }
 });
 
-// GET /api/payruns/:id/export-pdf - generate PDF payslips
+/**
+ * Helper to convert numeric amounts to Indian Currency Words
+ */
+function numberToWordsINR(amount) {
+  const words = [
+    '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+    'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen',
+  ];
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  function convertTwoDigits(n) {
+    if (n < 20) return words[n];
+    return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + words[n % 10] : '');
+  }
+
+  function convertThreeDigits(n) {
+    if (n === 0) return '';
+    const hundred = Math.floor(n / 100);
+    const rest = n % 100;
+    let str = '';
+    if (hundred > 0) str += words[hundred] + ' Hundred';
+    if (rest > 0) str += (str ? ' ' : '') + convertTwoDigits(rest);
+    return str;
+  }
+
+  const num = Math.floor(Math.abs(amount));
+  if (num === 0) return 'Zero Rupees Only';
+
+  const crore = Math.floor(num / 10000000);
+  const lakh = Math.floor((num % 10000000) / 100000);
+  const thousand = Math.floor((num % 100000) / 1000);
+  const remainder = num % 1000;
+
+  let result = '';
+  if (crore > 0) result += convertThreeDigits(crore) + ' Crore ';
+  if (lakh > 0) result += convertTwoDigits(lakh) + ' Lakh ';
+  if (thousand > 0) result += convertTwoDigits(thousand) + ' Thousand ';
+  if (remainder > 0) result += convertThreeDigits(remainder);
+
+  return 'Rupees ' + result.trim() + ' Only';
+}
+
+// GET /api/payruns/:id/export-pdf - generate high-precision PDF payslips
 payrunsRouter.get('/:id/export-pdf', async (req, res) => {
   try {
     const payrun = await prisma.payrun.findUnique({
@@ -340,56 +382,56 @@ payrunsRouter.get('/:id/export-pdf', async (req, res) => {
     for (const slip of payrun.payslips) {
       const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
       const { width, height } = page.getSize();
-      const margin = 40;
-      const contentWidth = width - margin * 2;
+      const margin = 36;
+      const contentWidth = width - margin * 2; // 523.28
 
       // Top Accent Blue Bar
       page.drawRectangle({
         x: margin,
-        y: height - 35,
+        y: height - 28,
         width: contentWidth,
         height: 4,
         color: rgb(0.145, 0.388, 0.922), // PayPilot Blue #2563EB
       });
 
-      // Brand Logo Shield Box
+      // Brand Logo Box
       page.drawRectangle({
         x: margin,
         y: height - 68,
-        width: 26,
-        height: 26,
+        width: 32,
+        height: 32,
         color: rgb(0.06, 0.09, 0.16), // Deep Dark #0F172A
       });
 
-      // Logo inner white mark
+      // Logo inner white shield
       page.drawRectangle({
-        x: margin + 7,
-        y: height - 61,
-        width: 12,
-        height: 12,
+        x: margin + 9,
+        y: height - 59,
+        width: 14,
+        height: 14,
         color: rgb(1, 1, 1),
       });
 
       // Logo blue accent dot
       page.drawCircle({
-        x: margin + 20,
-        y: height - 48,
-        size: 3,
+        x: margin + 24,
+        y: height - 44,
+        size: 3.5,
         color: rgb(0.145, 0.388, 0.922),
       });
 
       // Wordmark: PayPilot
       page.drawText('Pay', {
-        x: margin + 34,
-        y: height - 58,
+        x: margin + 40,
+        y: height - 52,
         size: 20,
         font: fontBold,
         color: rgb(0.06, 0.09, 0.16),
       });
 
       page.drawText('Pilot', {
-        x: margin + 74,
-        y: height - 58,
+        x: margin + 78,
+        y: height - 52,
         size: 20,
         font: fontBold,
         color: rgb(0.145, 0.388, 0.922),
@@ -397,60 +439,62 @@ payrunsRouter.get('/:id/export-pdf', async (req, res) => {
 
       // Company registration sub-details
       page.drawText('PayPilot Autonomous Technologies India Pvt. Ltd.', {
-        x: margin + 34,
-        y: height - 71,
-        size: 8,
-        font,
-        color: rgb(0.35, 0.42, 0.53),
-      });
-      page.drawText('CIN: U72200KA2024PTC184920  |  GSTIN: 29AABCP9284F1ZT', {
-        x: margin + 34,
-        y: height - 81,
+        x: margin + 40,
+        y: height - 64,
         size: 7.5,
         font,
         color: rgb(0.35, 0.42, 0.53),
       });
+      page.drawText('CIN: U72200KA2024PTC184920  |  GSTIN: 29AABCP9284F1ZT', {
+        x: margin + 40,
+        y: height - 74,
+        size: 7,
+        font,
+        color: rgb(0.45, 0.52, 0.63),
+      });
 
       // Right Header: Document Meta Box
-      const metaBoxW = 160;
+      const metaBoxW = 185;
       const metaBoxX = width - margin - metaBoxW;
+      const metaBoxY = height - 80;
       page.drawRectangle({
         x: metaBoxX,
-        y: height - 86,
+        y: metaBoxY,
         width: metaBoxW,
-        height: 50,
+        height: 52,
         color: rgb(0.97, 0.98, 0.99),
         borderColor: rgb(0.88, 0.91, 0.94),
         borderWidth: 1,
       });
 
       page.drawText('CONFIDENTIAL SALARY STATEMENT', {
-        x: metaBoxX + 10,
-        y: height - 48,
+        x: metaBoxX + 8,
+        y: metaBoxY + 38,
         size: 7.5,
         font: fontBold,
         color: rgb(0.145, 0.388, 0.922),
       });
 
-      page.drawText(`Pay Period: ${payrun.name}`, {
-        x: metaBoxX + 10,
-        y: height - 60,
-        size: 8,
+      const payrunNameText = payrun.name.length > 26 ? payrun.name.slice(0, 24) + '...' : payrun.name;
+      page.drawText(`Pay Period: ${payrunNameText}`, {
+        x: metaBoxX + 8,
+        y: metaBoxY + 26,
+        size: 7.5,
         font,
         color: rgb(0.2, 0.25, 0.35),
       });
 
       page.drawText(`Payslip Ref: PS-${slip.id.slice(0, 8).toUpperCase()}`, {
-        x: metaBoxX + 10,
-        y: height - 71,
-        size: 8,
+        x: metaBoxX + 8,
+        y: metaBoxY + 15,
+        size: 7.5,
         font,
         color: rgb(0.2, 0.25, 0.35),
       });
 
       page.drawText('• STATUS: DISBURSED & AUDITED', {
-        x: metaBoxX + 10,
-        y: height - 82,
+        x: metaBoxX + 8,
+        y: metaBoxY + 4,
         size: 7,
         font: fontBold,
         color: rgb(0.02, 0.58, 0.41),
@@ -458,111 +502,125 @@ payrunsRouter.get('/:id/export-pdf', async (req, res) => {
 
       // Horizontal Divider
       page.drawLine({
-        start: { x: margin, y: height - 98 },
-        end: { x: width - margin, y: height - 98 },
+        start: { x: margin, y: height - 90 },
+        end: { x: width - margin, y: height - 90 },
         thickness: 0.75,
         color: rgb(0.88, 0.91, 0.94),
       });
 
       // Employee Information Card
-      const empCardY = height - 170;
+      const cardY = height - 168;
+      const cardH = 68;
       page.drawRectangle({
         x: margin,
-        y: empCardY,
+        y: cardY,
         width: contentWidth,
-        height: 62,
+        height: cardH,
         color: rgb(0.97, 0.98, 0.99),
         borderColor: rgb(0.88, 0.91, 0.94),
         borderWidth: 0.75,
       });
 
       // Card middle divider
+      const midX = margin + contentWidth / 2;
       page.drawLine({
-        start: { x: margin + contentWidth / 2, y: empCardY },
-        end: { x: margin + contentWidth / 2, y: empCardY + 62 },
+        start: { x: midX, y: cardY },
+        end: { x: midX, y: cardY + cardH },
         thickness: 0.5,
         color: rgb(0.88, 0.91, 0.94),
       });
 
+      const empName = slip.employee?.name || 'Staff Member';
+      const empId = slip.employee?.employeeNumber || `EMP-${(slip.employee?.id || '').slice(-4).toUpperCase()}`;
+      const empDept = slip.employee?.department || 'Engineering & Product';
+      const empJob = slip.employee?.jobPosition || 'Specialist';
+      const empBank = slip.employee?.bankAccount || 'VERIFIED ON FILE';
+      const empPan = slip.employee?.pan || 'ABCPK9482F';
+
       // Col 1: Employee details
-      page.drawText('Employee Name:', { x: margin + 12, y: empCardY + 47, size: 8, font, color: rgb(0.4, 0.46, 0.54) });
-      page.drawText(slip.employee.name || 'Staff Member', { x: margin + 85, y: empCardY + 47, size: 8, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
+      page.drawText('Employee Name:', { x: margin + 10, y: cardY + 50, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
+      page.drawText(empName, { x: margin + 85, y: cardY + 50, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
 
-      page.drawText('Employee ID:', { x: margin + 12, y: empCardY + 34, size: 8, font, color: rgb(0.4, 0.46, 0.54) });
-      page.drawText(`EMP-${slip.employee.id.slice(0, 6).toUpperCase()}`, { x: margin + 85, y: empCardY + 34, size: 8, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
+      page.drawText('Employee ID:', { x: margin + 10, y: cardY + 36, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
+      page.drawText(empId, { x: margin + 85, y: cardY + 36, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
 
-      page.drawText('Department:', { x: margin + 12, y: empCardY + 21, size: 8, font, color: rgb(0.4, 0.46, 0.54) });
-      page.drawText(slip.employee.department || 'General', { x: margin + 85, y: empCardY + 21, size: 8, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
+      page.drawText('Department:', { x: margin + 10, y: cardY + 22, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
+      page.drawText(empDept, { x: margin + 85, y: cardY + 22, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
 
-      page.drawText('Designation:', { x: margin + 12, y: empCardY + 8, size: 8, font, color: rgb(0.4, 0.46, 0.54) });
-      page.drawText(slip.employee.jobPosition || 'Specialist', { x: margin + 85, y: empCardY + 8, size: 8, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
+      page.drawText('Designation:', { x: margin + 10, y: cardY + 8, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
+      page.drawText(empJob, { x: margin + 85, y: cardY + 8, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
 
       // Col 2: Bank & statutory details
-      const col2X = margin + contentWidth / 2 + 12;
-      const col2ValX = col2X + 80;
+      page.drawText('Bank Account:', { x: midX + 10, y: cardY + 50, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
+      page.drawText(empBank, { x: midX + 85, y: cardY + 50, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
 
-      page.drawText('Bank Account:', { x: col2X, y: empCardY + 47, size: 8, font, color: rgb(0.4, 0.46, 0.54) });
-      page.drawText(slip.employee.bankAccount || 'VERIFIED ON FILE', { x: col2ValX, y: empCardY + 47, size: 8, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
+      page.drawText('PAN Number:', { x: midX + 10, y: cardY + 36, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
+      page.drawText(empPan, { x: midX + 85, y: cardY + 36, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
 
-      page.drawText('PAN Number:', { x: col2X, y: empCardY + 34, size: 8, font, color: rgb(0.4, 0.46, 0.54) });
-      page.drawText(slip.employee.pan || 'ABCPK9482F', { x: col2ValX, y: empCardY + 34, size: 8, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
+      page.drawText('UAN / PF No:', { x: midX + 10, y: cardY + 22, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
+      page.drawText('101849204918', { x: midX + 85, y: cardY + 22, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
 
-      page.drawText('UAN / PF No:', { x: col2X, y: empCardY + 21, size: 8, font, color: rgb(0.4, 0.46, 0.54) });
-      page.drawText('101849204918', { x: col2ValX, y: empCardY + 21, size: 8, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
-
-      page.drawText('Payable Days:', { x: col2X, y: empCardY + 8, size: 8, font, color: rgb(0.4, 0.46, 0.54) });
-      page.drawText('30 Days (LOP: 0)', { x: col2ValX, y: empCardY + 8, size: 8, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
+      page.drawText('Payable Days:', { x: midX + 10, y: cardY + 8, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
+      page.drawText('30 Days (LOP: 0)', { x: midX + 85, y: cardY + 8, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
 
       // Table Headers
-      let y = empCardY - 24;
+      const tableHeaderY = cardY - 16;
       page.drawRectangle({
         x: margin,
-        y: y - 5,
+        y: tableHeaderY - 20,
         width: contentWidth,
         height: 20,
         color: rgb(0.06, 0.09, 0.16),
       });
 
-      page.drawText('RULE CODE', { x: margin + 10, y: y + 2, size: 8, font: fontBold, color: rgb(1, 1, 1) });
-      page.drawText('DESCRIPTION / SALARY COMPONENT', { x: margin + 85, y: y + 2, size: 8, font: fontBold, color: rgb(1, 1, 1) });
-      page.drawText('CATEGORY', { x: margin + 300, y: y + 2, size: 8, font: fontBold, color: rgb(1, 1, 1) });
-      page.drawText('AMOUNT (INR)', { x: width - margin - 85, y: y + 2, size: 8, font: fontBold, color: rgb(1, 1, 1) });
+      page.drawText('RULE CODE', { x: margin + 10, y: tableHeaderY - 14, size: 7.5, font: fontBold, color: rgb(1, 1, 1) });
+      page.drawText('DESCRIPTION / SALARY COMPONENT', { x: margin + 85, y: tableHeaderY - 14, size: 7.5, font: fontBold, color: rgb(1, 1, 1) });
+      page.drawText('CATEGORY', { x: margin + 300, y: tableHeaderY - 14, size: 7.5, font: fontBold, color: rgb(1, 1, 1) });
 
-      y -= 22;
+      const amtHeader = 'AMOUNT (INR)';
+      const amtHeaderW = fontBold.widthOfTextAtSize(amtHeader, 7.5);
+      page.drawText(amtHeader, { x: width - margin - 10 - amtHeaderW, y: tableHeaderY - 14, size: 7.5, font: fontBold, color: rgb(1, 1, 1) });
+
+      let currY = tableHeaderY - 20;
+      const rowHeight = 20;
       let totalGross = 0;
       let totalDeductions = 0;
       let rowIndex = 0;
 
       for (const line of slip.lines) {
+        const rowY = currY - rowHeight;
+
         if (rowIndex % 2 === 0) {
           page.drawRectangle({
             x: margin,
-            y: y - 3,
+            y: rowY,
             width: contentWidth,
-            height: 18,
+            height: rowHeight,
             color: rgb(0.98, 0.98, 0.99),
           });
         }
 
         page.drawLine({
-          start: { x: margin, y: y - 3 },
-          end: { x: width - margin, y: y - 3 },
+          start: { x: margin, y: rowY },
+          end: { x: width - margin, y: rowY },
           thickness: 0.5,
           color: rgb(0.92, 0.94, 0.96),
         });
 
-        page.drawText(line.code, { x: margin + 10, y: y + 3, size: 8, font, color: rgb(0.12, 0.16, 0.22) });
-        page.drawText(line.name, { x: margin + 85, y: y + 3, size: 8, font, color: rgb(0.12, 0.16, 0.22) });
-        page.drawText(line.category, { x: margin + 300, y: y + 3, size: 8, font, color: rgb(0.4, 0.46, 0.54) });
+        page.drawText(line.code, { x: margin + 10, y: rowY + 6, size: 7.5, font, color: rgb(0.12, 0.16, 0.22) });
+        page.drawText(line.name, { x: margin + 85, y: rowY + 6, size: 7.5, font, color: rgb(0.12, 0.16, 0.22) });
+        page.drawText(line.category, { x: margin + 300, y: rowY + 6, size: 7.5, font, color: rgb(0.4, 0.46, 0.54) });
 
         const amt = Number(line.amount);
         const isDeduction = line.category === 'DEDUCTION' || amt < 0;
         const color = isDeduction ? rgb(0.86, 0.15, 0.15) : rgb(0.06, 0.09, 0.16);
 
-        page.drawText(`Rs. ${Math.abs(amt).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, {
-          x: width - margin - 85,
-          y: y + 3,
-          size: 8,
+        const amtStr = `Rs. ${Math.abs(amt).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+        const amtStrW = fontBold.widthOfTextAtSize(amtStr, 7.5);
+        page.drawText(amtStr, {
+          x: width - margin - 10 - amtStrW,
+          y: rowY + 6,
+          size: 7.5,
           font: fontBold,
           color,
         });
@@ -573,80 +631,148 @@ payrunsRouter.get('/:id/export-pdf', async (req, res) => {
           totalDeductions += Math.abs(amt);
         }
 
-        y -= 19;
+        currY = rowY;
         rowIndex++;
       }
 
+      // Gross & Deductions Subtotal Row
+      const subtotalH = 22;
+      const subtotalY = currY - subtotalH;
+      page.drawRectangle({
+        x: margin,
+        y: subtotalY,
+        width: contentWidth,
+        height: subtotalH,
+        color: rgb(0.95, 0.96, 0.98),
+        borderColor: rgb(0.8, 0.84, 0.88),
+        borderWidth: 0.5,
+      });
+
+      page.drawText('TOTAL GROSS PAY:', { x: margin + 10, y: subtotalY + 7, size: 7.5, font: fontBold, color: rgb(0.06, 0.09, 0.16) });
+      page.drawText(`Rs. ${totalGross.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, {
+        x: margin + 115,
+        y: subtotalY + 7,
+        size: 7.5,
+        font: fontBold,
+        color: rgb(0.06, 0.09, 0.16),
+      });
+
+      page.drawText('TOTAL DEDUCTIONS:', { x: margin + 280, y: subtotalY + 7, size: 7.5, font: fontBold, color: rgb(0.86, 0.15, 0.15) });
+      const totalDedStr = `Rs. ${totalDeductions.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+      const totalDedStrW = fontBold.widthOfTextAtSize(totalDedStr, 7.5);
+      page.drawText(totalDedStr, {
+        x: width - margin - 10 - totalDedStrW,
+        y: subtotalY + 7,
+        size: 7.5,
+        font: fontBold,
+        color: rgb(0.86, 0.15, 0.15),
+      });
+
+      currY = subtotalY;
+
       // Net Pay Summary Box
-      y -= 15;
       const netPay = Math.max(0, totalGross - totalDeductions);
+      const netCardH = 56;
+      const netCardY = currY - 14 - netCardH;
 
       page.drawRectangle({
         x: margin,
-        y: y - 10,
+        y: netCardY,
         width: contentWidth,
-        height: 48,
+        height: netCardH,
         color: rgb(0.94, 0.99, 0.96), // #F0FDF4
         borderColor: rgb(0.73, 0.97, 0.82), // #BBF7D0
         borderWidth: 1,
       });
 
-      page.drawText('NET TAKE-HOME PAYABLE:', {
-        x: margin + 14,
-        y: y + 22,
-        size: 9,
+      page.drawText('NET TAKE-HOME SALARY PAYABLE:', {
+        x: margin + 12,
+        y: netCardY + 40,
+        size: 8,
         font: fontBold,
         color: rgb(0.02, 0.58, 0.41),
       });
 
       page.drawText(`Rs. ${netPay.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, {
-        x: margin + 14,
-        y: y + 5,
-        size: 16,
+        x: margin + 12,
+        y: netCardY + 22,
+        size: 15,
         font: fontBold,
         color: rgb(0.02, 0.31, 0.23),
       });
 
-      page.drawText(`Total Gross: Rs. ${totalGross.toLocaleString('en-IN')}   |   Total Deductions: Rs. ${totalDeductions.toLocaleString('en-IN')}`, {
-        x: margin + 14,
-        y: y - 5,
-        size: 8,
+      const wordsStr = `Amount in Words: ${numberToWordsINR(netPay)}`;
+      page.drawText(wordsStr.length > 55 ? wordsStr.slice(0, 52) + '...' : wordsStr, {
+        x: margin + 12,
+        y: netCardY + 8,
+        size: 7,
         font,
         color: rgb(0.28, 0.34, 0.42),
       });
 
+      // Right side transaction details in net card
+      const netRightX = width - margin - 170;
+      page.drawText('Payment Mode:', { x: netRightX, y: netCardY + 40, size: 7, font: fontBold, color: rgb(0.2, 0.25, 0.35) });
+      page.drawText('Direct Bank Credit (NEFT)', { x: netRightX + 68, y: netCardY + 40, size: 7, font, color: rgb(0.2, 0.25, 0.35) });
+
+      page.drawText('Transaction Ref:', { x: netRightX, y: netCardY + 25, size: 7, font: fontBold, color: rgb(0.2, 0.25, 0.35) });
+      page.drawText(`PP-PS-${slip.id.slice(0, 6).toUpperCase()}-RTGS`, { x: netRightX + 68, y: netCardY + 25, size: 7, font, color: rgb(0.2, 0.25, 0.35) });
+
+      page.drawText('Value Date:', { x: netRightX, y: netCardY + 10, size: 7, font: fontBold, color: rgb(0.2, 0.25, 0.35) });
+      const valDateStr = payrun.periodEnd ? new Date(payrun.periodEnd).toLocaleDateString('en-IN') : 'End of Month';
+      page.drawText(valDateStr, { x: netRightX + 68, y: netCardY + 10, size: 7, font, color: rgb(0.2, 0.25, 0.35) });
+
+      currY = netCardY;
+
       // Sentinel AI Compliance Box
-      y -= 40;
+      const auditH = 34;
+      const auditY = currY - 12 - auditH;
       page.drawRectangle({
         x: margin,
-        y: y - 6,
+        y: auditY,
         width: contentWidth,
-        height: 26,
+        height: auditH,
         color: rgb(0.97, 0.98, 0.99),
         borderColor: rgb(0.88, 0.91, 0.94),
         borderWidth: 0.75,
       });
 
-      page.drawText('SENTINEL AI COMPLIANCE AUDIT CERTIFIED', {
+      page.drawRectangle({
+        x: margin + 8,
+        y: auditY + 8,
+        width: 18,
+        height: 18,
+        color: rgb(0.145, 0.388, 0.922),
+      });
+
+      page.drawText('AI', {
         x: margin + 12,
-        y: y + 10,
-        size: 8,
+        y: auditY + 13,
+        size: 9,
+        font: fontBold,
+        color: rgb(1, 1, 1),
+      });
+
+      page.drawText('SENTINEL AI COMPLIANCE AUDIT CERTIFIED', {
+        x: margin + 34,
+        y: auditY + 19,
+        size: 7.5,
         font: fontBold,
         color: rgb(0.145, 0.388, 0.922),
       });
 
-      page.drawText('Zero statutory deviations detected. TDS deducted under Income Tax Act Sec 192. Audit clearance valid.', {
-        x: margin + 12,
-        y: y,
-        size: 7,
+      page.drawText('Zero statutory deviations detected. TDS deducted under Income Tax Act Sec 192. EPFO & ESIC compliant.', {
+        x: margin + 34,
+        y: auditY + 8,
+        size: 6.8,
         font,
         color: rgb(0.4, 0.46, 0.54),
       });
 
-      // Legal & Signatory Footer
+      // Signatory & Legal Footer
       page.drawText('Note: This is an electronically authenticated salary document generated by PayPilot Autonomous HRMS.', {
         x: margin,
-        y: 50,
+        y: 52,
         size: 6.5,
         font,
         color: rgb(0.58, 0.64, 0.72),
@@ -654,10 +780,35 @@ payrunsRouter.get('/:id/export-pdf', async (req, res) => {
 
       page.drawText('Digitally certified by PayPilot Technologies Pvt. Ltd. | No physical signature required.', {
         x: margin,
-        y: 40,
+        y: 42,
         size: 6.5,
         font,
         color: rgb(0.58, 0.64, 0.72),
+      });
+
+      const sigLineX = width - margin - 150;
+      page.drawLine({
+        start: { x: sigLineX, y: 55 },
+        end: { x: width - margin, y: 55 },
+        thickness: 0.5,
+        color: rgb(0.8, 0.84, 0.88),
+      });
+
+      page.drawText('Authorized Payroll Signatory', {
+        x: sigLineX + 15,
+        y: 42,
+        size: 7,
+        font: fontBold,
+        color: rgb(0.2, 0.25, 0.35),
+      });
+
+      // Bottom bar
+      page.drawRectangle({
+        x: margin,
+        y: 26,
+        width: contentWidth,
+        height: 2,
+        color: rgb(0.06, 0.09, 0.16),
       });
     }
 

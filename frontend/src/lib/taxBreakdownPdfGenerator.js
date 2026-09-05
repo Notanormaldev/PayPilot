@@ -358,7 +358,7 @@ export async function generateTaxBreakdownPdf(taxData, employeeDetails = {}, pay
 
   // 7. Section IV: Statutory Disclosures & Compliance Declarations (Wrapped Multi-line Text)
   doc.setFillColor(248, 250, 252);
-  const notesHeight = 27;
+  const notesHeight = 32;
   doc.roundedRect(margin, y, contentWidth, notesHeight, 1.5, 1.5, 'F');
   doc.setDrawColor(203, 213, 225);
   doc.roundedRect(margin, y, contentWidth, notesHeight, 1.5, 1.5, 'S');
