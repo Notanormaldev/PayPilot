@@ -121,18 +121,18 @@ export const EmployeesView = ({ employees = [], onRefresh }) => {
               {
                 value: 'kanban',
                 label: (
-                  <Group gap={6} wrap="nowrap">
-                    <IconLayoutKanban size={16} />
-                    <span>Kanban Board</span>
+                  <Group gap={6} wrap="nowrap" c={viewMode === 'kanban' ? '#FFFFFF' : '#475569'}>
+                    <IconLayoutKanban size={16} color={viewMode === 'kanban' ? '#FFFFFF' : '#475569'} />
+                    <span style={{ fontWeight: 600 }}>Kanban Board</span>
                   </Group>
                 ),
               },
               {
                 value: 'table',
                 label: (
-                  <Group gap={6} wrap="nowrap">
-                    <IconTable size={16} />
-                    <span>Table View</span>
+                  <Group gap={6} wrap="nowrap" c={viewMode === 'table' ? '#FFFFFF' : '#475569'}>
+                    <IconTable size={16} color={viewMode === 'table' ? '#FFFFFF' : '#475569'} />
+                    <span style={{ fontWeight: 600 }}>Table View</span>
                   </Group>
                 ),
               },

@@ -20,7 +20,7 @@ import { SelfServicePortal } from './features/dashboard/components/SelfServicePo
 import { EmployeeTable } from './features/employees/components/EmployeeTable';
 import { EmployeesView } from './features/employees/components/EmployeesView';
 import { PayrunView } from './features/payroll/components/PayrunView';
-import { SentinelDrawer, SentinelView } from './features/sentinel';
+import { SentinelView, SentinelSummaryCard } from './features/sentinel';
 import { AttendanceView } from './features/attendance/components/AttendanceView';
 import { ApprovalsView } from './features/approvals';
 import { WorkSchedulesView } from './features/schedules';
@@ -135,7 +135,7 @@ export const App = () => {
                   <DeductionSummary kpis={kpis} employeesCount={kpis?.totalEmployees || 301} />
                   <ToDoTasks />
                   <PayrollCostChart data={trends} />
-                  <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
+                  <SentinelSummaryCard flags={flags} onOpenSentinel={() => setActiveTab('sentinel')} />
                   <EmployeeTable employees={employees} onRefresh={handleRefreshAll} />
                 </Stack>
               )}

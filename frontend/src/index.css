@@ -77,3 +77,38 @@ body {
   border-color: #2563EB !important;
   background-color: #FFFFFF !important;
 }
+
+/* Global Mantine SegmentedControl high-contrast styling */
+.mantine-SegmentedControl-root {
+  background-color: #F1F5F9 !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+.mantine-SegmentedControl-indicator {
+  background-color: #09090B !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+}
+
+.mantine-SegmentedControl-label {
+  color: #475569 !important;
+  font-weight: 600 !important;
+  transition: color 0.15s ease !important;
+}
+
+.mantine-SegmentedControl-label svg {
+  color: #475569 !important;
+  stroke: #475569 !important;
+  transition: stroke 0.15s ease, color 0.15s ease !important;
+}
+
+.mantine-SegmentedControl-label[data-active] {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+
+.mantine-SegmentedControl-label[data-active] * {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+  fill: none;
+}
+
