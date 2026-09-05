@@ -19,7 +19,7 @@ import { ToDoTasks } from './features/dashboard/components/ToDoTasks';
 import { SelfServicePortal } from './features/dashboard/components/SelfServicePortal';
 import { EmployeeTable } from './features/employees/components/EmployeeTable';
 import { PayrunView } from './features/payroll/components/PayrunView';
-import { SentinelDrawer } from './features/sentinel/components/SentinelDrawer';
+import { SentinelDrawer, SentinelView } from './features/sentinel';
 import { AttendanceView } from './features/attendance/components/AttendanceView';
 import { ApprovalsView } from './features/approvals';
 import { LandingPage } from './features/landing/LandingPage';
@@ -146,14 +146,12 @@ export const App = () => {
 
               {activeTab === 'employees' && (
                 <Stack gap="lg">
-                  <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
                   <EmployeeTable employees={employees} />
                 </Stack>
               )}
 
               {activeTab === 'payroll' && (
                 <Stack gap="lg">
-                  <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
                   <PayrunView payruns={payruns} onRefresh={handleRefreshAll} />
                 </Stack>
               )}
@@ -176,8 +174,7 @@ export const App = () => {
 
               {activeTab === 'sentinel' && (
                 <Stack gap="lg">
-                  <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
-                  <EmployeeTable employees={employees} />
+                  <SentinelView flags={flags} onFlagResolved={handleRefreshAll} />
                 </Stack>
               )}
 
