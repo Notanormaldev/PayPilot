@@ -1,10 +1,10 @@
 import React from 'react';
 import { Group, Avatar, Menu, Text, UnstyledButton, Badge, Box } from '@mantine/core';
-import { IconChevronDown, IconShieldCheck, IconUser, IconLogout } from '@tabler/icons-react';
+import { IconChevronDown, IconShieldCheck, IconUser, IconLogout, IconSettings } from '@tabler/icons-react';
 import { useAuthUser } from '../hooks/useAuthUser';
 import { UserAvatar } from '../../../components/ui';
 
-export const UserMenu = () => {
+export const UserMenu = ({ onNavigateTab }) => {
   const { user, currentRole, logout } = useAuthUser();
   const [avatarUrl, setAvatarUrl] = React.useState(() => localStorage.getItem('paypilot_user_avatar') || null);
 
@@ -99,6 +99,17 @@ export const UserMenu = () => {
             </Badge>
           </Group>
         </Box>
+
+        <Menu.Divider my="xs" />
+        <Menu.Item
+          leftSection={<IconSettings size={14} color="#2563EB" />}
+          onClick={() => {
+            if (onNavigateTab) onNavigateTab('settings');
+          }}
+          style={{ fontWeight: 600, fontSize: '12px' }}
+        >
+          Account & Settings
+        </Menu.Item>
 
         <Menu.Divider my="xs" />
         <Menu.Item

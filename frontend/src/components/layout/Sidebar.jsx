@@ -21,7 +21,7 @@ import { useAuthUser } from '../../features/auth/hooks/useAuthUser';
 export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) => {
   const { currentRole } = useAuthUser();
 
-  // Employee Self-Service Navigation Items (7 Core Facilities)
+  // Employee Self-Service Navigation Items
   const employeeNavItems = [
     { id: 'my-profile', label: 'My Profile', icon: IconUser },
     { id: 'my-attendance', label: 'My Attendance', icon: IconClock },
@@ -30,13 +30,14 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) 
     { id: 'my-payslips', label: 'My Payslips', icon: IconReceipt2 },
     { id: 'my-taxes', label: 'My Tax Summary', icon: IconReceiptTax },
     { id: 'notifications', label: 'Notifications', icon: IconBell, badge: '2 New', badgeColor: 'blue' },
+    { id: 'settings', label: 'Settings', icon: IconSettings },
   ];
 
   // Administrative Navigation Items
   const adminRoleNavPermissions = {
     ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'loans', 'reports', 'settings'],
     HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'reports', 'settings'],
-    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
   };
 
   const adminNavItems = [

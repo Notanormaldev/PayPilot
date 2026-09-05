@@ -163,7 +163,7 @@ export const Header = ({ onOpenCopilot, onViewLanding, onNavigateTab }) => {
         </Menu>
 
         {/* User Identity */}
-        <UserMenu />
+        <UserMenu onNavigateTab={onNavigateTab} />
       </Group>
     </header>
   );

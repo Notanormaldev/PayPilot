@@ -31,6 +31,7 @@ import { MyContractView } from './features/employee-portal/components/MyContract
 import { MyPayslipsView } from './features/employee-portal/components/MyPayslipsView';
 import { MyTaxSummaryView } from './features/employee-portal/components/MyTaxSummaryView';
 import { NotificationsView } from './features/employee-portal/components/NotificationsView';
+import { SettingsView } from './features/settings';
 
 export const App = () => {
   const { user, isSignedIn, currentRole } = useAuthUser();
@@ -45,11 +46,11 @@ export const App = () => {
   const { employees, fetchEmployees } = useEmployees();
   const { attendances, leaveRequests, fetchAttendanceData } = useAttendance();
 
-  const employeeTabs = ['my-profile', 'my-attendance', 'my-time-off', 'my-contract', 'my-payslips', 'my-taxes', 'notifications'];
+  const employeeTabs = ['my-profile', 'my-attendance', 'my-time-off', 'my-contract', 'my-payslips', 'my-taxes', 'notifications', 'settings'];
   const adminRoleNavPermissions = {
     ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'loans', 'reports', 'settings'],
     HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'reports', 'settings'],
-    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
   };
 
   // Adjust default activeTab when user switches persona or logs in
@@ -110,6 +111,7 @@ export const App = () => {
               {activeTab === 'my-payslips' && <MyPayslipsView />}
               {activeTab === 'my-taxes' && <MyTaxSummaryView />}
               {activeTab === 'notifications' && <NotificationsView />}
+              {activeTab === 'settings' && <SettingsView />}
             </>
           ) : (
             /* ADMIN / HR / PAYROLL VIEWS */
@@ -193,6 +195,12 @@ export const App = () => {
               {activeTab === 'reports' && (
                 <Stack gap="lg">
                   <PayrollCostChart data={trends} />
+                </Stack>
+              )}
+
+              {activeTab === 'settings' && (
+                <Stack gap="lg">
+                  <SettingsView />
                 </Stack>
               )}
             </>
