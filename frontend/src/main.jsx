@@ -13,7 +13,6 @@ import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
 import './index.css';
 
-
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root')).render(

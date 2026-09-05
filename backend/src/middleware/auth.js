@@ -85,24 +85,34 @@ export async function getOrCreateDevUser(role) {
   const clerkId = `usr_${String(role).toLowerCase()}_dev`;
   const email = `dev-${String(role).toLowerCase()}@paypilot.internal`;
 
-  const user = await prisma.user.upsert({
-    where: { clerkId },
-    update: { role, email },
-    create: {
-      clerkId,
+  try {
+    const user = await prisma.user.upsert({
+      where: { clerkId },
+      update: { role, email },
+      create: {
+        clerkId,
+        email,
+        role,
+      },
+      include: { employee: true },
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      employeeId: user.employeeId,
+      name: user.employee ? user.employee.name : (role === 'EMPLOYEE' ? 'Kartik Kumar' : 'Executive Officer'),
+    };
+  } catch (err) {
+    return {
+      id: clerkId,
       email,
       role,
-    },
-    include: { employee: true },
-  });
-
-  return {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    employeeId: user.employeeId,
-    name: user.employee ? user.employee.name : 'Executive Officer',
-  };
+      employeeId: 'emp_me',
+      name: role === 'EMPLOYEE' ? 'Kartik Kumar' : 'Executive Officer',
+    };
+  }
 }
 
 /**

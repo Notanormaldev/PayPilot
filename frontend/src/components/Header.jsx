@@ -1,12 +1,6 @@
 import React from 'react';
-import { Group, TextInput, ActionIcon, Badge, Tooltip, Box, Text } from '@mantine/core';
-import {
-  IconSearch,
-  IconSparkles,
-  IconBell,
-  IconDatabase,
-  IconBuildingSkyscraper,
-} from '@tabler/icons-react';
+import { Group, TextInput, ActionIcon, Box } from '@mantine/core';
+import { IconSearch, IconBell } from '@tabler/icons-react';
 import { BrandLogo } from './BrandLogo';
 import { UserMenu } from '../features/auth/components/UserMenu';
 
@@ -26,21 +20,11 @@ export const Header = ({ onOpenCopilot, onViewLanding }) => {
         zIndex: 100,
       }}
     >
-      {/* Left: Brand Logo & Org */}
+      {/* Left: Brand Logo */}
       <Group gap="lg">
-        <div onClick={onViewLanding} title="View PayPilot Landing Page" style={{ cursor: 'pointer' }}>
+        <div onClick={onViewLanding} title="PayPilot" style={{ cursor: onViewLanding ? 'pointer' : 'default' }}>
           <BrandLogo size={32} />
         </div>
-
-        <Group gap={6} style={{ borderLeft: '1px solid #E2E8F0', paddingLeft: 16 }}>
-          <IconBuildingSkyscraper size={16} color="#64748B" />
-          <Text size="xs" fw={700} c="#09090B">
-            PayPilot Global Inc.
-          </Text>
-          <Badge size="xs" color="gray" variant="outline" style={{ textTransform: 'none' }}>
-            IN-EN ▼
-          </Badge>
-        </Group>
       </Group>
 
       {/* Middle: Universal Search Bar */}
@@ -61,55 +45,14 @@ export const Header = ({ onOpenCopilot, onViewLanding }) => {
         />
       </Box>
 
-      {/* Right: Live Telemetry, Copilot Launcher, Notifications & User Menu */}
+      {/* Right: Notifications & User Menu */}
       <Group gap="sm">
-        {/* Postgres Live Telemetry */}
-        <Tooltip label="Render PostgreSQL (Singapore): Connected with SSL" withArrow>
-          <Badge
-            size="xs"
-            variant="dot"
-            color="teal"
-            styles={{ root: { backgroundColor: '#F0FDF4', color: '#166534', border: '1px solid #BBF7D0' } }}
-          >
-            Postgres: Live
-          </Badge>
-        </Tooltip>
-
-        {/* Redis Live Telemetry */}
-        <Tooltip label="Redis Cloud Cluster (Port 14974): In-Memory 60s Cache Active" withArrow>
-          <Badge
-            size="xs"
-            variant="dot"
-            color="teal"
-            styles={{ root: { backgroundColor: '#F0FDF4', color: '#166534', border: '1px solid #BBF7D0' } }}
-          >
-            Redis: Active
-          </Badge>
-        </Tooltip>
-
-        {/* Copilot Action Button */}
-        <Tooltip label="Launch Gemini 2.5 Sentinel Copilot" withArrow>
-          <ActionIcon
-            variant="outline"
-            size="md"
-            color="blue"
-            onClick={onOpenCopilot}
-            style={{
-              borderColor: '#BFDBFE',
-              backgroundColor: '#EFF6FF',
-              color: '#2563EB',
-            }}
-          >
-            <IconSparkles size={16} />
-          </ActionIcon>
-        </Tooltip>
-
         {/* Notifications */}
         <ActionIcon variant="subtle" size="md" color="gray">
           <IconBell size={16} color="#71717A" />
         </ActionIcon>
 
-        {/* User Identity & Role Switcher */}
+        {/* User Identity */}
         <UserMenu />
       </Group>
     </header>

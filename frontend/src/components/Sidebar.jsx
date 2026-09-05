@@ -11,10 +11,35 @@ import {
   IconPigMoney,
   IconChartBar,
   IconSettings,
+  IconUser,
+  IconCalendarTime,
+  IconReceiptTax,
+  IconBell,
 } from '@tabler/icons-react';
+import { useAuthUser } from '../features/auth/hooks/useAuthUser';
 
 export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) => {
-  const navItems = [
+  const { currentRole } = useAuthUser();
+
+  // Employee Self-Service Navigation Items (7 Core Facilities)
+  const employeeNavItems = [
+    { id: 'my-profile', label: 'My Profile', icon: IconUser },
+    { id: 'my-attendance', label: 'My Attendance', icon: IconClock },
+    { id: 'my-time-off', label: 'My Time Off', icon: IconCalendarTime },
+    { id: 'my-contract', label: 'My Contract', icon: IconFileText },
+    { id: 'my-payslips', label: 'My Payslips', icon: IconReceipt2 },
+    { id: 'my-taxes', label: 'My Tax Summary', icon: IconReceiptTax },
+    { id: 'notifications', label: 'Notifications', icon: IconBell, badge: '2 New', badgeColor: 'blue' },
+  ];
+
+  // Administrative Navigation Items
+  const adminRoleNavPermissions = {
+    ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'loans', 'reports', 'settings'],
+    HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'reports', 'settings'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports'],
+  };
+
+  const adminNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: IconDashboard },
     { id: 'employees', label: 'Employees', icon: IconUsers },
     { id: 'payroll', label: 'Pay Runs', icon: IconReceipt2 },
@@ -33,6 +58,11 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) 
     { id: 'settings', label: 'Settings', icon: IconSettings },
   ];
 
+  const isEmployee = currentRole === 'EMPLOYEE';
+  const visibleNavItems = isEmployee
+    ? employeeNavItems
+    : adminNavItems.filter((item) => (adminRoleNavPermissions[currentRole] || adminRoleNavPermissions['ADMIN']).includes(item.id));
+
   return (
     <aside
       style={{
@@ -49,7 +79,7 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) 
       }}
     >
       <Stack gap={4}>
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
@@ -86,7 +116,7 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0 }) 
         })}
       </Stack>
 
-      {/* Bottom Contact Support / Help */}
+      {/* Bottom Role Indicator & Support */}
       <Box p="xs" style={{ borderTop: '1px solid #F1F5F9' }}>
         <Text size="11px" c="#71717A" fw={600} style={{ cursor: 'pointer' }}>
           Contact Support • Docs

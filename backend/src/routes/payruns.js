@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { prisma } from '../lib/prisma.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, requireRole } from '../middleware/auth.js';
 import { computePayslipLines, getActiveContractForPeriod } from '../lib/payroll-engine.js';
 import { runSentinelAudit } from '../lib/sentinel.js';
 

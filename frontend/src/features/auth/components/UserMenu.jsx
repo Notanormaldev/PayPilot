@@ -1,10 +1,10 @@
 import React from 'react';
-import { Group, Avatar, Menu, Text, UnstyledButton, Badge } from '@mantine/core';
-import { IconChevronDown, IconShieldCheck, IconUser, IconSwitchHorizontal, IconLogout } from '@tabler/icons-react';
+import { Group, Avatar, Menu, Text, UnstyledButton, Badge, Box } from '@mantine/core';
+import { IconChevronDown, IconShieldCheck, IconUser, IconLogout } from '@tabler/icons-react';
 import { useAuthUser } from '../hooks/useAuthUser';
 
 export const UserMenu = () => {
-  const { user, currentRole, changeRole, logout } = useAuthUser();
+  const { user, currentRole, logout } = useAuthUser();
 
   const roleColors = {
     ADMIN: 'blue',
@@ -15,6 +15,18 @@ export const UserMenu = () => {
     EMPLOYEE: 'gray',
   };
 
+  const roleLabels = {
+    ADMIN: 'Executive / Administrator',
+    HR_MANAGER: 'HR Manager',
+    HR_OFFICER: 'HR Officer',
+    HR_PAYROLL_MANAGER: 'Payroll Specialist',
+    PAYROLL_OFFICER: 'Payroll Specialist',
+    EMPLOYEE: 'Employee Portal',
+  };
+
+  const activeRoleLabel = roleLabels[currentRole] || currentRole || 'Executive / Administrator';
+  const roleColor = roleColors[currentRole] || 'blue';
+
   return (
     <Menu shadow="md" width={240} position="bottom-end">
       <Menu.Target>
@@ -24,6 +36,7 @@ export const UserMenu = () => {
             borderRadius: '6px',
             border: '1px solid #E2E8F0',
             backgroundColor: '#FFFFFF',
+            transition: 'background-color 0.15s ease',
           }}
         >
           <Group gap="xs">
@@ -37,7 +50,7 @@ export const UserMenu = () => {
               <Text size="xs" fw={700} c="#09090B">
                 {user?.name || 'Meera Krishnan'}
               </Text>
-              <Badge size="9px" color={roleColors[currentRole] || 'blue'} variant="light" px={4} py={0}>
+              <Badge size="9px" color={roleColor} variant="light" px={4} py={0}>
                 {currentRole}
               </Badge>
             </div>
@@ -47,69 +60,47 @@ export const UserMenu = () => {
       </Menu.Target>
 
       <Menu.Dropdown style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}>
-        <Menu.Label>Executive Identity</Menu.Label>
-        <Menu.Item leftSection={<IconUser size={14} />}>
-          <div>
-            <Text size="xs" fw={600} c="#09090B">
-              {user?.name || 'Meera Krishnan'}
-            </Text>
-            <Text size="10px" c="#71717A">
-              {user?.email || 'meera.krishnan@paypilot.internal'}
-            </Text>
-          </div>
-        </Menu.Item>
+        <Menu.Label>User Identity</Menu.Label>
+        <Box p="xs" style={{ borderRadius: '6px', backgroundColor: '#F8FAFC' }}>
+          <Group gap="xs" wrap="nowrap">
+            <IconUser size={16} color="#64748B" />
+            <div>
+              <Text size="xs" fw={700} c="#09090B">
+                {user?.name || 'Meera Krishnan'}
+              </Text>
+              <Text size="10px" c="#71717A">
+                {user?.email || 'meera.krishnan@paypilot.internal'}
+              </Text>
+            </div>
+          </Group>
+        </Box>
 
-        <Menu.Divider />
-        <Menu.Label>Switch Simulation Role</Menu.Label>
-        <Menu.Item
-          leftSection={<IconShieldCheck size={14} color="#2563EB" />}
-          onClick={() => changeRole('ADMIN')}
-        >
-          <Group justify="space-between">
-            <Text size="xs">Admin / Executive</Text>
-            {currentRole === 'ADMIN' && <Badge size="xs" color="blue">Active</Badge>}
+        <Menu.Divider my="xs" />
+        <Menu.Label>Assigned System Role</Menu.Label>
+        <Box p="xs" style={{ borderRadius: '6px', backgroundColor: '#F8FAFC' }}>
+          <Group justify="space-between" align="center">
+            <Group gap="xs">
+              <IconShieldCheck size={16} color="#2563EB" />
+              <Text size="xs" fw={700} c="#09090B">
+                {activeRoleLabel}
+              </Text>
+            </Group>
+            <Badge size="xs" color={roleColor} variant="filled">
+              {currentRole}
+            </Badge>
           </Group>
-        </Menu.Item>
-        <Menu.Item
-          leftSection={<IconSwitchHorizontal size={14} color="#0D9488" />}
-          onClick={() => changeRole('HR_MANAGER')}
-        >
-          <Group justify="space-between">
-            <Text size="xs">HR Manager</Text>
-            {currentRole === 'HR_MANAGER' && <Badge size="xs" color="teal">Active</Badge>}
-          </Group>
-        </Menu.Item>
-        <Menu.Item
-          leftSection={<IconSwitchHorizontal size={14} color="#4F46E5" />}
-          onClick={() => changeRole('HR_PAYROLL_MANAGER')}
-        >
-          <Group justify="space-between">
-            <Text size="xs">Payroll Specialist</Text>
-            {currentRole === 'HR_PAYROLL_MANAGER' && <Badge size="xs" color="indigo">Active</Badge>}
-          </Group>
-        </Menu.Item>
-        <Menu.Item
-          leftSection={<IconUser size={14} color="#71717A" />}
-          onClick={() => changeRole('EMPLOYEE')}
-        >
-          <Group justify="space-between">
-            <Text size="xs">Employee Portal</Text>
-            {currentRole === 'EMPLOYEE' && <Badge size="xs" color="gray">Active</Badge>}
-          </Group>
-        </Menu.Item>
+        </Box>
 
-        <Menu.Divider />
+        <Menu.Divider my="xs" />
         <Menu.Item
           color="red"
           leftSection={<IconLogout size={14} color="#DC2626" />}
           onClick={logout}
+          style={{ fontWeight: 600, fontSize: '12px' }}
         >
-          <Text size="xs" c="red" fw={600}>
-            Sign Out / Switch Account
-          </Text>
+          Sign Out
         </Menu.Item>
       </Menu.Dropdown>
     </Menu>
   );
 };
-

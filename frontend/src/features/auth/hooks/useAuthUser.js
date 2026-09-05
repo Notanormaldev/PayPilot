@@ -28,7 +28,22 @@ export const useAuthUser = () => {
 
   const register = async (userData) => {
     const data = await authService.register(userData);
-    dispatch(loginSuccess(data));
+    if (!data.pendingVerification && data.accessToken) {
+      dispatch(loginSuccess(data));
+    }
+    return data;
+  };
+
+  const verifyOtp = async (email, otpCode) => {
+    const data = await authService.verifyOtp(email, otpCode);
+    if (data.accessToken) {
+      dispatch(loginSuccess(data));
+    }
+    return data;
+  };
+
+  const resendOtp = async (email) => {
+    const data = await authService.resendOtp(email);
     return data;
   };
 
@@ -42,6 +57,8 @@ export const useAuthUser = () => {
     changeRole,
     login,
     register,
+    verifyOtp,
+    resendOtp,
     logout,
   };
 };

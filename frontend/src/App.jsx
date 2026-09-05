@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Grid, Stack, Loader, Center, Text } from '@mantine/core';
+import React, { useState, useEffect } from 'react';
+import { Grid, Stack } from '@mantine/core';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { CopilotModal } from './components/CopilotModal';
@@ -23,17 +23,45 @@ import { SentinelDrawer } from './features/sentinel/components/SentinelDrawer';
 import { AttendanceView } from './features/attendance/components/AttendanceView';
 import { LandingPage } from './features/landing/LandingPage';
 
+// Employee Self-Service Portal Views (7 Core Facilities)
+import { MyProfileView } from './features/employee-portal/components/MyProfileView';
+import { MyAttendanceView } from './features/employee-portal/components/MyAttendanceView';
+import { MyTimeOffView } from './features/employee-portal/components/MyTimeOffView';
+import { MyContractView } from './features/employee-portal/components/MyContractView';
+import { MyPayslipsView } from './features/employee-portal/components/MyPayslipsView';
+import { MyTaxSummaryView } from './features/employee-portal/components/MyTaxSummaryView';
+import { NotificationsView } from './features/employee-portal/components/NotificationsView';
+
 export const App = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const { user, isSignedIn, currentRole } = useAuthUser();
+  const isEmployee = currentRole === 'EMPLOYEE';
+  const [activeTab, setActiveTab] = useState(isEmployee ? 'my-profile' : 'dashboard');
   const [copilotOpen, setCopilotOpen] = useState(false);
   const [viewLanding, setViewLanding] = useState(false);
 
-  const { user, isSignedIn } = useAuthUser();
-  const { kpis, trends, loading: dashboardLoading, refreshDashboard } = useDashboard();
+  const { kpis, trends, refreshDashboard } = useDashboard();
   const { payruns, fetchPayruns } = usePayroll();
   const { flags, fetchFlags } = useSentinel();
   const { employees, fetchEmployees } = useEmployees();
   const { attendances, leaveRequests, fetchAttendanceData } = useAttendance();
+
+  const employeeTabs = ['my-profile', 'my-attendance', 'my-time-off', 'my-contract', 'my-payslips', 'my-taxes', 'notifications'];
+  const adminRoleNavPermissions = {
+    ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'loans', 'reports', 'settings'],
+    HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'reports', 'settings'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports'],
+  };
+
+  // Adjust default activeTab when user switches persona or logs in
+  useEffect(() => {
+    if (isSignedIn) {
+      if (isEmployee && !employeeTabs.includes(activeTab)) {
+        setActiveTab('my-profile');
+      } else if (!isEmployee && employeeTabs.includes(activeTab)) {
+        setActiveTab('dashboard');
+      }
+    }
+  }, [currentRole, isSignedIn]);
 
   const handleRefreshAll = () => {
     refreshDashboard();
@@ -71,93 +99,102 @@ export const App = () => {
         />
 
         <main style={{ flex: 1, padding: '24px', maxWidth: '1480px', margin: '0 auto', width: '100%' }}>
-          {activeTab === 'dashboard' && (
-            <Grid gutter="lg">
-              {/* Main Center Content (8 Cols) */}
-              <Grid.Col span={{ base: 12, lg: 8 }}>
+          {/* EMPLOYEE PORTAL VIEWS */}
+          {isEmployee ? (
+            <>
+              {activeTab === 'my-profile' && <MyProfileView />}
+              {activeTab === 'my-attendance' && <MyAttendanceView />}
+              {activeTab === 'my-time-off' && <MyTimeOffView />}
+              {activeTab === 'my-contract' && <MyContractView />}
+              {activeTab === 'my-payslips' && <MyPayslipsView />}
+              {activeTab === 'my-taxes' && <MyTaxSummaryView />}
+              {activeTab === 'notifications' && <NotificationsView />}
+            </>
+          ) : (
+            /* ADMIN / HR / PAYROLL VIEWS */
+            <>
+              {activeTab === 'dashboard' && (
+                <Grid gutter="lg">
+                  <Grid.Col span={{ base: 12, lg: 8 }}>
+                    <Stack gap="lg">
+                      <WelcomeBanner
+                        userName={user?.name || 'Meera Krishnan'}
+                        kpis={kpis}
+                        onRunPayroll={() => setActiveTab('payroll')}
+                      />
+                      <DeductionSummary kpis={kpis} employeesCount={kpis?.totalEmployees || 1308} />
+                      <PayrollCostChart data={trends} />
+                      <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
+                      <EmployeeTable employees={employees} />
+                    </Stack>
+                  </Grid.Col>
+
+                  <Grid.Col span={{ base: 12, lg: 4 }}>
+                    <Stack gap="lg">
+                      <ToDoTasks />
+                      <SelfServicePortal />
+                    </Stack>
+                  </Grid.Col>
+                </Grid>
+              )}
+
+              {activeTab === 'employees' && (
                 <Stack gap="lg">
-                  <WelcomeBanner
-                    userName={user.name}
-                    kpis={kpis}
-                    onRunPayroll={() => setActiveTab('payroll')}
-                  />
-
-                  <DeductionSummary kpis={kpis} employeesCount={kpis?.totalEmployees || 1308} />
-
-                  <PayrollCostChart data={trends} />
-
-                  <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
-
                   <EmployeeTable employees={employees} />
                 </Stack>
-              </Grid.Col>
+              )}
 
-              {/* Right Widget Column (4 Cols) */}
-              <Grid.Col span={{ base: 12, lg: 4 }}>
+              {activeTab === 'payroll' && (
                 <Stack gap="lg">
-                  <ToDoTasks />
-
-                  <SelfServicePortal />
+                  <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
+                  <PayrunView payruns={payruns} onRefresh={handleRefreshAll} />
                 </Stack>
-              </Grid.Col>
-            </Grid>
-          )}
+              )}
 
-          {activeTab === 'employees' && (
-            <Stack gap="lg">
-              <EmployeeTable employees={employees} />
-            </Stack>
-          )}
+              {activeTab === 'time-off' && (
+                <Stack gap="lg">
+                  <AttendanceView
+                    attendances={attendances}
+                    leaveRequests={leaveRequests}
+                    onRefresh={handleRefreshAll}
+                  />
+                </Stack>
+              )}
 
-          {activeTab === 'payroll' && (
-            <Stack gap="lg">
-              <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
-              <PayrunView payruns={payruns} onRefresh={handleRefreshAll} />
-            </Stack>
-          )}
+              {activeTab === 'approvals' && (
+                <Grid gutter="lg">
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <ToDoTasks />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <AttendanceView
+                      attendances={attendances}
+                      leaveRequests={leaveRequests}
+                      onRefresh={handleRefreshAll}
+                    />
+                  </Grid.Col>
+                </Grid>
+              )}
 
-          {activeTab === 'time-off' && (
-            <Stack gap="lg">
-              <AttendanceView
-                attendances={attendances}
-                leaveRequests={leaveRequests}
-                onRefresh={handleRefreshAll}
-              />
-            </Stack>
-          )}
+              {activeTab === 'sentinel' && (
+                <Stack gap="lg">
+                  <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
+                </Stack>
+              )}
 
-          {activeTab === 'approvals' && (
-            <Grid gutter="lg">
-              <Grid.Col span={{ base: 12, md: 6 }}>
-                <ToDoTasks />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, md: 6 }}>
-                <AttendanceView
-                  attendances={attendances}
-                  leaveRequests={leaveRequests}
-                  onRefresh={handleRefreshAll}
-                />
-              </Grid.Col>
-            </Grid>
-          )}
+              {activeTab === 'taxes' && (
+                <Stack gap="lg">
+                  <DeductionSummary kpis={kpis} />
+                  <PayrunView payruns={payruns} onRefresh={handleRefreshAll} />
+                </Stack>
+              )}
 
-          {activeTab === 'sentinel' && (
-            <Stack gap="lg">
-              <SentinelDrawer flags={flags} onFlagResolved={handleRefreshAll} />
-            </Stack>
-          )}
-
-          {activeTab === 'taxes' && (
-            <Stack gap="lg">
-              <DeductionSummary kpis={kpis} />
-              <PayrunView payruns={payruns} onRefresh={handleRefreshAll} />
-            </Stack>
-          )}
-
-          {activeTab === 'reports' && (
-            <Stack gap="lg">
-              <PayrollCostChart data={trends} />
-            </Stack>
+              {activeTab === 'reports' && (
+                <Stack gap="lg">
+                  <PayrollCostChart data={trends} />
+                </Stack>
+              )}
+            </>
           )}
         </main>
       </div>

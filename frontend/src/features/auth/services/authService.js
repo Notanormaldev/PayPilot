@@ -58,6 +58,30 @@ export const authService = {
     return res;
   },
 
+  verifyOtp: async (email, otpCode) => {
+    const res = await fetchApi('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otpCode }),
+    });
+
+    if (res.accessToken) {
+      localStorage.setItem('paypilot_auth_token', res.accessToken);
+      if (res.refreshToken) {
+        localStorage.setItem('paypilot_refresh_token', res.refreshToken);
+      }
+      localStorage.setItem('paypilot_active_role', res.user?.role || 'EMPLOYEE');
+    }
+    return res;
+  },
+
+  resendOtp: async (email) => {
+    const res = await fetchApi('/auth/resend-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    return res;
+  },
+
   refreshToken: async () => {
     const refreshToken = localStorage.getItem('paypilot_refresh_token');
     if (!refreshToken) throw new Error('No refresh token available');

@@ -37,6 +37,9 @@ model User {
   email                   String              @unique
   role                    Role                @default(EMPLOYEE)
   isActive                Boolean             @default(true)
+  isVerified              Boolean             @default(true)
+  otpCode                 String?
+  otpExpiresAt            DateTime?
   employeeId              String?             @unique
   employee                Employee?           @relation(fields: [employeeId], references: [id])
   createdAt               DateTime            @default(now())
