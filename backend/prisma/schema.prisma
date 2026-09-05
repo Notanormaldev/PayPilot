@@ -75,6 +75,12 @@ model Employee {
   status             EmployeeStatus      @default(ACTIVE)
   bankAccount        String?
   bankName           String?
+  ifscCode           String?
+  accountHolderName  String?
+  bankBranch         String?
+  bankVerificationStatus String?           @default("PENDING")
+  bankProofDocUrl    String?
+  bankProofDocType   String?
   orgId              String
   organization       Organization        @relation(fields: [orgId], references: [id])
   createdAt          DateTime            @default(now())
@@ -86,6 +92,21 @@ model Employee {
   timeOffRequests    TimeOffRequest[]
   timeOffAllocations TimeOffAllocation[]
   payslips           Payslip[]
+  documents          EmployeeDocument[]
+}
+
+model EmployeeDocument {
+  id         String    @id @default(cuid())
+  employeeId String
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  docType    String    // CANCELLED_CHEQUE | PASSBOOK | BANK_STATEMENT | OTHER
+  fileName   String
+  fileUrl    String    @db.Text // data URI or stored path
+  verifiedBy String?
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([employeeId])
 }
 
 enum ContractStatus {
@@ -402,6 +423,8 @@ model SentinelFlag {
   resolvedBy              User?        @relation("ResolvedBy", fields: [resolvedById], references: [id])
   resolvedAt              DateTime?
   overrideNote            String?
+  documentUrl             String?      @db.Text
+  verificationType        String?      // e.g. "MANUAL_DOCUMENT_VERIFIED"
   createdAt               DateTime     @default(now())
   updatedAt               DateTime     @updatedAt
 
