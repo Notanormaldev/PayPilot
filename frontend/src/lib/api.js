@@ -65,7 +65,10 @@ export async function fetchApi(endpoint, options = {}) {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || errorData.error || `HTTP ${res.status} Error`);
+    const err = new Error(errorData.message || errorData.error || `HTTP ${res.status} Error`);
+    err.data = errorData;
+    err.status = res.status;
+    throw err;
   }
 
   return res.json();

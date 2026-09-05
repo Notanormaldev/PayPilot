@@ -16,25 +16,23 @@ import {
   IconSparkles,
   IconChevronDown,
   IconChevronUp,
+  IconFileCheck,
 } from '@tabler/icons-react';
-import { sentinelService } from '../services/sentinelService';
-
 import { UserAvatar } from '../../../components/ui';
+import { SentinelResolutionModal } from './SentinelResolutionModal';
 
 export const SentinelDrawer = ({ flags = [], onFlagResolved }) => {
-  const [resolvingId, setResolvingId] = useState(null);
+  const [modalOpened, setModalOpened] = useState(false);
+  const [selectedFlag, setSelectedFlag] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
 
-  const handleResolve = async (flagId) => {
-    setResolvingId(flagId);
-    try {
-      await sentinelService.resolveFlag(flagId, 'Verified and approved by Executive');
-      if (onFlagResolved) onFlagResolved();
-    } catch (err) {
-      console.error('Resolve failed:', err);
-    } finally {
-      setResolvingId(null);
-    }
+  const handleOpenModal = (flag) => {
+    setSelectedFlag(flag);
+    setModalOpened(true);
+  };
+
+  const handleResolveSuccess = () => {
+    if (onFlagResolved) onFlagResolved();
   };
 
   const getSeverityBadge = (sev) => {
@@ -114,8 +112,8 @@ export const SentinelDrawer = ({ flags = [], onFlagResolved }) => {
                       </Text>
                       {getSeverityBadge(flag.severity)}
                       {flag.flagType === 'MISSING_BANK_DETAILS' && (
-                        <Badge size="xs" color="red" variant="filled">
-                          EMPLOYEE BANKING AUDIT
+                        <Badge size="xs" color="blue" variant="light">
+                          DIRECT DEPOSIT AUDIT
                         </Badge>
                       )}
                     </Group>
@@ -151,19 +149,28 @@ export const SentinelDrawer = ({ flags = [], onFlagResolved }) => {
                 <Button
                   size="xs"
                   color="dark"
-                  loading={resolvingId === flag.id}
-                  onClick={() => handleResolve(flag.id)}
+                  onClick={() => handleOpenModal(flag)}
+                  leftSection={<IconFileCheck size={12} />}
                   styles={{
-                    root: { height: 26, padding: '0 10px', fontSize: '11px', flexShrink: 0 },
+                    root: { height: 28, padding: '0 12px', fontSize: '11px', flexShrink: 0 },
                   }}
                 >
-                  Resolve
+                  Verify & Resolve
                 </Button>
               </Group>
             </Paper>
           ))
         )}
       </Stack>
+
+      <SentinelResolutionModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        flag={selectedFlag}
+        onResolveSuccess={handleResolveSuccess}
+      />
     </Paper>
   );
 };
+
+export default SentinelDrawer;
