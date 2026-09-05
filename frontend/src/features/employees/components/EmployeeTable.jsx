@@ -3,15 +3,36 @@ import {
   Paper,
   Table,
   Group,
+  Stack,
   Text,
   Badge,
   TextInput,
+  Button,
+  Modal,
+  ActionIcon,
+  Menu,
+  Tooltip,
+  Alert,
 } from '@mantine/core';
-import { IconSearch, IconCheck } from '@tabler/icons-react';
+import {
+  IconSearch,
+  IconCheck,
+  IconTrash,
+  IconDotsVertical,
+  IconUserCheck,
+  IconUserOff,
+  IconCalendarTime,
+  IconAlertTriangle,
+} from '@tabler/icons-react';
 import { UserAvatar } from '../../../components/ui';
+import { fetchApi } from '../../../lib/api';
 
-export const EmployeeTable = ({ employees = [] }) => {
+export const EmployeeTable = ({ employees = [], onRefresh }) => {
   const [search, setSearch] = useState('');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [targetEmployee, setTargetEmployee] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [statusUpdatingId, setStatusUpdatingId] = useState(null);
 
   const empList = Array.isArray(employees) ? employees : [];
 
@@ -29,6 +50,42 @@ export const EmployeeTable = ({ employees = [] }) => {
       (e.email && e.email.toLowerCase().includes(term))
     );
   });
+
+  const handleOpenDelete = (emp) => {
+    setTargetEmployee(emp);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!targetEmployee?.id) return;
+    setDeleting(true);
+    try {
+      await fetchApi(`/employees/${targetEmployee.id}`, { method: 'DELETE' });
+      setDeleteModalOpen(false);
+      setTargetEmployee(null);
+      if (onRefresh) onRefresh();
+      else window.location.reload();
+    } catch (err) {
+      console.error('Failed to delete employee:', err);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleUpdateStatus = async (empId, newStatus) => {
+    setStatusUpdatingId(empId);
+    try {
+      await fetchApi(`/employees/${empId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      console.error('Failed to update employee status:', err);
+    } finally {
+      setStatusUpdatingId(null);
+    }
+  };
 
   return (
     <Paper
@@ -78,6 +135,7 @@ export const EmployeeTable = ({ employees = [] }) => {
             <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>SALARY BASE</Table.Th>
             <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>BANK DETAILS</Table.Th>
             <Table.Th style={{ color: '#71717A', fontSize: '11px' }}>STATUS</Table.Th>
+            <Table.Th style={{ color: '#71717A', fontSize: '11px', textAlign: 'right' }}>ACTIONS</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -94,6 +152,8 @@ export const EmployeeTable = ({ employees = [] }) => {
 
             const acc = emp?.bankAccount || emp?.bankAccountNo;
             const hasBank = !!(acc && String(acc).trim() !== '');
+
+            const empStatus = emp.status || 'ACTIVE';
 
             return (
               <Table.Tr key={emp.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
@@ -169,11 +229,75 @@ export const EmployeeTable = ({ employees = [] }) => {
                 <Table.Td>
                   <Badge
                     size="xs"
-                    color={emp.status === 'ACTIVE' ? 'teal' : 'gray'}
-                    variant="light"
+                    color={
+                      empStatus === 'ACTIVE'
+                        ? 'teal'
+                        : empStatus === 'ON_LEAVE'
+                        ? 'orange'
+                        : 'gray'
+                    }
+                    variant={empStatus === 'ON_LEAVE' ? 'filled' : 'light'}
                   >
-                    {emp.status || 'ACTIVE'}
+                    {empStatus.replace('_', ' ')}
                   </Badge>
+                </Table.Td>
+
+                <Table.Td style={{ textAlign: 'right' }}>
+                  <Group gap={4} justify="flex-end" wrap="nowrap">
+                    <Menu position="bottom-end" shadow="md">
+                      <Menu.Target>
+                        <ActionIcon size="sm" variant="subtle" color="gray">
+                          <IconDotsVertical size={14} />
+                        </ActionIcon>
+                      </Menu.Target>
+                      <Menu.Dropdown>
+                        <Menu.Label>Employee Actions</Menu.Label>
+                        {empStatus !== 'ACTIVE' && (
+                          <Menu.Item
+                            leftSection={<IconUserCheck size={14} color="#0D9488" />}
+                            onClick={() => handleUpdateStatus(emp.id, 'ACTIVE')}
+                          >
+                            Mark as Active
+                          </Menu.Item>
+                        )}
+                        {empStatus !== 'ON_LEAVE' && (
+                          <Menu.Item
+                            leftSection={<IconCalendarTime size={14} color="#D97706" />}
+                            onClick={() => handleUpdateStatus(emp.id, 'ON_LEAVE')}
+                          >
+                            Mark as On Leave
+                          </Menu.Item>
+                        )}
+                        {empStatus !== 'INACTIVE' && (
+                          <Menu.Item
+                            leftSection={<IconUserOff size={14} color="#64748B" />}
+                            onClick={() => handleUpdateStatus(emp.id, 'INACTIVE')}
+                          >
+                            Mark as Inactive
+                          </Menu.Item>
+                        )}
+                        <Menu.Divider />
+                        <Menu.Item
+                          color="red"
+                          leftSection={<IconTrash size={14} />}
+                          onClick={() => handleOpenDelete(emp)}
+                        >
+                          Offboard & Delete
+                        </Menu.Item>
+                      </Menu.Dropdown>
+                    </Menu>
+
+                    <Tooltip label="Delete / Offboard Employee" withArrow>
+                      <ActionIcon
+                        size="sm"
+                        color="red"
+                        variant="subtle"
+                        onClick={() => handleOpenDelete(emp)}
+                      >
+                        <IconTrash size={14} />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Group>
                 </Table.Td>
               </Table.Tr>
             );
@@ -181,7 +305,7 @@ export const EmployeeTable = ({ employees = [] }) => {
 
           {filtered.length === 0 && (
             <Table.Tr>
-              <Table.Td colSpan={6} style={{ textAlign: 'center', padding: '32px' }}>
+              <Table.Td colSpan={7} style={{ textAlign: 'center', padding: '32px' }}>
                 <Text size="xs" c="#71717A">
                   No employee records match the search filter.
                 </Text>
@@ -190,6 +314,59 @@ export const EmployeeTable = ({ employees = [] }) => {
           )}
         </Table.Tbody>
       </Table>
+
+      {/* Delete Offboard Modal */}
+      <Modal
+        opened={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        title={
+          <Group gap="xs">
+            <IconAlertTriangle size={18} color="#DC2626" />
+            <Text fw={700} size="sm" c="#991B1B">
+              Offboard & Delete Employee Record
+            </Text>
+          </Group>
+        }
+        size="md"
+        styles={{
+          content: { backgroundColor: '#FFFFFF', borderColor: '#FECACA' },
+          header: { backgroundColor: '#FEF2F2', borderBottom: '1px solid #FECACA' },
+        }}
+      >
+        <Stack gap="md">
+          <Alert color="red" icon={<IconAlertTriangle size={16} />} title="Irreversible Action">
+            <Text size="xs" c="#991B1B">
+              Are you sure you want to offboard and delete <b>{targetEmployee?.name}</b> from the master employee registry?
+            </Text>
+          </Alert>
+
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+            <Text size="xs" fw={700} c="#09090B">
+              {targetEmployee?.name} ({targetEmployee?.employeeNumber})
+            </Text>
+            <Text size="11px" c="#64748B">
+              {targetEmployee?.jobPosition || targetEmployee?.jobTitle} • {targetEmployee?.department}
+            </Text>
+          </Paper>
+
+          <Group justify="flex-end" gap="xs">
+            <Button size="xs" variant="default" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              size="xs"
+              color="red"
+              loading={deleting}
+              onClick={handleConfirmDelete}
+              leftSection={<IconTrash size={14} />}
+            >
+              Offboard & Delete Employee
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Paper>
   );
 };
+
+export default EmployeeTable;

@@ -151,6 +151,169 @@ payrunsRouter.post('/:id/compute', authenticate, async (req, res) => {
   }
 });
 
+// GET /api/payruns/:id/payslips - detailed employee payslips breakdown
+payrunsRouter.get('/:id/payslips', authenticate, async (req, res) => {
+  try {
+    const payrunId = req.params.id;
+    const payrun = await prisma.payrun.findUnique({
+      where: { id: payrunId },
+      include: {
+        payslips: {
+          include: {
+            employee: true,
+            lines: { orderBy: { sequence: 'asc' } },
+            flags: true,
+          },
+        },
+      },
+    });
+
+    if (!payrun) {
+      return res.status(404).json({ error: 'Payrun not found' });
+    }
+
+    const formattedPayslips = payrun.payslips.map((slip) => {
+      let grossPay = 0;
+      let totalDeductions = 0;
+
+      for (const line of slip.lines) {
+        const amt = Number(line.amount || 0);
+        if (line.category === 'BASIC' || line.category === 'ALLOWANCE' || amt > 0) {
+          grossPay += Math.abs(amt);
+        } else if (line.category === 'DEDUCTION' || amt < 0) {
+          totalDeductions += Math.abs(amt);
+        }
+      }
+      const netPay = Math.max(0, grossPay - totalDeductions);
+
+      const hasBank = !!(slip.employee?.bankAccount && String(slip.employee.bankAccount).trim() !== '');
+
+      return {
+        id: slip.id,
+        payrunId: slip.payrunId,
+        employeeId: slip.employeeId,
+        status: slip.status,
+        employee: {
+          id: slip.employee?.id,
+          name: slip.employee?.name,
+          firstName: slip.employee?.name?.split(' ')[0] || '',
+          lastName: slip.employee?.name?.split(' ').slice(1).join(' ') || '',
+          employeeNumber: `EMP-${(slip.employee?.id || '').slice(-4).toUpperCase()}`,
+          department: slip.employee?.department || 'General',
+          jobTitle: slip.employee?.jobPosition || 'Specialist',
+          bankAccount: slip.employee?.bankAccount,
+          bankName: slip.employee?.bankName,
+          hasBank,
+        },
+        grossPay,
+        totalDeductions,
+        netPay,
+        hasBank,
+        bankStatus: hasBank ? 'VERIFIED' : 'MISSING_BANK',
+        lines: slip.lines.map((l) => ({
+          id: l.id,
+          code: l.code,
+          name: l.name,
+          category: l.category,
+          amount: Number(l.amount),
+          total: Number(l.amount),
+        })),
+        flags: slip.flags,
+      };
+    });
+
+    res.json({ data: formattedPayslips });
+  } catch (err) {
+    console.error('Fetch payslips error:', err);
+    res.status(500).json({ error: 'Failed to fetch payslips', details: err.message });
+  }
+});
+
+// POST /api/payruns/:id/validate - validate and disburse payrun (supports partial bank disbursal)
+payrunsRouter.post('/:id/validate', authenticate, async (req, res) => {
+  try {
+    const payrunId = req.params.id;
+    const { processVerifiedOnly = false } = req.body;
+
+    const payrun = await prisma.payrun.findUnique({
+      where: { id: payrunId },
+      include: {
+        payslips: {
+          include: { employee: true },
+        },
+      },
+    });
+
+    if (!payrun) {
+      return res.status(404).json({ error: 'Payrun not found' });
+    }
+
+    const unverifiedSlips = payrun.payslips.filter(
+      (s) => !s.employee?.bankAccount || String(s.employee.bankAccount).trim() === ''
+    );
+    const verifiedSlips = payrun.payslips.filter(
+      (s) => s.employee?.bankAccount && String(s.employee.bankAccount).trim() !== ''
+    );
+
+    // If missing bank accounts exist and user hasn't explicitly requested partial processing
+    if (unverifiedSlips.length > 0 && !processVerifiedOnly) {
+      const missingEmployees = unverifiedSlips.map((s) => ({
+        id: s.employee?.id,
+        name: s.employee?.name,
+        department: s.employee?.department,
+      }));
+
+      return res.status(400).json({
+        code: 'MISSING_BANK_CREDENTIALS',
+        warning: true,
+        message: `${unverifiedSlips.length} employee(s) in this batch lack registered bank account credentials.`,
+        unverifiedCount: unverifiedSlips.length,
+        verifiedCount: verifiedSlips.length,
+        missingEmployees,
+      });
+    }
+
+    // Process verified payslips
+    const verifiedIds = verifiedSlips.map((s) => s.id);
+    if (verifiedIds.length > 0) {
+      await prisma.payslip.updateMany({
+        where: { id: { in: verifiedIds } },
+        data: { status: 'PAID' },
+      });
+    }
+
+    // Mark unverified payslips as BLOCKED_MISSING_BANK
+    const unverifiedIds = unverifiedSlips.map((s) => s.id);
+    if (unverifiedIds.length > 0) {
+      await prisma.payslip.updateMany({
+        where: { id: { in: unverifiedIds } },
+        data: { status: 'BLOCKED_MISSING_BANK' },
+      });
+    }
+
+    const isPartial = unverifiedSlips.length > 0;
+    const finalPayrunStatus = isPartial ? 'PARTIALLY_VALIDATED' : 'PAID';
+
+    await prisma.payrun.update({
+      where: { id: payrunId },
+      data: { status: finalPayrunStatus },
+    });
+
+    res.json({
+      success: true,
+      message: isPartial
+        ? `Validated and disbursed payroll for ${verifiedSlips.length} verified employees. ${unverifiedSlips.length} employee payslips remain blocked due to missing bank info.`
+        : `Validated and disbursed payroll for all ${payrun.payslips.length} employees successfully.`,
+      payrunStatus: finalPayrunStatus,
+      verifiedCount: verifiedSlips.length,
+      blockedCount: unverifiedSlips.length,
+    });
+  } catch (err) {
+    console.error('Validation error:', err);
+    res.status(500).json({ error: 'Failed to validate payrun', details: err.message });
+  }
+});
+
 // GET /api/payruns/:id/export-pdf - generate PDF payslips
 payrunsRouter.get('/:id/export-pdf', async (req, res) => {
   try {

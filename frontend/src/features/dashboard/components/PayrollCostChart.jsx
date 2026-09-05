@@ -88,8 +88,13 @@ export const PayrollCostChart = ({ data }) => {
     const targetYear = parseInt(selectedYear, 10);
 
     const resolvedYearData = yearData.map((item, idx) => {
-      // Check if this month is in the future relative to the selected active month/year cutoff
-      const isFutureMonth = targetYear > 2026 || (targetYear === 2026 && idx > selectedMonthIndex);
+      // Hard cutoff: active date is September 2026. Future months (October 2026+) never render bars.
+      const currentMaxYear = 2026;
+      const currentMaxMonthIdx = 8; // Sep 2026
+
+      const isFutureMonth =
+        targetYear > currentMaxYear ||
+        (targetYear === currentMaxYear && idx > currentMaxMonthIdx);
 
       if (isFutureMonth) {
         return {

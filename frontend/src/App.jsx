@@ -33,7 +33,6 @@ import { MyPayslipsView } from './features/employee-portal/components/MyPayslips
 import { MyTaxSummaryView } from './features/employee-portal/components/MyTaxSummaryView';
 import { NotificationsView } from './features/employee-portal/components/NotificationsView';
 import { SettingsView } from './features/settings';
-import { LoansView } from './features/loans';
 import { TaxCalculatorView } from './features/taxes';
 
 export const App = () => {
@@ -49,11 +48,11 @@ export const App = () => {
   const { employees, fetchEmployees } = useEmployees();
   const { attendances, leaveRequests, fetchAttendanceData } = useAttendance();
 
-  const employeeTabs = ['my-profile', 'my-attendance', 'my-time-off', 'my-contract', 'my-payslips', 'my-taxes', 'loans', 'notifications', 'settings'];
+  const employeeTabs = ['my-profile', 'my-attendance', 'my-time-off', 'my-contract', 'my-payslips', 'my-taxes', 'notifications', 'settings'];
   const adminRoleNavPermissions = {
-    ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'loans', 'reports', 'settings'],
-    HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'loans', 'reports', 'settings'],
-    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'loans', 'reports', 'settings'],
+    ADMIN: ['dashboard', 'employees', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_MANAGER: ['dashboard', 'employees', 'time-off', 'approvals', 'reports', 'settings'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
   };
 
   // Adjust default activeTab when user switches persona or logs in
@@ -100,7 +99,7 @@ export const App = () => {
         <Sidebar
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          openSentinelFlagsCount={flags.length}
+          openSentinelFlagsCount={flags?.length || 0}
         />
 
         <main style={{ flex: 1, padding: '24px', maxWidth: '1480px', margin: '0 auto', width: '100%' }}>
@@ -113,7 +112,6 @@ export const App = () => {
               {activeTab === 'my-contract' && <MyContractView />}
               {activeTab === 'my-payslips' && <MyPayslipsView />}
               {activeTab === 'my-taxes' && <MyTaxSummaryView />}
-              {activeTab === 'loans' && <LoansView />}
               {activeTab === 'notifications' && <NotificationsView />}
               {activeTab === 'settings' && <SettingsView />}
             </>
@@ -182,12 +180,6 @@ export const App = () => {
               {activeTab === 'taxes' && (
                 <Stack gap="lg">
                   <TaxCalculatorView />
-                </Stack>
-              )}
-
-              {activeTab === 'loans' && (
-                <Stack gap="lg">
-                  <LoansView />
                 </Stack>
               )}
 
