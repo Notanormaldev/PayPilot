@@ -1,3 +1,4 @@
+
 import jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma.js';
 
@@ -12,56 +13,72 @@ export async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    if (process.env.NODE_ENV !== 'production') {
-      const devUser = await getOrCreateDevUser('ADMIN');
-      req.user = devUser;
-      return next();
-    }
-    return res.status(401).json({ error: 'Unauthorized: Missing or malformed authorization header' });
+    return res.status(401).json({
+      error: 'Unauthorized: Missing or malformed authorization header',
+      code: 'TOKEN_MISSING',
+    });
   }
 
   const token = authHeader.split(' ')[1];
 
-  // 1. Development Fast Bypass Tokens
-  if (token.startsWith('dev-')) {
+  // 1. Development Persona Fast Tokens (dev-admin-token, dev-hr-token, dev-payroll-token, dev-emp-token)
+  if (token && token.startsWith('dev-')) {
     let targetRole = 'ADMIN';
     if (token === 'dev-hr-token') targetRole = 'HR_MANAGER';
     if (token === 'dev-payroll-token') targetRole = 'HR_PAYROLL_MANAGER';
     if (token === 'dev-emp-token') targetRole = 'EMPLOYEE';
 
-    const devUser = await getOrCreateDevUser(targetRole);
-    req.user = devUser;
-    return next();
+    try {
+      const devUser = await getOrCreateDevUser(targetRole);
+      req.user = devUser;
+      return next();
+    } catch (e) {
+      console.error('Error provisioning dev user:', e);
+      return res.status(500).json({ error: 'Failed to initialize session' });
+    }
   }
 
-  // 2. JWT Access Token Verification
+  // 2. Standard JWT Access Token Verification
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId || decoded.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        error: 'Unauthorized: Token payload missing user identifier',
+        code: 'TOKEN_INVALID',
+      });
+    }
+
     const dbUser = await prisma.user.findUnique({
-      where: { id: decoded.userId || decoded.id },
+      where: { id: userId },
       include: { employee: true },
     });
 
-    if (dbUser && dbUser.isActive) {
-      req.user = {
-        id: dbUser.id,
-        email: dbUser.email,
-        role: dbUser.role,
-        employeeId: dbUser.employeeId,
-        name: dbUser.employee ? dbUser.employee.name : dbUser.email.split('@')[0],
-      };
-      return next();
+    if (!dbUser || !dbUser.isActive) {
+      return res.status(401).json({
+        error: 'Unauthorized: User account not found or deactivated',
+        code: 'USER_INACTIVE',
+      });
     }
-  } catch (jwtErr) {
-    if (process.env.NODE_ENV !== 'production') {
-      const devUser = await getOrCreateDevUser('ADMIN');
-      req.user = devUser;
-      return next();
-    }
-    return res.status(401).json({ error: 'Unauthorized: Token expired or invalid', details: jwtErr.message });
-  }
 
-  return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
+    req.user = {
+      id: dbUser.id,
+      email: dbUser.email,
+      role: dbUser.role,
+      employeeId: dbUser.employeeId,
+      name: dbUser.employee ? dbUser.employee.name : dbUser.email.split('@')[0],
+      department: dbUser.employee?.department || 'Executive',
+    };
+    return next();
+  } catch (jwtErr) {
+    const isExpired = jwtErr.name === 'TokenExpiredError';
+    return res.status(401).json({
+      error: isExpired ? 'Unauthorized: Access token has expired' : 'Unauthorized: Invalid token signature',
+      code: isExpired ? 'TOKEN_EXPIRED' : 'TOKEN_INVALID',
+      message: jwtErr.message,
+    });
+  }
 }
 
 export async function getOrCreateDevUser(role) {
@@ -111,3 +128,4 @@ export function requireRole(...allowedRoles) {
     next();
   };
 }
+
