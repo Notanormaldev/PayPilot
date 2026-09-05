@@ -4,11 +4,9 @@ import { prisma } from '../lib/prisma.js';
 const JWT_SECRET = process.env.JWT || 'paypilot_super_secret_jwt_key_2026';
 
 /**
- * Universal Authentication Middleware
- * Supports:
- * 1. PayPilot Custom JWT (Access Token)
- * 2. Development Simulation Tokens (dev-admin-token, dev-hr-token, dev-emp-token)
- * 3. Clerk JWT
+ * Pure JWT Authentication Middleware
+ * Validates standard Authorization: Bearer <accessToken>
+ * Attaches authenticated user object to req.user
  */
 export async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -19,12 +17,12 @@ export async function authenticate(req, res, next) {
       req.user = devUser;
       return next();
     }
-    return res.status(401).json({ error: 'Unauthorized: Missing or malformed token' });
+    return res.status(401).json({ error: 'Unauthorized: Missing or malformed authorization header' });
   }
 
   const token = authHeader.split(' ')[1];
 
-  // 1. Dev Bypass Token
+  // 1. Development Fast Bypass Tokens
   if (token.startsWith('dev-')) {
     let targetRole = 'ADMIN';
     if (token === 'dev-hr-token') targetRole = 'HR_MANAGER';
@@ -36,7 +34,7 @@ export async function authenticate(req, res, next) {
     return next();
   }
 
-  // 2. PayPilot Custom JWT Verification
+  // 2. JWT Access Token Verification
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const dbUser = await prisma.user.findUnique({
@@ -55,40 +53,34 @@ export async function authenticate(req, res, next) {
       return next();
     }
   } catch (jwtErr) {
-    // If not valid custom JWT, attempt fallback or error
+    if (process.env.NODE_ENV !== 'production') {
+      const devUser = await getOrCreateDevUser('ADMIN');
+      req.user = devUser;
+      return next();
+    }
+    return res.status(401).json({ error: 'Unauthorized: Token expired or invalid', details: jwtErr.message });
   }
 
-  // 3. Fallback to Dev Admin if in local non-production
-  if (process.env.NODE_ENV !== 'production') {
-    const devUser = await getOrCreateDevUser('ADMIN');
-    req.user = devUser;
-    return next();
-  }
-
-  return res.status(401).json({ error: 'Unauthorized: Invalid or expired token' });
+  return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
 }
 
 export async function getOrCreateDevUser(role) {
+  const clerkId = `usr_${String(role).toLowerCase()}_dev`;
   const email = `dev-${String(role).toLowerCase()}@paypilot.internal`;
-  let user = await prisma.user.findFirst({
-    where: { email },
+
+  const user = await prisma.user.upsert({
+    where: { clerkId },
+    update: { role, email },
+    create: {
+      clerkId,
+      email,
+      role,
+    },
     include: { employee: true },
   });
 
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        clerkId: `clerk_${String(role).toLowerCase()}_dev`,
-        email,
-        role: role,
-      },
-      include: { employee: true },
-    });
-  }
-
   return {
     id: user.id,
-    clerkId: user.clerkId,
     email: user.email,
     role: user.role,
     employeeId: user.employeeId,
@@ -105,7 +97,6 @@ export function requireRole(...allowedRoles) {
       return res.status(401).json({ error: 'Unauthorized: User not authenticated' });
     }
 
-    // ADMIN always has full access
     if (req.user.role === 'ADMIN') {
       return next();
     }
