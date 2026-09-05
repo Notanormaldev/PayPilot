@@ -33,11 +33,39 @@ function hashString(str = '') {
   return Math.abs(hash);
 }
 
+// Shared in-memory cache synchronized with backend ImageKit store across all devices/PCs
+let serverAvatarCache = {};
+let fetchPromise = null;
+
+export const syncServerAvatars = async () => {
+  try {
+    if (!fetchPromise) {
+      fetchPromise = fetchApi('/employees/avatars')
+        .then((res) => {
+          if (res?.data) {
+            serverAvatarCache = { ...serverAvatarCache, ...res.data };
+          }
+          return serverAvatarCache;
+        })
+        .catch(() => serverAvatarCache);
+    }
+    return await fetchPromise;
+  } catch (e) {
+    return serverAvatarCache;
+  }
+};
+
+// Trigger background sync on startup
+if (typeof window !== 'undefined') {
+  syncServerAvatars();
+}
+
 /**
  * Resolves user photo:
  * 1. Checks explicitSrc (e.g. ImageKit URL https://ik.imagekit.io/...)
- * 2. Checks localStorage for uploaded ImageKit avatars for this user/id
- * 3. Otherwise returns null (renders clean dummy placeholder avatar)
+ * 2. Checks serverAvatarCache (synchronized across all PCs/devices via backend)
+ * 3. Checks localStorage for uploaded ImageKit avatars for this user/id
+ * 4. Otherwise returns null (renders clean dummy placeholder avatar)
  */
 export function resolveUserPhoto(name = '', id = '', explicitSrc = null) {
   if (explicitSrc && typeof explicitSrc === 'string' && explicitSrc.trim() !== '') {
@@ -50,7 +78,12 @@ export function resolveUserPhoto(name = '', id = '', explicitSrc = null) {
   const cleanName = (name || '').toLowerCase().trim();
   const cleanId = (id || '').toLowerCase().trim();
 
-  // Check if there's a stored ImageKit upload for this user in localStorage
+  // 1. Check server cache (synced from ImageKit via backend across all PCs)
+  if (cleanId && serverAvatarCache[cleanId]) return serverAvatarCache[cleanId];
+  if (cleanName && serverAvatarCache[cleanName]) return serverAvatarCache[cleanName];
+  if (serverAvatarCache['global_user_avatar']) return serverAvatarCache['global_user_avatar'];
+
+  // 2. Check localStorage
   if (cleanId) {
     const storedForId = localStorage.getItem(`paypilot_avatar_${cleanId}`);
     if (storedForId) return storedForId;
@@ -59,6 +92,9 @@ export function resolveUserPhoto(name = '', id = '', explicitSrc = null) {
     const storedForName = localStorage.getItem(`paypilot_avatar_${cleanName}`);
     if (storedForName) return storedForName;
   }
+
+  const globalLocal = localStorage.getItem('paypilot_user_avatar');
+  if (globalLocal) return globalLocal;
 
   // Fallback to null (Clean Dummy Placeholder Avatar)
   return null;
@@ -171,13 +207,16 @@ export const UserAvatar = ({
         if (result.url) {
           setCurrentSrc(result.url);
           setImageError(false);
-          localStorage.setItem('paypilot_user_avatar', result.url);
+          serverAvatarCache['global_user_avatar'] = result.url;
           if (cleanId) {
+            serverAvatarCache[cleanId] = result.url;
             localStorage.setItem(`paypilot_avatar_${cleanId}`, result.url);
           }
           if (name) {
+            serverAvatarCache[name.toLowerCase().trim()] = result.url;
             localStorage.setItem(`paypilot_avatar_${name.toLowerCase().trim()}`, result.url);
           }
+          localStorage.setItem('paypilot_user_avatar', result.url);
 
           window.dispatchEvent(new CustomEvent('paypilot_avatar_updated', { detail: result.url }));
 
