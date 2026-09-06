@@ -23,7 +23,7 @@ export const FooterSection = ({ onOpenAuth, onLaunchDemo }) => {
             <span className="text-[rgba(73,66,61,0.50)] text-xs font-bold uppercase tracking-wider font-sans">
               Platform
             </span>
-            <button onClick={onLaunchDemo} className="text-[#49423D] text-xs hover:text-black text-left bg-transparent border-none cursor-pointer">
+            <button onClick={() => onOpenAuth('signin')} className="text-[#49423D] text-xs hover:text-black text-left bg-transparent border-none cursor-pointer">
               Autonomous Payruns
             </button>
             <a href="#bento" className="text-[#49423D] text-xs hover:text-black text-left text-decoration-none">

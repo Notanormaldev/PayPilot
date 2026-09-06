@@ -14,24 +14,34 @@ import {
   FAQSection,
   CTASection,
   FooterSection,
-  AuthModal,
+  AuthPage,
   Badge,
 } from './components';
 import { useAuthUser } from '../auth/hooks/useAuthUser';
 
 export const LandingPage = ({ onAuthSuccess }) => {
-  const [authOpened, setAuthOpened] = useState(false);
+  const [showAuthPage, setShowAuthPage] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
   const { login } = useAuthUser();
 
   const handleOpenAuth = (mode = 'signin') => {
     setAuthMode(mode);
-    setAuthOpened(true);
+    setShowAuthPage(true);
   };
 
   const handleLaunchDemo = () => {
     handleOpenAuth('signin');
   };
+
+  if (showAuthPage) {
+    return (
+      <AuthPage
+        initialMode={authMode}
+        onBack={() => setShowAuthPage(false)}
+        onAuthSuccess={onAuthSuccess}
+      />
+    );
+  }
 
   return (
     <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-start items-center pp-editorial-landing">
@@ -204,14 +214,6 @@ export const LandingPage = ({ onAuthSuccess }) => {
           </div>
         </div>
       </div>
-
-      {/* 1-Click Fast Persona Demo Modal */}
-      <AuthModal
-        opened={authOpened}
-        onClose={() => setAuthOpened(false)}
-        initialMode={authMode}
-        onAuthSuccess={onAuthSuccess}
-      />
     </div>
   );
 };

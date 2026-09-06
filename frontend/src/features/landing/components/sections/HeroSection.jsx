@@ -67,12 +67,12 @@ export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
       <div className="w-full max-w-[497px] flex flex-col justify-center items-center relative z-10 mt-6 sm:mt-7">
         <div className="backdrop-blur-[8px] flex justify-start items-center gap-3">
           <button
-            onClick={onLaunchDemo}
+            onClick={() => onOpenAuth('signin')}
             className="h-11 sm:h-12 px-8 sm:px-10 py-2 relative bg-[#37322F] shadow-[0px_0px_0px_2.5px_rgba(255,255,255,0.08)_inset] overflow-hidden rounded-full flex justify-center items-center hover:bg-[#231F1D] transition-all cursor-pointer border-none"
           >
             <div className="w-44 h-[41px] absolute left-0 top-[-0.5px] bg-gradient-to-b from-[rgba(255,255,255,0)] to-[rgba(0,0,0,0.10)] mix-blend-multiply"></div>
             <div className="text-white text-sm sm:text-[15px] font-medium leading-5 font-sans flex items-center justify-center">
-              <span>Launch Interactive Demo</span>
+              <span>Get Started</span>
             </div>
           </button>
         </div>

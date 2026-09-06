@@ -15,6 +15,7 @@ export { FooterSection } from './sections/FooterSection';
 // Navigation & Auth
 export { LandingNavbar } from './navbar/LandingNavbar';
 export { AuthModal } from './auth/AuthModal';
+export { AuthPage } from './auth/AuthPage';
 
 // Landing UI Components
 export { Badge } from './ui/Badge';

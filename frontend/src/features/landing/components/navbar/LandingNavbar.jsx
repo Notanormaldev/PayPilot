@@ -15,12 +15,12 @@ export const LandingNavbar = ({ onOpenAuth, onLaunchDemo }) => {
       {/* Floating Pill Wrapper */}
       <div className="w-full max-w-[calc(100%-32px)] sm:max-w-[calc(100%-48px)] md:max-w-[calc(100%-64px)] lg:max-w-[700px] lg:w-[700px] h-10 sm:h-11 md:h-12 py-1.5 sm:py-2 px-3 sm:px-4 md:px-4 pr-2 sm:pr-3 bg-[#F7F5F3] backdrop-blur-sm shadow-[0px_0px_0px_2px_white] overflow-hidden rounded-[50px] flex justify-between items-center relative z-40 border border-[rgba(55,50,47,0.08)]">
         {/* Left: Brand Logo & Links */}
-        <div className="flex items-center">
+        <div className="flex items-center justify-between w-full">
           <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="cursor-pointer flex items-center pr-2">
             <BrandLogo size={22} withBadge={false} subtitle={null} />
           </div>
 
-          <div className="pl-4 hidden sm:flex items-center gap-4 md:gap-5">
+          <div className="flex items-center gap-4 md:gap-6">
             <button
               onClick={() => scrollTo('features')}
               className="text-[rgba(49,45,43,0.80)] text-xs md:text-[13px] font-medium hover:text-[#2F3037] transition-colors bg-transparent border-none cursor-pointer p-0 font-sans"
@@ -46,22 +46,6 @@ export const LandingNavbar = ({ onOpenAuth, onLaunchDemo }) => {
               FAQ
             </button>
           </div>
-        </div>
-
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          <button
-            onClick={() => onOpenAuth('signin')}
-            className="px-3 sm:px-[14px] py-1 sm:py-[6px] bg-white shadow-[0px_1px_2px_rgba(55,50,47,0.12)] rounded-full text-[#37322F] text-xs md:text-[13px] font-medium hover:bg-slate-50 transition-colors border border-[rgba(55,50,47,0.08)] cursor-pointer font-sans"
-          >
-            Log in
-          </button>
-          <button
-            onClick={onLaunchDemo}
-            className="px-3.5 sm:px-4 py-1 sm:py-[6px] bg-[#37322F] text-white rounded-full text-xs md:text-[13px] font-medium hover:bg-[#201D1B] transition-colors cursor-pointer shadow-[0px_0px_0px_1px_rgba(255,255,255,0.12)_inset] border-none font-sans"
-          >
-            Launch Demo
-          </button>
         </div>
       </div>
     </div>

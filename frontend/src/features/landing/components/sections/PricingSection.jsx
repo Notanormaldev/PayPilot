@@ -142,11 +142,11 @@ export const PricingSection = ({ onLaunchDemo, onOpenAuth }) => {
             </div>
 
             <button
-              onClick={onLaunchDemo}
+              onClick={() => onOpenAuth(plan.name === 'Starter' ? 'register' : 'signin')}
               className={`w-full py-2.5 rounded-full text-xs font-semibold cursor-pointer transition-all border ${
                 plan.popular
                   ? 'bg-[#37322F] text-white hover:bg-[#201D1B] border-[#37322F]'
-                  : 'bg-white text-[#37322F] hover:bg-slate-50 border-[#CBD5E1]'
+                  : 'bg-[#37322F]/5 text-[#37322F] hover:bg-[#37322F]/10 border-[rgba(55,50,47,0.12)]'
               }`}
             >
               {plan.buttonText}

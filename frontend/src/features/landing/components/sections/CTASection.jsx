@@ -35,12 +35,12 @@ export const CTASection = ({ onLaunchDemo, onOpenAuth }) => {
 
           <div className="flex justify-center items-center gap-4">
             <button
-              onClick={onLaunchDemo}
+              onClick={() => onOpenAuth('signin')}
               className="h-11 px-8 md:px-10 py-2 relative bg-[#37322F] shadow-[0px_0px_0px_2.5px_rgba(255,255,255,0.08)_inset] overflow-hidden rounded-full flex justify-center items-center cursor-pointer hover:bg-[#201D1B] transition-colors border-none"
             >
               <div className="w-44 h-[41px] absolute left-0 top-0 bg-gradient-to-b from-[rgba(255,255,255,0)] to-[rgba(0,0,0,0.10)] mix-blend-multiply"></div>
               <span className="text-white text-sm font-medium leading-5 font-sans">
-                Launch Admin Demo
+                Get Started
               </span>
             </button>
           </div>
