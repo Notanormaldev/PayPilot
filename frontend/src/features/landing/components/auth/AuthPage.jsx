@@ -473,7 +473,7 @@ export const AuthPage = ({ initialMode = 'signin', onBack, onAuthSuccess }) => {
                     />
 
                     <Select
-                      label="Role Permission"
+                      label="Access Role"
                       description={
                         role === 'EMPLOYEE'
                           ? 'Instant access to employee portal upon email verification.'
