@@ -39,11 +39,34 @@ import { NotificationsView } from './features/employee-portal/components/Notific
 import { SettingsView } from './features/settings';
 import { TaxCalculatorView } from './features/taxes';
 import { ReportsView } from './features/reports';
+import { PageLoader } from './components/ui';
+
+const TAB_DESCRIPTIONS = {
+  dashboard: 'Executive Dashboard & Overview',
+  employees: 'Employee Directory & Records',
+  schedules: 'Working Schedules & Shifts',
+  'salary-structures': 'Salary Structures & Rule Formulas',
+  payroll: 'Payrun Engine & Disbursement',
+  'time-off': 'Attendance & Leave Approvals',
+  approvals: 'Admin Approvals Hub',
+  sentinel: 'Sentinel AI Compliance & Fraud Engine',
+  taxes: 'Statutory Tax Calculator & TDS Breakdown',
+  reports: 'Statutory Payroll Analytics & Reports',
+  settings: 'System & Organization Settings',
+  'my-profile': 'Employee Profile & Contact Info',
+  'my-attendance': 'Shift Attendance & Overtime Tracker',
+  'my-time-off': 'Leave Balances & Time-Off Requests',
+  'my-contract': 'Contract Terms & CTC Structure',
+  'my-payslips': 'Digital Payslips & Salary Breakdown',
+  'my-taxes': 'Tax Estimator & Regime Declarations',
+  notifications: 'Compliance & System Notifications',
+};
 
 export const App = () => {
   const { user, isSignedIn, currentRole } = useAuthUser();
   const isEmployee = currentRole === 'EMPLOYEE';
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isTabLoading, setIsTabLoading] = useState(false);
   const [copilotOpen, setCopilotOpen] = useState(false);
   const [viewLanding, setViewLanding] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -60,6 +83,16 @@ export const App = () => {
     HR_PAYROLL_MANAGER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
     HR_PAYROLL_USER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
     HR_MANAGER: ['dashboard', 'employees', 'schedules', 'time-off', 'approvals', 'reports', 'settings'],
+  };
+
+  const handleTabChange = (newTab) => {
+    if (newTab === activeTab) return;
+    setIsTabLoading(true);
+    setActiveTab(newTab);
+    const timer = setTimeout(() => {
+      setIsTabLoading(false);
+    }, 180);
+    return () => clearTimeout(timer);
   };
 
   // Adjust default activeTab when user switches persona or logs in
@@ -99,7 +132,7 @@ export const App = () => {
       <Header
         onOpenCopilot={() => setCopilotOpen(true)}
         onViewLanding={() => setViewLanding(true)}
-        onNavigateTab={(tab) => setActiveTab(tab)}
+        onNavigateTab={handleTabChange}
         onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
         sidebarCollapsed={sidebarCollapsed}
         currentRole={currentRole}
@@ -111,16 +144,20 @@ export const App = () => {
       <div style={{ display: 'flex', flex: 1 }}>
         <Sidebar
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
           openSentinelFlagsCount={flags?.length || 0}
           collapsed={sidebarCollapsed}
         />
 
-        <main style={{ flex: 1, padding: '24px', maxWidth: '1480px', margin: '0 auto', width: '100%' }}>
-          {/* EMPLOYEE PORTAL VIEWS */}
-          {isEmployee ? (
+        <main style={{ flex: 1, padding: '24px', maxWidth: '1480px', margin: '0 auto', width: '100%', position: 'relative' }}>
+          {isTabLoading ? (
+            <PageLoader
+              message={`Loading ${TAB_DESCRIPTIONS[activeTab] || 'Workspace'}...`}
+              subtitle="Synchronizing Real-Time Payroll & Compliance State"
+            />
+          ) : isEmployee ? (
             <>
-              {activeTab === 'dashboard' && <EmployeeDashboardView onNavigate={(tab) => setActiveTab(tab)} />}
+              {activeTab === 'dashboard' && <EmployeeDashboardView onNavigate={handleTabChange} />}
               {activeTab === 'my-profile' && <MyProfileView />}
               {activeTab === 'my-attendance' && <MyAttendanceView />}
               {activeTab === 'my-time-off' && <MyTimeOffView />}
@@ -138,12 +175,12 @@ export const App = () => {
                   <WelcomeBanner
                     userName={user?.name || 'Meera Krishnan'}
                     kpis={kpis}
-                    onRunPayroll={() => setActiveTab('payroll')}
+                    onRunPayroll={() => handleTabChange('payroll')}
                   />
                   <DeductionSummary kpis={kpis} employeesCount={kpis?.totalEmployees || 301} />
                   <ToDoTasks />
                   <PayrollCostChart data={trends} />
-                  <SentinelSummaryCard flags={flags} onOpenSentinel={() => setActiveTab('sentinel')} />
+                  <SentinelSummaryCard flags={flags} onOpenSentinel={() => handleTabChange('sentinel')} />
                   <EmployeeTable employees={employees} onRefresh={handleRefreshAll} />
                 </Stack>
               )}

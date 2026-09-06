@@ -199,46 +199,70 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
     <Modal
       opened={opened}
       onClose={onClose}
-      size="md"
+      size="540px"
       centered
       radius="lg"
       withCloseButton={true}
       title={<BrandLogo size={32} subtitle="AUTONOMOUS PAYROLL" />}
       styles={{
-        content: { padding: '8px 12px 16px' },
-        header: { borderBottom: '1px solid #E2E8F0', paddingBottom: '12px' },
+        content: { padding: '16px 20px 24px', borderRadius: '16px' },
+        header: { borderBottom: '1px solid #E2E8F0', paddingBottom: '14px', marginBottom: '4px' },
       }}
     >
-      <Stack gap="md" mt="sm">
+      <Stack gap="md" mt="xs">
         {/* STEP 1: FORM */}
         {step === 'form' && (
           <>
             {/* Mode Switcher */}
-            <Group justify="center" gap="xs">
-              <Button
-                size="xs"
-                variant={!isRegister ? 'filled' : 'subtle'}
-                color="dark"
-                onClick={() => {
-                  setIsRegister(false);
-                  setError(null);
-                  setIsPendingError(false);
+            <Group justify="center" mb={4}>
+              <Box
+                style={{
+                  backgroundColor: '#F1F5F9',
+                  padding: '4px',
+                  borderRadius: '10px',
+                  display: 'inline-flex',
+                  gap: '4px',
                 }}
               >
-                Sign In
-              </Button>
-              <Button
-                size="xs"
-                variant={isRegister ? 'filled' : 'subtle'}
-                color="dark"
-                onClick={() => {
-                  setIsRegister(true);
-                  setError(null);
-                  setIsPendingError(false);
-                }}
-              >
-                Create Account
-              </Button>
+                <Button
+                  size="xs"
+                  radius="md"
+                  variant={!isRegister ? 'filled' : 'subtle'}
+                  style={{
+                    backgroundColor: !isRegister ? '#09090B' : 'transparent',
+                    color: !isRegister ? '#FFFFFF' : '#64748B',
+                    fontWeight: 600,
+                    boxShadow: !isRegister ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onClick={() => {
+                    setIsRegister(false);
+                    setError(null);
+                    setIsPendingError(false);
+                  }}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  size="xs"
+                  radius="md"
+                  variant={isRegister ? 'filled' : 'subtle'}
+                  style={{
+                    backgroundColor: isRegister ? '#09090B' : 'transparent',
+                    color: isRegister ? '#FFFFFF' : '#64748B',
+                    fontWeight: 600,
+                    boxShadow: isRegister ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onClick={() => {
+                    setIsRegister(true);
+                    setError(null);
+                    setIsPendingError(false);
+                  }}
+                >
+                  Create Account
+                </Button>
+              </Box>
             </Group>
 
             {error && (
@@ -276,16 +300,27 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                   <Paper
                     p="xs"
                     radius="md"
-                    style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease' }}
+                    style={{
+                      backgroundColor: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      cursor: 'pointer',
+                      transition: 'all 0.18s ease',
+                    }}
                     onClick={() => handleFastLogin('meera.krishnan@paypilot.internal', 'ADMIN')}
-                    styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
+                    styles={{ root: { '&:hover': { borderColor: '#3B82F6', backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(37,99,235,0.08)' } } }}
                   >
                     <Group gap="xs" wrap="nowrap" align="center">
-                      <UserAvatar size={34} radius="xl" name="Meera Krishnan" id="meera" />
-                      <div style={{ minWidth: 0 }}>
-                        <Badge size="xs" color="blue" variant="light" mb={2}>ADMIN</Badge>
-                        <Text size="11px" fw={700} c="#09090B" truncate>Meera Krishnan</Text>
-                        <Text size="9px" c="#71717A" truncate>Chief Officer</Text>
+                      <UserAvatar size={36} radius="xl" name="Meera Krishnan" id="meera" />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <Badge size="xs" color="blue" variant="light" mb={2} style={{ fontSize: '9.5px', height: '18px' }}>
+                          ADMIN
+                        </Badge>
+                        <Text size="11.5px" fw={700} c="#09090B" truncate>
+                          Meera Krishnan
+                        </Text>
+                        <Text size="10px" c="#64748B" truncate>
+                          Chief Officer
+                        </Text>
                       </div>
                     </Group>
                   </Paper>
@@ -293,16 +328,27 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                   <Paper
                     p="xs"
                     radius="md"
-                    style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease' }}
+                    style={{
+                      backgroundColor: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      cursor: 'pointer',
+                      transition: 'all 0.18s ease',
+                    }}
                     onClick={() => handleFastLogin('neha.gupta@paypilot.internal', 'HR_PAYROLL_MANAGER')}
-                    styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
+                    styles={{ root: { '&:hover': { borderColor: '#3B82F6', backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(37,99,235,0.08)' } } }}
                   >
                     <Group gap="xs" wrap="nowrap" align="center">
-                      <UserAvatar size={34} radius="xl" name="Neha Gupta" id="neha" />
-                      <div style={{ minWidth: 0 }}>
-                        <Badge size="xs" color="indigo" variant="light" mb={2}>PAYROLL MGR</Badge>
-                        <Text size="11px" fw={700} c="#09090B" truncate>Neha Gupta</Text>
-                        <Text size="9px" c="#71717A" truncate>Full Payroll Config</Text>
+                      <UserAvatar size={36} radius="xl" name="Neha Gupta" id="neha" />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <Badge size="xs" color="indigo" variant="light" mb={2} style={{ fontSize: '9.5px', height: '18px' }}>
+                          PAYROLL MGR
+                        </Badge>
+                        <Text size="11.5px" fw={700} c="#09090B" truncate>
+                          Neha Gupta
+                        </Text>
+                        <Text size="10px" c="#64748B" truncate>
+                          Full Payroll Config
+                        </Text>
                       </div>
                     </Group>
                   </Paper>
@@ -310,16 +356,27 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                   <Paper
                     p="xs"
                     radius="md"
-                    style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease' }}
+                    style={{
+                      backgroundColor: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      cursor: 'pointer',
+                      transition: 'all 0.18s ease',
+                    }}
                     onClick={() => handleFastLogin('rahul.sharma@paypilot.internal', 'HR_PAYROLL_USER')}
-                    styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
+                    styles={{ root: { '&:hover': { borderColor: '#3B82F6', backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(37,99,235,0.08)' } } }}
                   >
                     <Group gap="xs" wrap="nowrap" align="center">
-                      <UserAvatar size={34} radius="xl" name="Rahul Sharma" id="rahul" />
-                      <div style={{ minWidth: 0 }}>
-                        <Badge size="xs" color="cyan" variant="light" mb={2}>PAYROLL USER</Badge>
-                        <Text size="11px" fw={700} c="#09090B" truncate>Rahul Sharma</Text>
-                        <Text size="9px" c="#71717A" truncate>HR + Payrun Ops</Text>
+                      <UserAvatar size={36} radius="xl" name="Rahul Sharma" id="rahul" />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <Badge size="xs" color="cyan" variant="light" mb={2} style={{ fontSize: '9.5px', height: '18px' }}>
+                          PAYROLL USER
+                        </Badge>
+                        <Text size="11.5px" fw={700} c="#09090B" truncate>
+                          Rahul Sharma
+                        </Text>
+                        <Text size="10px" c="#64748B" truncate>
+                          HR + Payrun Ops
+                        </Text>
                       </div>
                     </Group>
                   </Paper>
@@ -327,16 +384,27 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                   <Paper
                     p="xs"
                     radius="md"
-                    style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease' }}
+                    style={{
+                      backgroundColor: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      cursor: 'pointer',
+                      transition: 'all 0.18s ease',
+                    }}
                     onClick={() => handleFastLogin('tanvi.kapoor@paypilot.internal', 'HR_MANAGER')}
-                    styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
+                    styles={{ root: { '&:hover': { borderColor: '#3B82F6', backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(37,99,235,0.08)' } } }}
                   >
                     <Group gap="xs" wrap="nowrap" align="center">
-                      <UserAvatar size={34} radius="xl" name="Tanvi Kapoor" id="tanvi" />
-                      <div style={{ minWidth: 0 }}>
-                        <Badge size="xs" color="teal" variant="light" mb={2}>HR MANAGER</Badge>
-                        <Text size="11px" fw={700} c="#09090B" truncate>Tanvi Kapoor</Text>
-                        <Text size="9px" c="#71717A" truncate>People Ops</Text>
+                      <UserAvatar size={36} radius="xl" name="Tanvi Kapoor" id="tanvi" />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <Badge size="xs" color="teal" variant="light" mb={2} style={{ fontSize: '9.5px', height: '18px' }}>
+                          HR MANAGER
+                        </Badge>
+                        <Text size="11.5px" fw={700} c="#09090B" truncate>
+                          Tanvi Kapoor
+                        </Text>
+                        <Text size="10px" c="#64748B" truncate>
+                          People Ops
+                        </Text>
                       </div>
                     </Group>
                   </Paper>
@@ -344,16 +412,28 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                   <Paper
                     p="xs"
                     radius="md"
-                    style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease', gridColumn: 'span 2' }}
+                    style={{
+                      backgroundColor: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      cursor: 'pointer',
+                      transition: 'all 0.18s ease',
+                      gridColumn: 'span 2',
+                    }}
                     onClick={() => handleFastLogin('kartik.kumar@paypilot.internal', 'EMPLOYEE')}
-                    styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
+                    styles={{ root: { '&:hover': { borderColor: '#3B82F6', backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(37,99,235,0.08)' } } }}
                   >
                     <Group gap="xs" wrap="nowrap" align="center">
-                      <UserAvatar size={34} radius="xl" name="Kartik Kumar" id="kartik" />
-                      <div style={{ minWidth: 0 }}>
-                        <Badge size="xs" color="gray" variant="light" mb={2}>EMPLOYEE PORTAL</Badge>
-                        <Text size="11px" fw={700} c="#09090B" truncate>Kartik Kumar</Text>
-                        <Text size="9px" c="#71717A" truncate>Staff Product Specialist (Self-Service)</Text>
+                      <UserAvatar size={36} radius="xl" name="Kartik Kumar" id="kartik" />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <Badge size="xs" color="gray" variant="light" mb={2} style={{ fontSize: '9.5px', height: '18px' }}>
+                          EMPLOYEE PORTAL
+                        </Badge>
+                        <Text size="11.5px" fw={700} c="#09090B" truncate>
+                          Kartik Kumar
+                        </Text>
+                        <Text size="10px" c="#64748B" truncate>
+                          Staff Product Specialist (Self-Service)
+                        </Text>
                       </div>
                     </Group>
                   </Paper>

@@ -5,3 +5,4 @@ export { Card } from './Card';
 export { MetricCard } from './MetricCard';
 export { BrandLogo } from './BrandLogo';
 export { UserAvatar } from './UserAvatar';
+export { PageLoader } from './PageLoader';
