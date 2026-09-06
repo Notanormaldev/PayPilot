@@ -8,10 +8,18 @@ import {
   Badge,
   Box,
   SimpleGrid,
+  SegmentedControl,
+  ActionIcon,
+  Button,
+  Tooltip as MantineTooltip,
 } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
 import {
   IconCalendar,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChartBar,
+  IconArrowBackUp,
 } from '@tabler/icons-react';
 import {
   BarChart,
@@ -22,6 +30,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  Cell,
 } from 'recharts';
 
 // Base monthly reference data for years
@@ -66,6 +75,12 @@ const monthShortNames = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
+const monthDaysCount = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+const CURRENT_MAX_YEAR = 2026;
+const CURRENT_MAX_MONTH_IDX = 8; // 8 = September 2026
+const MAX_ALLOWED_DATE = new Date(CURRENT_MAX_YEAR, CURRENT_MAX_MONTH_IDX, 30);
+
 const formatCurrency = (val) => {
   if (val >= 10000000) {
     return `₹${(val / 10000000).toFixed(2)} Cr`;
@@ -76,29 +91,73 @@ const formatCurrency = (val) => {
 export const PayrollCostChart = ({ data }) => {
   // Calendar Date State (defaults to September 2026)
   const [selectedDate, setSelectedDate] = useState(new Date(2026, 8, 1));
-  const [viewMode, setViewMode] = useState('full-year'); // 'full-year' | 'trailing-6' | 'single-month'
+  const [viewMode, setViewMode] = useState('full-year'); // 'full-year' | 'single-month' | 'trailing-6'
 
   const selectedYear = selectedDate ? selectedDate.getFullYear().toString() : '2026';
-  const selectedMonthIndex = selectedDate ? selectedDate.getMonth() : 8; // 8 = September
+  const selectedMonthIndex = selectedDate ? selectedDate.getMonth() : 8;
   const selectedMonthShort = monthShortNames[selectedMonthIndex] || 'Sep';
+  const selectedMonthFullName = monthNames[selectedMonthIndex] || 'September';
 
-  // Compute chart series enforcing realistic cutoff (no bars for future months after selectedDate)
+  // Handle month change safely with boundary check
+  const handleSelectMonth = (date) => {
+    if (!date) return;
+    const targetYear = date.getFullYear();
+    const targetMonth = date.getMonth();
+
+    // Prevent selecting beyond September 2026
+    if (
+      targetYear > CURRENT_MAX_YEAR ||
+      (targetYear === CURRENT_MAX_YEAR && targetMonth > CURRENT_MAX_MONTH_IDX)
+    ) {
+      setSelectedDate(new Date(CURRENT_MAX_YEAR, CURRENT_MAX_MONTH_IDX, 1));
+      setViewMode('single-month');
+      return;
+    }
+
+    setSelectedDate(date);
+    setViewMode('single-month'); // Automatically switch to Month-wise view
+  };
+
+  const handlePrevMonth = () => {
+    const prevDate = new Date(selectedDate);
+    prevDate.setMonth(prevDate.getMonth() - 1);
+    setSelectedDate(prevDate);
+  };
+
+  const handleNextMonth = () => {
+    const nextDate = new Date(selectedDate);
+    nextDate.setMonth(nextDate.getMonth() + 1);
+    const nextYear = nextDate.getFullYear();
+    const nextMonth = nextDate.getMonth();
+
+    if (
+      nextYear > CURRENT_MAX_YEAR ||
+      (nextYear === CURRENT_MAX_YEAR && nextMonth > CURRENT_MAX_MONTH_IDX)
+    ) {
+      return; // Capped at current month
+    }
+    setSelectedDate(nextDate);
+  };
+
+  const canGoNext = !(
+    parseInt(selectedYear, 10) > CURRENT_MAX_YEAR ||
+    (parseInt(selectedYear, 10) === CURRENT_MAX_YEAR && selectedMonthIndex >= CURRENT_MAX_MONTH_IDX)
+  );
+
+  // Compute chart series enforcing realistic cutoff (no bars for future months after September 2026)
   const chartData = useMemo(() => {
     const yearData = yearlyBaseData[selectedYear] || yearlyBaseData['2026'];
     const targetYear = parseInt(selectedYear, 10);
 
     const resolvedYearData = yearData.map((item, idx) => {
-      // Hard cutoff: active date is September 2026. Future months (October 2026+) never render bars.
-      const currentMaxYear = 2026;
-      const currentMaxMonthIdx = 8; // Sep 2026
-
       const isFutureMonth =
-        targetYear > currentMaxYear ||
-        (targetYear === currentMaxYear && idx > currentMaxMonthIdx);
+        targetYear > CURRENT_MAX_YEAR ||
+        (targetYear === CURRENT_MAX_YEAR && idx > CURRENT_MAX_MONTH_IDX);
 
       if (isFutureMonth) {
         return {
           month: item.month,
+          monthIndex: idx,
           netPay: 0,
           taxes: 0,
           statutories: 0,
@@ -114,6 +173,7 @@ export const PayrollCostChart = ({ data }) => {
       if (liveItem && liveItem.cost) {
         return {
           month: item.month,
+          monthIndex: idx,
           netPay: Math.round(liveItem.cost * 0.78),
           taxes: Math.round(liveItem.cost * 0.12),
           statutories: Math.round(liveItem.cost * 0.06),
@@ -122,7 +182,7 @@ export const PayrollCostChart = ({ data }) => {
         };
       }
 
-      return { ...item, isFuture: false };
+      return { ...item, monthIndex: idx, isFuture: false };
     });
 
     if (viewMode === 'trailing-6') {
@@ -132,7 +192,7 @@ export const PayrollCostChart = ({ data }) => {
         if (targetIdx >= 0) {
           result.push(resolvedYearData[targetIdx]);
         } else {
-          const prevYearData = yearlyBaseData[(parseInt(selectedYear) - 1).toString()] || yearlyBaseData['2025'];
+          const prevYearData = yearlyBaseData[(parseInt(selectedYear, 10) - 1).toString()] || yearlyBaseData['2025'];
           result.push(prevYearData[12 + targetIdx]);
         }
       }
@@ -142,10 +202,11 @@ export const PayrollCostChart = ({ data }) => {
     if (viewMode === 'single-month') {
       const mData = resolvedYearData[selectedMonthIndex] || resolvedYearData[8];
       const isFuture = mData.isFuture;
+      const daysInMonth = monthDaysCount[selectedMonthIndex] || 30;
 
       return [
         {
-          month: `W1 (1-7 ${selectedMonthShort})`,
+          month: `Week 1 (1-7 ${selectedMonthShort})`,
           netPay: isFuture ? 0 : Math.round(mData.netPay * 0.23),
           taxes: isFuture ? 0 : Math.round(mData.taxes * 0.23),
           statutories: isFuture ? 0 : Math.round(mData.statutories * 0.23),
@@ -153,7 +214,7 @@ export const PayrollCostChart = ({ data }) => {
           isFuture,
         },
         {
-          month: `W2 (8-14 ${selectedMonthShort})`,
+          month: `Week 2 (8-14 ${selectedMonthShort})`,
           netPay: isFuture ? 0 : Math.round(mData.netPay * 0.25),
           taxes: isFuture ? 0 : Math.round(mData.taxes * 0.25),
           statutories: isFuture ? 0 : Math.round(mData.statutories * 0.25),
@@ -161,7 +222,7 @@ export const PayrollCostChart = ({ data }) => {
           isFuture,
         },
         {
-          month: `W3 (15-21 ${selectedMonthShort})`,
+          month: `Week 3 (15-21 ${selectedMonthShort})`,
           netPay: isFuture ? 0 : Math.round(mData.netPay * 0.24),
           taxes: isFuture ? 0 : Math.round(mData.taxes * 0.24),
           statutories: isFuture ? 0 : Math.round(mData.statutories * 0.24),
@@ -169,7 +230,7 @@ export const PayrollCostChart = ({ data }) => {
           isFuture,
         },
         {
-          month: `W4 (22-30 ${selectedMonthShort})`,
+          month: `Week 4 (22-${daysInMonth} ${selectedMonthShort})`,
           netPay: isFuture ? 0 : Math.round(mData.netPay * 0.28),
           taxes: isFuture ? 0 : Math.round(mData.taxes * 0.28),
           statutories: isFuture ? 0 : Math.round(mData.statutories * 0.28),
@@ -182,7 +243,7 @@ export const PayrollCostChart = ({ data }) => {
     return resolvedYearData;
   }, [selectedYear, selectedMonthIndex, selectedMonthShort, viewMode, data]);
 
-  // Aggregate stats for current chart view (summing only processed non-future months)
+  // Aggregate stats for current chart view
   const aggregates = useMemo(() => {
     let totalNet = 0;
     let totalTaxes = 0;
@@ -210,6 +271,21 @@ export const PayrollCostChart = ({ data }) => {
     };
   }, [chartData]);
 
+  // Bar click handler to drill down into month-wise
+  const handleBarClick = (entry) => {
+    if (!entry || viewMode === 'single-month') return;
+    const monthShort = entry.month;
+    const idx = monthShortNames.indexOf(monthShort);
+    if (idx >= 0) {
+      if (parseInt(selectedYear, 10) === CURRENT_MAX_YEAR && idx > CURRENT_MAX_MONTH_IDX) {
+        return; // Future month
+      }
+      const newDate = new Date(parseInt(selectedYear, 10), idx, 1);
+      setSelectedDate(newDate);
+      setViewMode('single-month');
+    }
+  };
+
   // Custom Chart Tooltip
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -226,12 +302,12 @@ export const PayrollCostChart = ({ data }) => {
             border: '1px solid #27272A',
             fontSize: '12px',
             boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)',
-            minWidth: '210px',
+            minWidth: '220px',
           }}
         >
           <Group justify="space-between" mb={6} pb={4} style={{ borderBottom: '1px solid #27272A' }}>
             <Text fw={700} c="#F8FAFC" size="xs">
-              {label} {selectedYear}
+              {label} {viewMode !== 'single-month' ? selectedYear : ''}
             </Text>
             {isFuture ? (
               <Badge size="xs" color="gray" variant="filled">
@@ -249,25 +325,32 @@ export const PayrollCostChart = ({ data }) => {
               Future payroll run. No disbursals recorded yet.
             </Text>
           ) : (
-            <Stack gap={4}>
-              {payload.map((item, index) => {
-                const pct = monthTotal ? ((item.value / monthTotal) * 100).toFixed(1) : 0;
-                return (
-                  <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                    <Group gap={6}>
-                      <Box style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: item.color }} />
-                      <span style={{ color: '#E2E8F0', fontSize: '11px' }}>{item.name}</span>
-                    </Group>
-                    <Group gap={6}>
-                      <span style={{ color: '#94A3B8', fontSize: '10px' }}>({pct}%)</span>
-                      <span style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600, color: '#FFFFFF', fontSize: '11px' }}>
-                        ₹{(item.value / 100000).toFixed(2)}L
-                      </span>
-                    </Group>
-                  </div>
-                );
-              })}
-            </Stack>
+            <>
+              <Stack gap={4}>
+                {payload.map((item, index) => {
+                  const pct = monthTotal ? ((item.value / monthTotal) * 100).toFixed(1) : 0;
+                  return (
+                    <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                      <Group gap={6}>
+                        <Box style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: item.color }} />
+                        <span style={{ color: '#E2E8F0', fontSize: '11px' }}>{item.name}</span>
+                      </Group>
+                      <Group gap={6}>
+                        <span style={{ color: '#94A3B8', fontSize: '10px' }}>({pct}%)</span>
+                        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600, color: '#FFFFFF', fontSize: '11px' }}>
+                          ₹{(item.value / 100000).toFixed(2)}L
+                        </span>
+                      </Group>
+                    </div>
+                  );
+                })}
+              </Stack>
+              {viewMode !== 'single-month' && (
+                <Text size="10px" c="#38BDF8" mt={6} pt={4} style={{ borderTop: '1px solid #27272A', fontStyle: 'italic' }}>
+                  💡 Click bar to view {label} weekly cycles
+                </Text>
+              )}
+            </>
           )}
         </Paper>
       );
@@ -285,8 +368,8 @@ export const PayrollCostChart = ({ data }) => {
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
       }}
     >
-      {/* Header Row with Title, Month/Year Calendar Picker & View Mode */}
-      <Group justify="space-between" align="flex-start" mb="md" wrap="wrap" gap="md">
+      {/* Header Row with Title, View Controls & Month Picker */}
+      <Group justify="space-between" align="flex-start" mb="sm" wrap="wrap" gap="md">
         <div>
           <Group gap="xs" align="center">
             <Text fw={800} size="sm" c="#09090B" style={{ letterSpacing: '0.02em' }}>
@@ -295,30 +378,62 @@ export const PayrollCostChart = ({ data }) => {
             <Badge size="xs" color="blue" variant="light" fw={700}>
               {selectedYear}
             </Badge>
+            {viewMode === 'single-month' && (
+              <Badge size="xs" color="teal" variant="filled" fw={700}>
+                Month-wise: {selectedMonthFullName}
+              </Badge>
+            )}
           </Group>
           <Text size="xs" c="#71717A" mt={2}>
-            Historical distribution across net pay, taxes, statutory contributions & deductions
+            {viewMode === 'single-month'
+              ? `Weekly disbursal cycles and statutory breakdown for ${selectedMonthFullName} ${selectedYear}`
+              : 'Historical distribution across net pay, taxes, statutory contributions & deductions'}
           </Text>
         </div>
 
-        {/* Dropdowns / Calendar Picker Controls */}
+        {/* Action Controls */}
         <Group gap="xs" align="center" wrap="wrap">
+          {/* Segmented Mode Toggle */}
+          <SegmentedControl
+            size="xs"
+            radius="sm"
+            value={viewMode}
+            onChange={(val) => {
+              if (val === 'single-month') {
+                // Ensure not picking future month
+                if (
+                  parseInt(selectedYear, 10) > CURRENT_MAX_YEAR ||
+                  (parseInt(selectedYear, 10) === CURRENT_MAX_YEAR && selectedMonthIndex > CURRENT_MAX_MONTH_IDX)
+                ) {
+                  setSelectedDate(new Date(CURRENT_MAX_YEAR, CURRENT_MAX_MONTH_IDX, 1));
+                }
+              }
+              setViewMode(val);
+            }}
+            data={[
+              { label: `Full Year (${selectedYear})`, value: 'full-year' },
+              { label: `Month-wise (${selectedMonthShort})`, value: 'single-month' },
+              { label: 'Trailing 6M', value: 'trailing-6' },
+            ]}
+            styles={{
+              root: {
+                backgroundColor: '#F1F5F9',
+                border: '1px solid #E2E8F0',
+              },
+              label: {
+                fontWeight: 600,
+                fontSize: '11px',
+              },
+            }}
+          />
+
           {/* Month & Year Calendar Dropdown */}
           <MonthPickerInput
             leftSection={<IconCalendar size={15} stroke={1.7} style={{ color: '#2563EB' }} />}
             placeholder="Pick month & year"
             value={selectedDate}
-            onChange={(date) => {
-              if (date) {
-                const maxAllowed = new Date(2026, 8, 30);
-                if (date > maxAllowed) {
-                  setSelectedDate(new Date(2026, 8, 1));
-                  return;
-                }
-                setSelectedDate(date);
-              }
-            }}
-            maxDate={new Date(2026, 8, 30)}
+            onChange={handleSelectMonth}
+            maxDate={MAX_ALLOWED_DATE}
             minDate={new Date(2024, 0, 1)}
             size="xs"
             radius="sm"
@@ -334,31 +449,109 @@ export const PayrollCostChart = ({ data }) => {
               },
             }}
           />
-
-          {/* Quick Horizon View Selector */}
-          <Select
-            size="xs"
-            radius="sm"
-            value={viewMode}
-            onChange={(val) => setViewMode(val || 'full-year')}
-            data={[
-              { value: 'full-year', label: `Full Year (${selectedYear})` },
-              { value: 'trailing-6', label: `Last 6 Months` },
-              { value: 'single-month', label: `${selectedMonthShort} Cycles (Weekly)` },
-            ]}
-            styles={{
-              input: {
-                backgroundColor: '#F8FAFC',
-                borderColor: '#E2E8F0',
-                color: '#09090B',
-                fontWeight: 600,
-                fontSize: '12px',
-                width: '165px',
-              },
-            }}
-          />
         </Group>
       </Group>
+
+      {/* Month Navigation Pills & Quick Controls when in Month-wise mode */}
+      {viewMode === 'single-month' && (
+        <Paper
+          p="xs"
+          mb="sm"
+          radius="sm"
+          style={{
+            backgroundColor: '#F0FDF4',
+            border: '1px solid #BBF7D0',
+          }}
+        >
+          <Group justify="space-between" align="center" wrap="wrap" gap="xs">
+            <Group gap="xs" align="center">
+              <ActionIcon
+                variant="default"
+                size="sm"
+                radius="sm"
+                onClick={handlePrevMonth}
+                title="Previous Month"
+              >
+                <IconChevronLeft size={14} />
+              </ActionIcon>
+
+              <Text size="xs" fw={700} c="#166534">
+                {selectedMonthFullName} {selectedYear}
+              </Text>
+
+              <ActionIcon
+                variant="default"
+                size="sm"
+                radius="sm"
+                onClick={handleNextMonth}
+                disabled={!canGoNext}
+                title={canGoNext ? 'Next Month' : 'Current active month reached (September 2026)'}
+              >
+                <IconChevronRight size={14} />
+              </ActionIcon>
+
+              <Text size="11px" c="#15803D" fw={500} ml={4}>
+                (Select any month up to current month Sep 2026)
+              </Text>
+            </Group>
+
+            {/* Quick Month Selector Pills */}
+            <Group gap={4} wrap="wrap">
+              {monthShortNames.map((m, idx) => {
+                const isFuture =
+                  parseInt(selectedYear, 10) > CURRENT_MAX_YEAR ||
+                  (parseInt(selectedYear, 10) === CURRENT_MAX_YEAR && idx > CURRENT_MAX_MONTH_IDX);
+                const isSelected = idx === selectedMonthIndex;
+
+                return (
+                  <MantineTooltip
+                    key={m}
+                    label={isFuture ? `${m} ${selectedYear} is in the future` : `View ${monthNames[idx]} ${selectedYear}`}
+                    position="top"
+                    withArrow
+                    disabled={!isFuture && !isSelected}
+                  >
+                    <span>
+                      <Button
+                        size="compact-xs"
+                        variant={isSelected ? 'filled' : 'subtle'}
+                        color={isSelected ? 'teal' : 'gray'}
+                        disabled={isFuture}
+                        onClick={() => {
+                          if (!isFuture) {
+                            setSelectedDate(new Date(parseInt(selectedYear, 10), idx, 1));
+                          }
+                        }}
+                        style={{
+                          fontSize: '10px',
+                          fontWeight: isSelected ? 700 : 500,
+                          padding: '0 6px',
+                          height: '22px',
+                          cursor: isFuture ? 'not-allowed' : 'pointer',
+                          opacity: isFuture ? 0.35 : 1,
+                        }}
+                      >
+                        {m}
+                      </Button>
+                    </span>
+                  </MantineTooltip>
+                );
+              })}
+
+              <Button
+                size="compact-xs"
+                variant="light"
+                color="blue"
+                leftSection={<IconArrowBackUp size={12} />}
+                onClick={() => setViewMode('full-year')}
+                style={{ fontSize: '10px', height: '22px', marginLeft: '6px' }}
+              >
+                Full Year
+              </Button>
+            </Group>
+          </Group>
+        </Paper>
+      )}
 
       {/* Aggregate KPI Badges Row */}
       <Paper
@@ -373,7 +566,7 @@ export const PayrollCostChart = ({ data }) => {
         <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
           <Box px="xs">
             <Text size="10px" fw={700} c="#64748B" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
-              Total Gross Payroll
+              {viewMode === 'single-month' ? `${selectedMonthShort} Gross Payroll` : 'Total Gross Payroll'}
             </Text>
             <Text size="14px" fw={800} c="#09090B" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
               {formatCurrency(aggregates.totalGross)}
@@ -412,7 +605,16 @@ export const PayrollCostChart = ({ data }) => {
       {/* Main Bar Chart Container */}
       <div style={{ width: '100%', height: 270 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -5, bottom: 0 }}>
+          <BarChart
+            data={chartData}
+            margin={{ top: 10, right: 10, left: -5, bottom: 0 }}
+            onClick={(e) => {
+              if (e && e.activePayload && e.activePayload.length > 0) {
+                handleBarClick(e.activePayload[0].payload);
+              }
+            }}
+            style={{ cursor: viewMode !== 'single-month' ? 'pointer' : 'default' }}
+          >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
             <XAxis
               dataKey="month"
@@ -474,3 +676,4 @@ export const PayrollCostChart = ({ data }) => {
     </Paper>
   );
 };
+
