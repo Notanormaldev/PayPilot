@@ -20,6 +20,7 @@ import {
   RingProgress,
   ActionIcon,
   Avatar,
+  Box,
 } from '@mantine/core';
 import {
   IconDashboard,
@@ -60,10 +61,22 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
   const userName = user?.name || 'Kartik Kumar';
   const userRole = user?.designation || 'Staff Product Manager';
   const userDept = user?.department || 'Product';
-  const userEmpId = user?.id || 'EMP-8492';
+  const userEmpCode = 'EMP-8492'; // Formatted company employee identifier (replacing raw database cuid)
+
+  // Dynamic Time-Based Greeting
+  const getTimeGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Good Morning ☀️';
+    if (hour >= 12 && hour < 17) return 'Good Afternoon 🌤️';
+    if (hour >= 17 && hour < 22) return 'Good Evening 🌆';
+    return 'Good Night 🌙';
+  };
 
   // Holiday Calendar Modal State
   const [holidayModalOpen, setHolidayModalOpen] = useState(false);
+
+  // Dedicated Employee Tax Computation Modal State
+  const [taxModalOpen, setTaxModalOpen] = useState(false);
 
   // Live Shift Attendance State (Synchronized with localStorage)
   const [checkedIn, setCheckedIn] = useState(() => {
@@ -115,7 +128,7 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
     const now = Date.now();
 
     try {
-      await attendanceService.recordPunch(userEmpId, newCheckedIn ? 'CHECK_IN' : 'CHECK_OUT');
+      await attendanceService.recordPunch(userEmpCode, newCheckedIn ? 'CHECK_IN' : 'CHECK_OUT');
     } catch (e) {
       console.warn('Punch recording fallback:', e.message);
     } finally {
@@ -156,7 +169,7 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
       },
       {
         name: userName,
-        id: userEmpId,
+        id: userEmpCode,
         department: userDept,
         designation: userRole,
       }
@@ -195,48 +208,29 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
         p="xl"
         radius="md"
         style={{
-          background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
-          color: '#FFFFFF',
-          boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.25)',
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.04)',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
         <Group justify="space-between" align="center" wrap="wrap" gap="lg">
           <div>
-            <Group gap="xs" mb={4}>
-              <Badge size="sm" color="teal" variant="filled">
+            <Group gap="xs" mb="xs">
+              <Badge size="sm" color="teal" variant="light">
                 EMPLOYEE WORKSPACE
               </Badge>
               <Badge size="sm" color="indigo" variant="light">
-                {userEmpId}
+                {userEmpCode}
               </Badge>
             </Group>
-            <Title order={2} c="#FFFFFF">
-              Welcome back, {userName}! 👋
+            <Title order={2} c="#0F172A" fw={800}>
+              Hey, {userName}! {getTimeGreeting()}
             </Title>
-            <Text size="xs" c="#94A3B8" mt={4}>
+            <Text size="xs" c="#64748B" mt={4}>
               {userRole} • {userDept} Department • Standard 40h Work Week (Mon–Fri)
             </Text>
-            <Group gap="xs" mt="sm">
-              <Button
-                size="xs"
-                variant="light"
-                color="indigo"
-                leftSection={<IconCalendarEvent size={14} />}
-                onClick={() => setHolidayModalOpen(true)}
-                styles={{
-                  root: {
-                    backgroundColor: 'rgba(99, 102, 241, 0.2)',
-                    color: '#C7D2FE',
-                    border: '1px solid rgba(99, 102, 241, 0.4)',
-                    '&:hover': { backgroundColor: 'rgba(99, 102, 241, 0.35)' },
-                  },
-                }}
-              >
-                2026 Indian Holiday Calendar
-              </Button>
-            </Group>
           </div>
 
           {/* Web Punch Live Shift Box */}
@@ -244,32 +238,31 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
             p="md"
             radius="md"
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(10px)',
+              backgroundColor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
               minWidth: '320px',
             }}
           >
             <Group justify="space-between" align="center" mb="xs">
               <Group gap="xs">
-                <ThemeIcon size="sm" color={checkedIn ? 'teal' : 'gray'} radius="xl">
+                <ThemeIcon size="sm" color={checkedIn ? 'teal' : 'gray'} variant="light" radius="xl">
                   {checkedIn ? <IconClockCheck size={14} /> : <IconClockOff size={14} />}
                 </ThemeIcon>
-                <Text size="xs" fw={700} c="#FFFFFF">
+                <Text size="xs" fw={700} c="#0F172A">
                   {checkedIn ? 'Active Work Shift' : 'Off Clock / On Break'}
                 </Text>
               </Group>
-              <Badge size="xs" color={checkedIn ? 'teal' : 'gray'}>
+              <Badge size="xs" color={checkedIn ? 'teal' : 'gray'} variant="light">
                 {checkedIn ? `Punched In at ${checkInDisplayStr}` : 'Not Checked In'}
               </Badge>
             </Group>
 
             <Group justify="space-between" align="center" my="xs">
               <div>
-                <Text size="10px" c="#94A3B8" style={{ textTransform: 'uppercase' }}>
+                <Text size="10px" c="#64748B" fw={700} style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   Today's Shift Timer
                 </Text>
-                <Text size="xl" fw={800} c={checkedIn ? '#4ADE80' : '#94A3B8'} style={{ fontFamily: 'monospace' }}>
+                <Text size="xl" fw={800} c={checkedIn ? '#059669' : '#64748B'} style={{ fontFamily: 'monospace' }}>
                   {formatTimer(elapsedSec)}
                 </Text>
               </div>
@@ -283,8 +276,8 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
                 onClick={handleTogglePunch}
                 style={{
                   boxShadow: checkedIn
-                    ? '0 4px 12px rgba(239, 68, 68, 0.35)'
-                    : '0 4px 12px rgba(20, 184, 166, 0.35)',
+                    ? '0 4px 12px rgba(239, 68, 68, 0.25)'
+                    : '0 4px 12px rgba(20, 184, 166, 0.25)',
                 }}
               >
                 {checkedIn ? 'Web Punch Out' : 'Web Punch In'}
@@ -294,10 +287,10 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
             {/* Today's Shift Progress Meter */}
             <div>
               <Group justify="space-between" mb={2}>
-                <Text size="10px" c="#94A3B8">
+                <Text size="10px" c="#64748B">
                   Shift Goal: 8.0 Hrs (09:30 AM – 06:30 PM)
                 </Text>
-                <Text size="10px" fw={700} c="#FFFFFF">
+                <Text size="10px" fw={700} c="#0F172A">
                   {shiftPercent}%
                 </Text>
               </Group>
@@ -555,7 +548,7 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
               color="indigo"
               variant="light"
               leftSection={<IconReceiptTax size={14} />}
-              onClick={() => onNavigate && onNavigate('my-taxes')}
+              onClick={() => setTaxModalOpen(true)}
             >
               My Tax Computation
             </Button>
@@ -964,6 +957,189 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
           setLeaveModalOpen(true);
         }}
       />
+
+      {/* Personalized Employee Tax Computation & EPFO Modal */}
+      <Modal
+        opened={taxModalOpen}
+        onClose={() => setTaxModalOpen(false)}
+        size="lg"
+        radius="lg"
+        padding={0}
+        withCloseButton={false}
+        styles={{
+          content: { borderRadius: '16px', overflow: 'hidden', border: '1px solid #E2E8F0' },
+          body: { padding: 0 },
+        }}
+      >
+        <Box p="lg" style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
+          <Group justify="space-between" align="flex-start">
+            <div>
+              <Group gap="xs" mb={4}>
+                <Badge size="sm" color="teal" variant="light">
+                  FY 2026-27 (AY 2027-28)
+                </Badge>
+                <Badge size="sm" color="indigo" variant="light">
+                  {userEmpCode}
+                </Badge>
+              </Group>
+              <Title order={3} c="#0F172A">
+                🇮🇳 {userName}'s Tax Computation
+              </Title>
+              <Text size="xs" c="#64748B" mt={2}>
+                Personalized statutory tax assessment & monthly TDS calculation under Section 115BAC
+              </Text>
+            </div>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              onClick={() => setTaxModalOpen(false)}
+              size="lg"
+              radius="xl"
+            >
+              ✕
+            </ActionIcon>
+          </Group>
+
+          {/* Quick Stats */}
+          <SimpleGrid cols={3} spacing="xs" mt="md">
+            <Paper
+              p="xs"
+              radius="sm"
+              style={{
+                backgroundColor: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+              }}
+            >
+              <Text size="10px" fw={700} c="#64748B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Annual Gross Salary
+              </Text>
+              <Text size="md" fw={800} c="#0F172A">
+                ₹15,00,000
+              </Text>
+            </Paper>
+            <Paper
+              p="xs"
+              radius="sm"
+              style={{
+                backgroundColor: '#EEF2FF',
+                border: '1px solid #C7D2FE',
+              }}
+            >
+              <Text size="10px" fw={700} c="#4F46E5" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Standard Deduction
+              </Text>
+              <Text size="md" fw={800} c="#4338CA">
+                -₹75,000
+              </Text>
+            </Paper>
+            <Paper
+              p="xs"
+              radius="sm"
+              style={{
+                backgroundColor: '#ECFDF5',
+                border: '1px solid #A7F3D0',
+              }}
+            >
+              <Text size="10px" fw={700} c="#059669" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Net Taxable Income
+              </Text>
+              <Text size="md" fw={800} c="#047857">
+                ₹14,25,000
+              </Text>
+            </Paper>
+          </SimpleGrid>
+        </Box>
+
+        <Box p="lg" style={{ backgroundColor: '#F8FAFC' }}>
+          <Stack gap="md">
+            {/* Step-by-Step Slab Breakdown Card */}
+            <Paper p="md" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+              <Group justify="space-between" mb="xs">
+                <Text size="xs" fw={700} c="#0F172A" style={{ textTransform: 'uppercase' }}>
+                  New Tax Regime Slab Breakdown (u/s 115BAC)
+                </Text>
+                <Badge size="xs" color="indigo">FY 2026-27 Slabs</Badge>
+              </Group>
+
+              <Stack gap={6}>
+                <Group justify="space-between" p="xs" style={{ backgroundColor: '#F8FAFC', borderRadius: '6px' }}>
+                  <Text size="xs" c="#475569">₹0 to ₹4,00,000 (0% Rate)</Text>
+                  <Text size="xs" fw={700} c="#0F172A">₹0</Text>
+                </Group>
+                <Group justify="space-between" p="xs" style={{ backgroundColor: '#F8FAFC', borderRadius: '6px' }}>
+                  <Text size="xs" c="#475569">₹4,00,001 to ₹8,00,000 (5% on ₹4,00,000)</Text>
+                  <Text size="xs" fw={700} c="#0F172A">₹20,000</Text>
+                </Group>
+                <Group justify="space-between" p="xs" style={{ backgroundColor: '#F8FAFC', borderRadius: '6px' }}>
+                  <Text size="xs" c="#475569">₹8,00,001 to ₹12,00,000 (10% on ₹4,00,000)</Text>
+                  <Text size="xs" fw={700} c="#0F172A">₹40,000</Text>
+                </Group>
+                <Group justify="space-between" p="xs" style={{ backgroundColor: '#F8FAFC', borderRadius: '6px' }}>
+                  <Text size="xs" c="#475569">₹12,00,001 to ₹14,25,000 (15% on ₹2,25,000)</Text>
+                  <Text size="xs" fw={700} c="#0F172A">₹33,750</Text>
+                </Group>
+
+                <Divider my={4} />
+
+                <Group justify="space-between">
+                  <Text size="xs" fw={700} c="#0F172A">Total Slab Base Tax</Text>
+                  <Text size="xs" fw={800} c="#0F172A">₹93,750</Text>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="xs" c="#64748B">Health & Education Cess (4%)</Text>
+                  <Text size="xs" fw={700} c="#64748B">₹3,750</Text>
+                </Group>
+                <Group justify="space-between" p="xs" style={{ backgroundColor: '#EFF6FF', borderRadius: '6px', border: '1px solid #BFDBFE' }}>
+                  <div>
+                    <Text size="xs" fw={800} c="#1E40AF">Total Annual Tax Liability</Text>
+                    <Text size="10px" c="#3B82F6">Monthly Salary TDS: ₹8,125 / month</Text>
+                  </div>
+                  <Text size="lg" fw={900} c="#1D4ED8">₹97,500</Text>
+                </Group>
+              </Stack>
+            </Paper>
+
+            {/* EPFO & Statutory Pension Card */}
+            <Paper p="md" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+              <Group justify="space-between" mb="xs">
+                <Text size="xs" fw={700} c="#0F172A" style={{ textTransform: 'uppercase' }}>
+                  EPFO Monthly Contributions & Pension
+                </Text>
+                <Badge size="xs" color="teal">UAN: 101849204918</Badge>
+              </Group>
+
+              <SimpleGrid cols={2} spacing="xs">
+                <Paper p="xs" radius="sm" style={{ backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                  <Text size="10px" c="#166534">Employee EPF (12%)</Text>
+                  <Text size="sm" fw={800} c="#15803D">₹4,800 / mo</Text>
+                  <Text size="9px" c="#166534">Credited to Provident Fund (A/c 1)</Text>
+                </Paper>
+                <Paper p="xs" radius="sm" style={{ backgroundColor: '#FAF5FF', border: '1px solid #E9D5FF' }}>
+                  <Text size="10px" c="#6B21A8">Employer Share (EPF + EPS Split)</Text>
+                  <Text size="sm" fw={800} c="#7E22CE">₹3,550 (EPF) + ₹1,250 (EPS)</Text>
+                  <Text size="9px" c="#7E22CE">Age 58 Pension Cutoff: Active</Text>
+                </Paper>
+              </SimpleGrid>
+            </Paper>
+
+            <Group justify="flex-end" gap="xs">
+              <Button size="xs" variant="default" onClick={() => setTaxModalOpen(false)}>
+                Close Statement
+              </Button>
+              <Button
+                size="xs"
+                color="indigo"
+                leftSection={<IconDownload size={14} />}
+                onClick={() => {
+                  alert('Tax Computation Statement (FY 2026-27) exported to PDF.');
+                }}
+              >
+                Download Statement (PDF)
+              </Button>
+            </Group>
+          </Stack>
+        </Box>
+      </Modal>
     </Stack>
   );
 };

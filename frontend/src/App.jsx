@@ -46,6 +46,7 @@ export const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [copilotOpen, setCopilotOpen] = useState(false);
   const [viewLanding, setViewLanding] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const { kpis, trends, refreshDashboard } = useDashboard();
   const { payruns, fetchPayruns } = usePayroll();
@@ -98,6 +99,8 @@ export const App = () => {
         onOpenCopilot={() => setCopilotOpen(true)}
         onViewLanding={() => setViewLanding(true)}
         onNavigateTab={(tab) => setActiveTab(tab)}
+        onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
+        sidebarCollapsed={sidebarCollapsed}
         currentRole={currentRole}
         employees={employees}
         payruns={payruns}
@@ -109,6 +112,7 @@ export const App = () => {
           activeTab={activeTab}
           onTabChange={setActiveTab}
           openSentinelFlagsCount={flags?.length || 0}
+          collapsed={sidebarCollapsed}
         />
 
         <main style={{ flex: 1, padding: '24px', maxWidth: '1480px', margin: '0 auto', width: '100%' }}>

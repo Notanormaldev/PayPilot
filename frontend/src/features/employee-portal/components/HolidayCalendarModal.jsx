@@ -219,46 +219,61 @@ export const HolidayCalendarModal = ({ opened, onClose, onApplyRhLeave }) => {
             >
               Export to Calendar (.ICS)
             </Button>
-            <ActionIcon variant="subtle" color="gray" onClick={onClose} size="lg" radius="xl" c="#FFFFFF">
+            <ActionIcon
+              variant="filled"
+              color="dark"
+              onClick={onClose}
+              size="lg"
+              radius="xl"
+              title="Close Holiday Calendar"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                fontWeight: 800,
+                fontSize: '16px',
+                cursor: 'pointer',
+              }}
+            >
               ✕
             </ActionIcon>
           </Group>
         </Group>
 
-        {/* STATS STRIP */}
+        {/* STATS STRIP - High contrast crisp backgrounds */}
         <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs" mt="md">
-          <Paper p="xs" radius="sm" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
-            <Text size="10px" c="#94A3B8" style={{ textTransform: 'uppercase' }}>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+            <Text size="10px" fw={700} c="#94A3B8" style={{ textTransform: 'uppercase' }}>
               Total Holidays
             </Text>
-            <Text size="lg" fw={800} c="#FFFFFF">
+            <Text size="lg" fw={900} c="#F8FAFC">
               {stats.total} Days
             </Text>
           </Paper>
 
-          <Paper p="xs" radius="sm" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
-            <Text size="10px" c="#A5B4FC" style={{ textTransform: 'uppercase' }}>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#1E1B4B', border: '1px solid #4338CA' }}>
+            <Text size="10px" fw={700} c="#C7D2FE" style={{ textTransform: 'uppercase' }}>
               🟣 Gazetted (Mandatory)
             </Text>
-            <Text size="lg" fw={800} c="#A5B4FC">
+            <Text size="lg" fw={900} c="#E0E7FF">
               {stats.gazetted} Days
             </Text>
           </Paper>
 
-          <Paper p="xs" radius="sm" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
-            <Text size="10px" c="#FED7AA" style={{ textTransform: 'uppercase' }}>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#431407', border: '1px solid #9A3412' }}>
+            <Text size="10px" fw={700} c="#FED7AA" style={{ textTransform: 'uppercase' }}>
               🟠 Restricted (RH Choice)
             </Text>
-            <Text size="lg" fw={800} c="#FDBA74">
+            <Text size="lg" fw={900} c="#FFEDD5">
               {stats.restricted} Days
             </Text>
           </Paper>
 
-          <Paper p="xs" radius="sm" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
-            <Text size="10px" c="#86EFAC" style={{ textTransform: 'uppercase' }}>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#064E3B', border: '1px solid #059669' }}>
+            <Text size="10px" fw={700} c="#A7F3D0" style={{ textTransform: 'uppercase' }}>
               🌴 Long Weekends
             </Text>
-            <Text size="lg" fw={800} c="#4ADE80">
+            <Text size="lg" fw={900} c="#D1FAE5">
               {stats.longWeekends} Trips
             </Text>
           </Paper>

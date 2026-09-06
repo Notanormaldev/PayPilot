@@ -14,6 +14,9 @@ import {
   Textarea,
   Alert,
   Box,
+  ThemeIcon,
+  Tooltip,
+  Divider,
 } from '@mantine/core';
 import {
   IconClock,
@@ -23,11 +26,16 @@ import {
   IconEdit,
   IconClockCheck,
   IconClockOff,
+  IconEye,
+  IconTrendingUp,
+  IconCalendarStats,
+  IconHistory,
 } from '@tabler/icons-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 export const MyAttendanceView = () => {
   const [correctionModalOpen, setCorrectionModalOpen] = useState(false);
+  const [breakdownModalOpen, setBreakdownModalOpen] = useState(false);
   const [correctionDate, setCorrectionDate] = useState('2026-09-04');
   const [correctCheckIn, setCorrectCheckIn] = useState('09:00 AM');
   const [correctCheckOut, setCorrectCheckOut] = useState('06:00 PM');
@@ -54,6 +62,37 @@ export const MyAttendanceView = () => {
 
   // Shift Target: 8 hours = 28,800 seconds
   const TARGET_SECONDS = 8 * 3600;
+
+  // Relative Time Helper (X Minutes ago / 1 Minute ago / Just Now)
+  const getRelativeTime = (timeMs) => {
+    if (!timeMs) return 'Just Now';
+    const diffSec = Math.max(0, Math.floor((Date.now() - timeMs) / 1000));
+    if (diffSec < 45) return 'Just Now';
+    const diffMins = Math.floor(diffSec / 60);
+    if (diffMins === 1) return '1 Minute ago';
+    if (diffMins < 60) return `${diffMins} Minutes ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    const remMins = diffMins % 60;
+    if (diffHours === 1) return `1 Hour ${remMins}m ago`;
+    return `${diffHours} Hours ${remMins}m ago`;
+  };
+
+  // Dynamic Total Worked Hours (Base 160.5 hrs + Live current shift)
+  const baseMonthlyHrs = 160.5;
+  const liveShiftHoursVal = checkedIn ? elapsedSec / 3600 : 0;
+  const dynamicTotalWorkedHours = (baseMonthlyHrs + liveShiftHoursVal).toFixed(1);
+
+  // Comprehensive Work Breakdown History Dataset
+  const detailedBreakdown = [
+    { date: 'Sep 05, 2026', day: 'Friday', checkIn: '09:15 AM', checkOut: '06:15 PM', breakTime: '45 mins', workedHours: '8.2 hrs', status: 'PRESENT', overtime: '+0.2 hrs' },
+    { date: 'Sep 04, 2026', day: 'Thursday', checkIn: '09:00 AM', checkOut: '06:00 PM', breakTime: '60 mins', workedHours: '8.0 hrs', status: 'PRESENT', overtime: '0.0 hrs' },
+    { date: 'Sep 03, 2026', day: 'Wednesday', checkIn: '09:28 AM', checkOut: '06:00 PM', breakTime: '30 mins', workedHours: '7.5 hrs', status: 'LATE', overtime: '-0.5 hrs' },
+    { date: 'Sep 02, 2026', day: 'Tuesday', checkIn: '09:00 AM', checkOut: '06:00 PM', breakTime: '60 mins', workedHours: '8.0 hrs', status: 'PRESENT', overtime: '0.0 hrs' },
+    { date: 'Sep 01, 2026', day: 'Monday', checkIn: '09:02 AM', checkOut: '06:10 PM', breakTime: '45 mins', workedHours: '8.1 hrs', status: 'PRESENT', overtime: '+0.1 hrs' },
+    { date: 'Aug 29, 2026', day: 'Friday', checkIn: '09:00 AM', checkOut: '06:00 PM', breakTime: '60 mins', workedHours: '8.0 hrs', status: 'PRESENT', overtime: '0.0 hrs' },
+    { date: 'Aug 28, 2026', day: 'Thursday', checkIn: '09:18 AM', checkOut: '06:00 PM', breakTime: '45 mins', workedHours: '7.7 hrs', status: 'LATE', overtime: '-0.3 hrs' },
+    { date: 'Aug 27, 2026', day: 'Wednesday', checkIn: '08:55 AM', checkOut: '06:30 PM', breakTime: '60 mins', workedHours: '8.6 hrs', status: 'PRESENT', overtime: '+0.6 hrs' },
+  ];
 
   // Attendance History List
   const [attendanceLogs, setAttendanceLogs] = useState([
@@ -173,13 +212,23 @@ export const MyAttendanceView = () => {
             </Text>
           </div>
 
-          <Button
-            color="dark"
-            leftSection={<IconEdit size={16} />}
-            onClick={() => setCorrectionModalOpen(true)}
-          >
-            Request Correction
-          </Button>
+          <Group gap="xs">
+            <Button
+              variant="light"
+              color="blue"
+              leftSection={<IconCalendarStats size={16} />}
+              onClick={() => setBreakdownModalOpen(true)}
+            >
+              Work Breakdown
+            </Button>
+            <Button
+              color="dark"
+              leftSection={<IconEdit size={16} />}
+              onClick={() => setCorrectionModalOpen(true)}
+            >
+              Request Correction
+            </Button>
+          </Group>
         </Group>
       </Paper>
 
@@ -203,7 +252,11 @@ export const MyAttendanceView = () => {
               color={checkedIn ? 'teal' : shiftCompleted ? 'blue' : 'gray'}
               variant="filled"
             >
-              {checkedIn ? 'ACTIVE SHIFT IN PROGRESS' : shiftCompleted ? 'SHIFT COMPLETED' : 'NOT CHECKED IN'}
+              {checkedIn
+                ? `ACTIVE SHIFT • Punched in ${getRelativeTime(checkInTime)}`
+                : shiftCompleted
+                ? 'SHIFT COMPLETED'
+                : 'NOT CHECKED IN'}
             </Badge>
           </Group>
           <Text size="xs" c="#71717A">
@@ -229,8 +282,8 @@ export const MyAttendanceView = () => {
                 Check-In:{' '}
                 <b>
                   {checkInTime && checkedIn
-                    ? new Date(checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    : '09:23 PM'}
+                    ? `${new Date(checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (${getRelativeTime(checkInTime)})`
+                    : '09:28 AM'}
                 </b>
               </Text>
               <Text size="11px" c="#F59E0B" fw={700}>
@@ -278,20 +331,40 @@ export const MyAttendanceView = () => {
         </Alert>
       )}
 
-      {/* Monthly Summary Cards */}
+      {/* Monthly Summary Cards (Clickable Total Worked Hours Card) */}
       <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-        <Paper p="md" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+        <Paper
+          p="md"
+          radius="md"
+          style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #BFDBFE',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 2px 8px rgba(37, 99, 235, 0.08)',
+          }}
+          onClick={() => setBreakdownModalOpen(true)}
+        >
           <Group justify="space-between" mb={4}>
-            <Text size="xs" fw={700} c="#64748B" style={{ textTransform: 'uppercase' }}>
-              Total Worked Hours
+            <Text size="xs" fw={700} c="#1E40AF" style={{ textTransform: 'uppercase' }}>
+              Total Worked Hours (Live)
             </Text>
-            <IconClock size={18} color="#2563EB" />
+            <Badge size="xs" color="blue" variant="light">
+              Click for Breakdown
+            </Badge>
           </Group>
-          <Text size="xl" fw={800} c="#09090B">
-            168.5 hrs
-          </Text>
+          <Group align="baseline" gap="xs">
+            <Text size="xl" fw={900} c="#1D4ED8">
+              {dynamicTotalWorkedHours} hrs
+            </Text>
+            {checkedIn && (
+              <Badge size="xs" color="teal" variant="filled">
+                ● Live Counting
+              </Badge>
+            )}
+          </Group>
           <Text size="10px" c="#166534" mt={2}>
-            Target: 160 hrs • 105% of monthly quota
+            Monthly Target: 160.0 hrs • {((parseFloat(dynamicTotalWorkedHours) / 160) * 100).toFixed(0)}% of quota
           </Text>
         </Paper>
 
@@ -326,43 +399,82 @@ export const MyAttendanceView = () => {
         </Paper>
       </SimpleGrid>
 
-      {/* 30-Day Worked Hours Trend Bar Chart */}
+      {/* 30-Day Worked Hours Trend Smooth Area Chart */}
       <Paper p="lg" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
         <Group justify="space-between" mb="md">
           <div>
-            <Title order={4} size="sm" c="#09090B">
-              Worked Hours Trend (Last 30 Days)
-            </Title>
-            <Text size="xs" c="#71717A">
-              Daily recorded work hours compared to standard 8-hour target baseline.
-            </Text>
+            <Group gap="xs">
+              <ThemeIcon size="md" color="blue" radius="md" variant="light">
+                <IconTrendingUp size={18} />
+              </ThemeIcon>
+              <div>
+                <Title order={4} size="sm" c="#09090B">
+                  Worked Hours Trend (Last 30 Days)
+                </Title>
+                <Text size="xs" c="#71717A">
+                  Continuous work time trend with daily 8.0-hour standard baseline.
+                </Text>
+              </div>
+            </Group>
           </div>
-          <Badge size="xs" color="blue" variant="light">
-            Target: 8.0h / day
-          </Badge>
+          <Group gap="xs">
+            <Badge size="xs" color="blue" variant="light">
+              Target: 8.0h / day
+            </Badge>
+            <Button size="compact-xs" variant="subtle" color="blue" onClick={() => setBreakdownModalOpen(true)}>
+              Full History
+            </Button>
+          </Group>
         </Group>
 
-        <div style={{ width: '100%', height: 220 }}>
+        <div style={{ width: '100%', height: 240 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="attendanceGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#2563EB" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#2563EB" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
               <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-              <YAxis domain={[0, 12]} tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#09090B', color: '#FFFFFF', borderRadius: '6px', fontSize: '12px' }}
+              <YAxis domain={[0, 12]} tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} unit="h" />
+              <RechartsTooltip
+                contentStyle={{
+                  backgroundColor: '#0F172A',
+                  color: '#FFFFFF',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  border: 'none',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+                }}
                 formatter={(val) => [`${val} hrs`, 'Worked Hours']}
               />
-              <Bar dataKey="hours" fill="#2563EB" radius={[4, 4, 0, 0]} />
-            </BarChart>
+              <Area
+                type="monotone"
+                dataKey="hours"
+                stroke="#2563EB"
+                strokeWidth={2.5}
+                fillOpacity={1}
+                fill="url(#attendanceGradient)"
+                dot={{ fill: '#2563EB', r: 3 }}
+                activeDot={{ r: 6, stroke: '#FFFFFF', strokeWidth: 2 }}
+              />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </Paper>
 
       {/* Daily Attendance History Table */}
       <Paper p="lg" radius="md" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-        <Title order={4} size="sm" c="#09090B" mb="md">
-          Recent Daily Logs
-        </Title>
+        <Group justify="space-between" mb="md">
+          <Title order={4} size="sm" c="#09090B">
+            Recent Daily Logs
+          </Title>
+          <Button size="compact-xs" variant="light" color="blue" onClick={() => setBreakdownModalOpen(true)}>
+            View Complete Breakdown
+          </Button>
+        </Group>
 
         <Table highlightOnHover border={0}>
           <Table.Thead>
@@ -410,7 +522,93 @@ export const MyAttendanceView = () => {
         </Table>
       </Paper>
 
-      {/* Attendance Correction Modal */}
+      {/* MODAL 1: Complete Work Breakdown Modal */}
+      <Modal
+        opened={breakdownModalOpen}
+        onClose={() => setBreakdownModalOpen(false)}
+        title={
+          <Group gap="xs">
+            <ThemeIcon size="md" color="blue" radius="md">
+              <IconCalendarStats size={18} />
+            </ThemeIcon>
+            <div>
+              <Text size="sm" fw={800} c="#0F172A">
+                Detailed Shift & Work Hours Breakdown
+              </Text>
+              <Text size="10px" c="#64748B">
+                Day-by-day record of check-in, check-out, break times, and total net hours
+              </Text>
+            </div>
+          </Group>
+        }
+        size="xl"
+        radius="lg"
+        centered
+      >
+        <Stack gap="md">
+          {/* Summary Strip */}
+          <SimpleGrid cols={3} spacing="xs">
+            <Paper p="xs" radius="sm" style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+              <Text size="10px" c="#1E40AF" fw={700}>TOTAL WORKED</Text>
+              <Text size="md" fw={900} c="#1D4ED8">{dynamicTotalWorkedHours} Hours</Text>
+            </Paper>
+            <Paper p="xs" radius="sm" style={{ backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+              <Text size="10px" c="#166534" fw={700}>AVG DAILY HOURS</Text>
+              <Text size="md" fw={900} c="#15803D">8.1 Hours / Day</Text>
+            </Paper>
+            <Paper p="xs" radius="sm" style={{ backgroundColor: '#FAF5FF', border: '1px solid #E9D5FF' }}>
+              <Text size="10px" c="#6B21A8" fw={700}>ATTENDANCE RATE</Text>
+              <Text size="md" fw={900} c="#7E22CE">98.4% (21/22 Days)</Text>
+            </Paper>
+          </SimpleGrid>
+
+          <Table verticalSpacing="xs" horizontalSpacing="sm" highlightOnHover>
+            <Table.Thead>
+              <Table.Tr style={{ backgroundColor: '#F8FAFC' }}>
+                <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Date & Day</Table.Th>
+                <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Check-In</Table.Th>
+                <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Check-Out</Table.Th>
+                <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Break Time</Table.Th>
+                <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Net Worked</Table.Th>
+                <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Variance</Table.Th>
+                <Table.Th style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748B' }}>Status</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {detailedBreakdown.map((row, idx) => (
+                <Table.Tr key={idx}>
+                  <Table.Td>
+                    <Text size="xs" fw={700} c="#0F172A">{row.date}</Text>
+                    <Text size="10px" c="#64748B">{row.day}</Text>
+                  </Table.Td>
+                  <Table.Td><Text size="xs" c="#334155">{row.checkIn}</Text></Table.Td>
+                  <Table.Td><Text size="xs" c="#334155">{row.checkOut}</Text></Table.Td>
+                  <Table.Td><Text size="xs" c="#64748B">{row.breakTime}</Text></Table.Td>
+                  <Table.Td><Text size="xs" fw={700} c="#0F172A">{row.workedHours}</Text></Table.Td>
+                  <Table.Td>
+                    <Badge size="xs" color={row.overtime.startsWith('+') ? 'teal' : row.overtime.startsWith('-') ? 'orange' : 'gray'} variant="light">
+                      {row.overtime}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Badge size="xs" color={row.status === 'PRESENT' ? 'teal' : 'orange'} variant="filled">
+                      {row.status}
+                    </Badge>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+
+          <Group justify="flex-end" mt="xs">
+            <Button size="xs" variant="default" onClick={() => setBreakdownModalOpen(false)}>
+              Close Breakdown
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* MODAL 2: Attendance Correction Modal */}
       <Modal
         opened={correctionModalOpen}
         onClose={() => setCorrectionModalOpen(false)}
