@@ -185,25 +185,25 @@ export const HolidayCalendarModal = ({ opened, onClose, onApplyRhLeave }) => {
       <Box
         p="lg"
         style={{
-          background: 'linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #312E81 100%)',
-          color: '#FFFFFF',
+          backgroundColor: '#FFFFFF',
+          borderBottom: '1px solid #E2E8F0',
           position: 'relative',
         }}
       >
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <div>
             <Group gap="xs" mb={4}>
-              <Badge size="sm" color="indigo" variant="filled">
+              <Badge size="sm" color="indigo" variant="light">
                 CBDT & DoPT COMPLIANT
               </Badge>
               <Badge size="sm" color="teal" variant="light">
                 CALENDAR YEAR 2026
               </Badge>
             </Group>
-            <Title order={3} c="#FFFFFF">
+            <Title order={3} c="#0F172A" fw={800}>
               🇮🇳 Indian Statutory & Festival Holiday Calendar
             </Title>
-            <Text size="xs" c="#CBD5E1" mt={4}>
+            <Text size="xs" c="#64748B" mt={4}>
               Gazetted public holidays, optional restricted holidays (RH), and long weekend planner for PayPilot teams
             </Text>
           </div>
@@ -211,69 +211,60 @@ export const HolidayCalendarModal = ({ opened, onClose, onApplyRhLeave }) => {
           <Group gap="xs">
             <Button
               size="xs"
-              variant="filled"
+              variant="light"
               color="indigo"
               leftSection={<IconDownload size={14} />}
               onClick={handleExportIcs}
-              style={{ boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)' }}
             >
               Export to Calendar (.ICS)
             </Button>
             <ActionIcon
-              variant="filled"
-              color="dark"
+              variant="subtle"
+              color="gray"
               onClick={onClose}
               size="lg"
               radius="xl"
               title="Close Holiday Calendar"
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.18)',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                fontWeight: 800,
-                fontSize: '16px',
-                cursor: 'pointer',
-              }}
             >
               ✕
             </ActionIcon>
           </Group>
         </Group>
 
-        {/* STATS STRIP - High contrast crisp backgrounds */}
+        {/* STATS STRIP - High contrast crisp light backgrounds */}
         <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs" mt="md">
-          <Paper p="xs" radius="sm" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
-            <Text size="10px" fw={700} c="#94A3B8" style={{ textTransform: 'uppercase' }}>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+            <Text size="10px" fw={700} c="#64748B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Total Holidays
             </Text>
-            <Text size="lg" fw={900} c="#F8FAFC">
+            <Text size="lg" fw={800} c="#0F172A">
               {stats.total} Days
             </Text>
           </Paper>
 
-          <Paper p="xs" radius="sm" style={{ backgroundColor: '#1E1B4B', border: '1px solid #4338CA' }}>
-            <Text size="10px" fw={700} c="#C7D2FE" style={{ textTransform: 'uppercase' }}>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#EEF2FF', border: '1px solid #C7D2FE' }}>
+            <Text size="10px" fw={700} c="#4F46E5" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               🟣 Gazetted (Mandatory)
             </Text>
-            <Text size="lg" fw={900} c="#E0E7FF">
+            <Text size="lg" fw={800} c="#4338CA">
               {stats.gazetted} Days
             </Text>
           </Paper>
 
-          <Paper p="xs" radius="sm" style={{ backgroundColor: '#431407', border: '1px solid #9A3412' }}>
-            <Text size="10px" fw={700} c="#FED7AA" style={{ textTransform: 'uppercase' }}>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#FFF7ED', border: '1px solid #FED7AA' }}>
+            <Text size="10px" fw={700} c="#EA580C" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               🟠 Restricted (RH Choice)
             </Text>
-            <Text size="lg" fw={900} c="#FFEDD5">
+            <Text size="lg" fw={800} c="#C2410C">
               {stats.restricted} Days
             </Text>
           </Paper>
 
-          <Paper p="xs" radius="sm" style={{ backgroundColor: '#064E3B', border: '1px solid #059669' }}>
-            <Text size="10px" fw={700} c="#A7F3D0" style={{ textTransform: 'uppercase' }}>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#ECFDF5', border: '1px solid #A7F3D0' }}>
+            <Text size="10px" fw={700} c="#059669" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               🌴 Long Weekends
             </Text>
-            <Text size="lg" fw={900} c="#D1FAE5">
+            <Text size="lg" fw={800} c="#047857">
               {stats.longWeekends} Trips
             </Text>
           </Paper>
