@@ -41,14 +41,14 @@ export const AuthPage = ({ onAuthSuccess }) => {
   const { login, register, verifyOtp, resendOtp } = useAuthUser();
   const [isRegister, setIsRegister] = useState(false);
   const [step, setStep] = useState('form'); // 'form' | 'otp' | 'pending_approval'
-
+  
   // Registration / Auth Form fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRoleState] = useState('HR_MANAGER');
   const [department, setDepartment] = useState('HR & People');
-
+  
   // Dynamic admin existence status
   const [adminExists, setAdminExists] = useState(true);
   const [pendingUserData, setPendingUserData] = useState(null);
@@ -181,18 +181,18 @@ export const AuthPage = ({ onAuthSuccess }) => {
 
   const roleOptions = adminExists
     ? [
-      { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
-      { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
-      { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
-      { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
-    ]
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
+        { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
+      ]
     : [
-      { value: 'ADMIN', label: 'Executive / Administrator (Initial Setup)' },
-      { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
-      { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
-      { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
-      { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
-    ];
+        { value: 'ADMIN', label: 'Executive / Administrator (Initial Setup)' },
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
+        { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
+      ];
 
   return (
     <div

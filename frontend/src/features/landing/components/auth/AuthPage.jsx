@@ -176,18 +176,18 @@ export const AuthPage = ({ initialMode = 'signin', onBack, onAuthSuccess }) => {
 
   const roleOptions = adminExists
     ? [
-      { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
-      { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
-      { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
-      { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
-    ]
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
+        { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
+      ]
     : [
-      { value: 'ADMIN', label: 'Executive / Administrator (Initial Setup)' },
-      { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
-      { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
-      { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
-      { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
-    ];
+        { value: 'ADMIN', label: 'Executive / Administrator (Initial Setup)' },
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
+        { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
+      ];
 
   return (
     <div className="w-full min-h-screen bg-[#F7F5F3] relative flex flex-col justify-between items-center py-6 sm:py-10 px-4 sm:px-6 md:px-8 font-sans">
