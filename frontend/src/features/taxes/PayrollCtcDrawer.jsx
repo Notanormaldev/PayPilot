@@ -76,46 +76,44 @@ export const PayrollCtcDrawer = ({
       size="xl"
     >
       <Stack gap="md">
-        {/* Top KPI Card */}
-        <Paper p="md" radius="md" style={{ backgroundColor: '#0F172A', color: '#FFFFFF' }}>
-          <SimpleGrid cols={3} spacing="md">
-            <div>
-              <Text size="11px" c="#94A3B8" style={{ textTransform: 'uppercase' }}>
-                Annual CTC
-              </Text>
-              <Text size="xl" fw={800} c="#FFFFFF">
-                ₹{payrollResult.annualCTC.toLocaleString('en-IN')}
-              </Text>
-              <Text size="10px" c="#94A3B8">
-                ₹{payrollResult.monthlyCTC.toLocaleString('en-IN')} / month
-              </Text>
-            </div>
+        {/* Top KPI Card Strip */}
+        <SimpleGrid cols={3} spacing="xs">
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+            <Text size="10px" fw={700} c="#64748B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Annual CTC
+            </Text>
+            <Text size="lg" fw={800} c="#0F172A">
+              ₹{payrollResult.annualCTC.toLocaleString('en-IN')}
+            </Text>
+            <Text size="10px" c="#64748B">
+              ₹{payrollResult.monthlyCTC.toLocaleString('en-IN')} / month
+            </Text>
+          </Paper>
 
-            <div>
-              <Text size="11px" c="#94A3B8" style={{ textTransform: 'uppercase' }}>
-                Gross Salary
-              </Text>
-              <Text size="xl" fw={800} c="#60A5FA">
-                ₹{earnings.grossSalary.annual.toLocaleString('en-IN')}
-              </Text>
-              <Text size="10px" c="#94A3B8">
-                ₹{earnings.grossSalary.monthly.toLocaleString('en-IN')} / month
-              </Text>
-            </div>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+            <Text size="10px" fw={700} c="#1D4ED8" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Gross Salary
+            </Text>
+            <Text size="lg" fw={800} c="#1E40AF">
+              ₹{earnings.grossSalary.annual.toLocaleString('en-IN')}
+            </Text>
+            <Text size="10px" c="#3B82F6">
+              ₹{earnings.grossSalary.monthly.toLocaleString('en-IN')} / month
+            </Text>
+          </Paper>
 
-            <div>
-              <Text size="11px" c="#94A3B8" style={{ textTransform: 'uppercase' }}>
-                Net Take-Home
-              </Text>
-              <Text size="xl" fw={800} c="#4ADE80">
-                ₹{takeHome.annual.toLocaleString('en-IN')}
-              </Text>
-              <Text size="10px" c="#4ADE80">
-                ₹{takeHome.monthly.toLocaleString('en-IN')} / month ({takeHome.takeHomePercentage}%)
-              </Text>
-            </div>
-          </SimpleGrid>
-        </Paper>
+          <Paper p="xs" radius="sm" style={{ backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+            <Text size="10px" fw={700} c="#15803D" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Net Take-Home
+            </Text>
+            <Text size="lg" fw={800} c="#166534">
+              ₹{takeHome.annual.toLocaleString('en-IN')}
+            </Text>
+            <Text size="10px" c="#16A34A">
+              ₹{takeHome.monthly.toLocaleString('en-IN')} / mo ({takeHome.takeHomePercentage}%)
+            </Text>
+          </Paper>
+        </SimpleGrid>
 
         {/* State and Tenure Configurator */}
         <Paper p="sm" radius="md" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>

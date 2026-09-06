@@ -330,6 +330,59 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
         </Group>
       </Paper>
 
+      {/* Top Full-Width KPI Summary Strip */}
+      {taxResult && (
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
+          <Paper p="md" radius="md" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+            <Text size="10px" fw={700} c="#64748B" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Taxable Income
+            </Text>
+            <Text size="xl" fw={800} c="#0F172A">
+              ₹{taxResult.taxableIncome.toLocaleString('en-IN')}
+            </Text>
+            <Text size="10px" c="#64748B">
+              After ₹{taxResult.incomeSummary.standardDeduction.toLocaleString('en-IN')} Std Ded
+            </Text>
+          </Paper>
+
+          <Paper p="md" radius="md" style={{ backgroundColor: isZeroTax ? '#F0FDF4' : '#FEF2F2', border: isZeroTax ? '1px solid #BBF7D0' : '1px solid #FECACA' }}>
+            <Text size="10px" fw={700} c={isZeroTax ? '#15803D' : '#B91C1C'} style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Final Tax Payable
+            </Text>
+            <Text size="xl" fw={800} c={isZeroTax ? '#15803D' : '#DC2626'}>
+              ₹{taxResult.taxBreakdown.totalTaxPayable.toLocaleString('en-IN')}
+            </Text>
+            <Text size="10px" c={isZeroTax ? '#16A34A' : '#EF4444'}>
+              {isZeroTax ? '🎉 100% Tax Free u/s 87A' : `Incl. 4% Cess (₹${taxResult.taxBreakdown.cess.amount.toLocaleString('en-IN')})`}
+            </Text>
+          </Paper>
+
+          <Paper p="md" radius="md" style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+            <Text size="10px" fw={700} c="#1D4ED8" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Monthly Salary TDS
+            </Text>
+            <Text size="xl" fw={800} c="#1E40AF">
+              ₹{taxResult.taxBreakdown.monthlyTDS.toLocaleString('en-IN')}
+            </Text>
+            <Text size="10px" c="#3B82F6">
+              Estimated per month
+            </Text>
+          </Paper>
+
+          <Paper p="md" radius="md" style={{ backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+            <Text size="10px" fw={700} c="#15803D" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Monthly Net Take-Home
+            </Text>
+            <Text size="xl" fw={800} c="#15803D">
+              ₹{taxResult.metrics.netMonthlyTakeHome.toLocaleString('en-IN')}
+            </Text>
+            <Text size="10px" c="#16A34A">
+              Effective Rate: {taxResult.metrics.effectiveTaxRate}%
+            </Text>
+          </Paper>
+        </SimpleGrid>
+      )}
+
       {/* Main Studio Grid */}
       <SimpleGrid cols={{ base: 1, lg: 12 }} spacing="lg">
         {/* LEFT COLUMN: Controls & Input Studio (5 Columns) */}
@@ -754,69 +807,6 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
         {/* RIGHT COLUMN: Output Dashboard & Interactive Studio (7 Columns) */}
         <div style={{ gridColumn: 'span 7' }}>
           <Stack gap="md">
-            {/* Top KPI Summary Banner */}
-            {taxResult && (
-              <Paper
-                p="md"
-                radius="md"
-                style={{
-                  backgroundColor: '#0F172A',
-                  color: '#FFFFFF',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                }}
-              >
-                <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
-                  <div>
-                    <Text size="10px" c="#94A3B8" style={{ textTransform: 'uppercase' }}>
-                      Taxable Income
-                    </Text>
-                    <Text size="lg" fw={800} c="#FFFFFF">
-                      ₹{taxResult.taxableIncome.toLocaleString('en-IN')}
-                    </Text>
-                    <Text size="10px" c="#94A3B8">
-                      After ₹{taxResult.incomeSummary.standardDeduction.toLocaleString('en-IN')} Std Ded
-                    </Text>
-                  </div>
-
-                  <div>
-                    <Text size="10px" c="#94A3B8" style={{ textTransform: 'uppercase' }}>
-                      Final Tax Payable
-                    </Text>
-                    <Text size="lg" fw={800} c={isZeroTax ? '#4ADE80' : '#F87171'}>
-                      ₹{taxResult.taxBreakdown.totalTaxPayable.toLocaleString('en-IN')}
-                    </Text>
-                    <Text size="10px" c={isZeroTax ? '#4ADE80' : '#94A3B8'}>
-                      {isZeroTax ? '🎉 100% Tax Free u/s 87A' : `Incl. 4% Cess (₹${taxResult.taxBreakdown.cess.amount.toLocaleString('en-IN')})`}
-                    </Text>
-                  </div>
-
-                  <div>
-                    <Text size="10px" c="#94A3B8" style={{ textTransform: 'uppercase' }}>
-                      Monthly TDS
-                    </Text>
-                    <Text size="lg" fw={800} c="#60A5FA">
-                      ₹{taxResult.taxBreakdown.monthlyTDS.toLocaleString('en-IN')}
-                    </Text>
-                    <Text size="10px" c="#94A3B8">
-                      Estimated per month
-                    </Text>
-                  </div>
-
-                  <div>
-                    <Text size="10px" c="#94A3B8" style={{ textTransform: 'uppercase' }}>
-                      Monthly Take-Home
-                    </Text>
-                    <Text size="lg" fw={800} c="#4ADE80">
-                      ₹{taxResult.metrics.netMonthlyTakeHome.toLocaleString('en-IN')}
-                    </Text>
-                    <Text size="10px" c="#94A3B8">
-                      Effective Rate: {taxResult.metrics.effectiveTaxRate}%
-                    </Text>
-                  </div>
-                </SimpleGrid>
-              </Paper>
-            )}
-
             {/* Slab Visualizer */}
             <SlabVisualizer taxResult={taxResult} regimeCode={regimeCode} />
 
@@ -826,12 +816,12 @@ export const TaxCalculatorView = ({ targetEmployee = null }) => {
               currentRegime={regimeCode}
               onSelectRegime={setRegimeCode}
             />
-
-            {/* Educational Explanation Studio */}
-            <TaxExplanationCard taxResult={taxResult} />
           </Stack>
         </div>
       </SimpleGrid>
+
+      {/* Full-Width Educational Explanation Studio Section */}
+      <TaxExplanationCard taxResult={taxResult} />
 
       {/* Drawers & Modals */}
       <PayrollCtcDrawer
