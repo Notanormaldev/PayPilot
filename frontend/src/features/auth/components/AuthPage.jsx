@@ -290,7 +290,10 @@ export const AuthPage = ({ onAuthSuccess }) => {
                       label="Department"
                       data={['HR & People', 'Finance', 'Executive', 'Engineering', 'Product', 'Sales', 'Operations']}
                       value={department}
-                      onChange={setDepartment}
+                      onChange={(val) => setDepartment(val || 'HR & People')}
+                      allowDeselect={false}
+                      checkIconPosition="right"
+                      comboboxProps={{ zIndex: 10005, withinPortal: true, shadow: 'md' }}
                       styles={{ input: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' } }}
                     />
 
@@ -303,7 +306,10 @@ export const AuthPage = ({ onAuthSuccess }) => {
                       }
                       data={roleOptions}
                       value={role}
-                      onChange={setRoleState}
+                      onChange={(val) => setRoleState(val || 'EMPLOYEE')}
+                      allowDeselect={false}
+                      checkIconPosition="right"
+                      comboboxProps={{ zIndex: 10005, withinPortal: true, shadow: 'md' }}
                       styles={{
                         input: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' },
                         description: { fontSize: '11px', color: '#64748B', marginTop: '2px' },
