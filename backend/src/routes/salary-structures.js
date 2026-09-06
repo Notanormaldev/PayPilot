@@ -115,7 +115,7 @@ export function simulateSalaryRules(wage = 100000, rules = []) {
 }
 
 // GET /api/salary-structures - list all structures with ordered rules & stats
-salaryStructuresRouter.get('/', authenticate, async (req, res) => {
+salaryStructuresRouter.get('/', authenticate, requireRole('ADMIN', 'HR_PAYROLL_MANAGER', 'HR_PAYROLL_USER'), async (req, res) => {
   try {
     const structures = await prisma.salaryStructure.findMany({
       include: {
@@ -148,7 +148,7 @@ salaryStructuresRouter.get('/', authenticate, async (req, res) => {
 });
 
 // GET /api/salary-structures/:id - get single structure with rules
-salaryStructuresRouter.get('/:id', authenticate, async (req, res) => {
+salaryStructuresRouter.get('/:id', authenticate, requireRole('ADMIN', 'HR_PAYROLL_MANAGER', 'HR_PAYROLL_USER'), async (req, res) => {
   try {
     const structure = await prisma.salaryStructure.findUnique({
       where: { id: req.params.id },
@@ -183,8 +183,8 @@ salaryStructuresRouter.get('/:id', authenticate, async (req, res) => {
   }
 });
 
-// POST /api/salary-structures - create new salary structure with rules
-salaryStructuresRouter.post('/', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
+// POST /api/salary-structures - create new salary structure with rules (Manager & Admin only)
+salaryStructuresRouter.post('/', authenticate, requireRole('ADMIN', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { name, rules = [], isActive = true } = req.body;
 
@@ -229,8 +229,8 @@ salaryStructuresRouter.post('/', authenticate, requireRole('ADMIN', 'HR_MANAGER'
   }
 });
 
-// PUT /api/salary-structures/:id - update structure and rules
-salaryStructuresRouter.put('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
+// PUT /api/salary-structures/:id - update structure and rules (Manager & Admin only)
+salaryStructuresRouter.put('/:id', authenticate, requireRole('ADMIN', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, rules = [], isActive } = req.body;
@@ -284,8 +284,8 @@ salaryStructuresRouter.put('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGE
   }
 });
 
-// DELETE /api/salary-structures/:id - delete structure
-salaryStructuresRouter.delete('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER'), async (req, res) => {
+// DELETE /api/salary-structures/:id - delete structure (Manager & Admin only)
+salaryStructuresRouter.delete('/:id', authenticate, requireRole('ADMIN', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { id } = req.params;
 

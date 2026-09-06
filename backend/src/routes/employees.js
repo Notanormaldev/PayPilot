@@ -282,7 +282,7 @@ employeesRouter.post('/avatar', async (req, res) => {
 });
 
 // PUT /api/employees/:id/status - update employee status (ACTIVE, ON_LEAVE, INACTIVE)
-employeesRouter.put('/:id/status', authenticate, requireRole('ADMIN', 'HR_MANAGER'), async (req, res) => {
+employeesRouter.put('/:id/status', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -309,7 +309,7 @@ employeesRouter.put('/:id/status', authenticate, requireRole('ADMIN', 'HR_MANAGE
 });
 
 // DELETE /api/employees/:id - offboard/delete employee record
-employeesRouter.delete('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER'), async (req, res) => {
+employeesRouter.delete('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { id } = req.params;
 

@@ -15,6 +15,13 @@ const PERSONA_CONFIGS = {
     department: 'HR & People',
     role: 'HR_MANAGER',
   },
+  HR_PAYROLL_USER: {
+    name: 'Rahul Sharma',
+    email: 'rahul.sharma@paypilot.internal',
+    title: 'Payroll Operations Specialist',
+    department: 'HR & Payroll',
+    role: 'HR_PAYROLL_USER',
+  },
   HR_PAYROLL_MANAGER: {
     name: 'Neha Gupta',
     email: 'neha.gupta@paypilot.internal',
@@ -41,6 +48,7 @@ export const authService = {
     let token = localStorage.getItem('paypilot_auth_token');
     if (!token || token.startsWith('dev-')) {
       if (role === 'HR_MANAGER' || role === 'HR_OFFICER') token = 'dev-hr-token';
+      else if (role === 'HR_PAYROLL_USER') token = 'dev-payroll-user-token';
       else if (role === 'HR_PAYROLL_MANAGER' || role === 'PAYROLL_OFFICER') token = 'dev-payroll-token';
       else if (role === 'EMPLOYEE') token = 'dev-emp-token';
       else token = 'dev-admin-token';

@@ -117,7 +117,7 @@ schedulesRouter.get('/:id', authenticate, async (req, res) => {
 });
 
 // POST /api/schedules - create new working schedule with shift lines
-schedulesRouter.post('/', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
+schedulesRouter.post('/', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { name, lines = [], isActive = true } = req.body;
 
@@ -176,7 +176,7 @@ schedulesRouter.post('/', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_P
 });
 
 // PUT /api/schedules/:id - update schedule and its lines
-schedulesRouter.put('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
+schedulesRouter.put('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, lines = [], isActive } = req.body;
@@ -237,7 +237,7 @@ schedulesRouter.put('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR
 });
 
 // DELETE /api/schedules/:id - delete schedule
-schedulesRouter.delete('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER'), async (req, res) => {
+schedulesRouter.delete('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -271,7 +271,7 @@ schedulesRouter.delete('/:id', authenticate, requireRole('ADMIN', 'HR_MANAGER'),
 });
 
 // POST /api/schedules/:id/assign - bulk assign employees to this schedule
-schedulesRouter.post('/:id/assign', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
+schedulesRouter.post('/:id/assign', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { id } = req.params;
     const { employeeIds = [], department } = req.body;

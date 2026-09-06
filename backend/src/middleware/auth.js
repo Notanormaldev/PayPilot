@@ -25,6 +25,7 @@ export async function authenticate(req, res, next) {
   if (token && token.startsWith('dev-')) {
     let targetRole = 'ADMIN';
     if (token === 'dev-hr-token') targetRole = 'HR_MANAGER';
+    if (token === 'dev-payroll-user-token') targetRole = 'HR_PAYROLL_USER';
     if (token === 'dev-payroll-token') targetRole = 'HR_PAYROLL_MANAGER';
     if (token === 'dev-emp-token') targetRole = 'EMPLOYEE';
 
@@ -98,6 +99,12 @@ const PERSONA_CONFIGS = {
     email: 'tanvi.kapoor@paypilot.internal',
     department: 'HR & People',
     jobPosition: 'HR Manager & People Ops',
+  },
+  HR_PAYROLL_USER: {
+    name: 'Rahul Sharma',
+    email: 'rahul.sharma@paypilot.internal',
+    department: 'HR & Payroll',
+    jobPosition: 'Payroll Operations Specialist',
   },
   HR_PAYROLL_MANAGER: {
     name: 'Neha Gupta',

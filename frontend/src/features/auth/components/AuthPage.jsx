@@ -171,14 +171,16 @@ export const AuthPage = ({ onAuthSuccess }) => {
 
   const roleOptions = adminExists
     ? [
-        { value: 'HR_MANAGER', label: 'HR Manager (Requires Admin Approval)' },
-        { value: 'HR_PAYROLL_MANAGER', label: 'Payroll Specialist (Requires Admin Approval)' },
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
         { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
       ]
     : [
         { value: 'ADMIN', label: 'Executive / Administrator (Initial Setup)' },
-        { value: 'HR_MANAGER', label: 'HR Manager (Requires Admin Approval)' },
-        { value: 'HR_PAYROLL_MANAGER', label: 'Payroll Specialist (Requires Admin Approval)' },
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
         { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
       ];
 
@@ -341,7 +343,7 @@ export const AuthPage = ({ onAuthSuccess }) => {
                 </Button>
               </Stack>
 
-              <Divider label="OR 1-CLICK DEMO ACCESS" labelPosition="center" color="#E2E8F0" />
+              <Divider label="OR 1-CLICK DEMO PERSONAS" labelPosition="center" color="#E2E8F0" />
 
               {/* One-Click Fast Personas */}
               <SimpleGrid cols={2} spacing="xs">
@@ -365,10 +367,23 @@ export const AuthPage = ({ onAuthSuccess }) => {
                   onClick={() => handleFastLogin('neha.gupta@paypilot.internal', 'HR_PAYROLL_MANAGER')}
                 >
                   <Group gap={6} mb={2}>
-                    <Badge size="xs" color="indigo" variant="light">PAYROLL</Badge>
+                    <Badge size="xs" color="indigo" variant="light">PAYROLL MGR</Badge>
                   </Group>
                   <Text size="11px" fw={700} c="#09090B">Neha Gupta</Text>
-                  <Text size="9px" c="#71717A">Payroll Lead</Text>
+                  <Text size="9px" c="#71717A">Full Payroll Config</Text>
+                </Paper>
+
+                <Paper
+                  p="xs"
+                  radius="sm"
+                  style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer' }}
+                  onClick={() => handleFastLogin('rahul.sharma@paypilot.internal', 'HR_PAYROLL_USER')}
+                >
+                  <Group gap={6} mb={2}>
+                    <Badge size="xs" color="cyan" variant="light">PAYROLL USER</Badge>
+                  </Group>
+                  <Text size="11px" fw={700} c="#09090B">Rahul Sharma</Text>
+                  <Text size="9px" c="#71717A">HR + Payrun Operations</Text>
                 </Paper>
 
                 <Paper
@@ -378,23 +393,23 @@ export const AuthPage = ({ onAuthSuccess }) => {
                   onClick={() => handleFastLogin('tanvi.kapoor@paypilot.internal', 'HR_MANAGER')}
                 >
                   <Group gap={6} mb={2}>
-                    <Badge size="xs" color="teal" variant="light">HR</Badge>
+                    <Badge size="xs" color="teal" variant="light">HR MANAGER</Badge>
                   </Group>
                   <Text size="11px" fw={700} c="#09090B">Tanvi Kapoor</Text>
-                  <Text size="9px" c="#71717A">People Ops</Text>
+                  <Text size="9px" c="#71717A">People Ops (No Payroll)</Text>
                 </Paper>
 
                 <Paper
                   p="xs"
                   radius="sm"
-                  style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer' }}
+                  style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', gridColumn: 'span 2' }}
                   onClick={() => handleFastLogin('kartik.kumar@paypilot.internal', 'EMPLOYEE')}
                 >
                   <Group gap={6} mb={2}>
-                    <Badge size="xs" color="gray" variant="light">EMPLOYEE</Badge>
+                    <Badge size="xs" color="gray" variant="light">EMPLOYEE PORTAL</Badge>
                   </Group>
                   <Text size="11px" fw={700} c="#09090B">Kartik Kumar</Text>
-                  <Text size="9px" c="#71717A">Product Specialist</Text>
+                  <Text size="9px" c="#71717A">Staff Product Specialist (Self-Service)</Text>
                 </Paper>
               </SimpleGrid>
             </>

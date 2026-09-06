@@ -57,8 +57,9 @@ export const App = () => {
   const employeeTabs = ['dashboard', 'my-profile', 'my-attendance', 'my-time-off', 'my-contract', 'my-payslips', 'my-taxes', 'notifications', 'settings'];
   const adminRoleNavPermissions = {
     ADMIN: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
-    HR_MANAGER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'time-off', 'approvals', 'reports', 'settings'],
-    HR_PAYROLL_MANAGER: ['dashboard', 'schedules', 'salary-structures', 'payroll', 'time-off', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_PAYROLL_MANAGER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_PAYROLL_USER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_MANAGER: ['dashboard', 'employees', 'schedules', 'time-off', 'approvals', 'reports', 'settings'],
   };
 
   // Adjust default activeTab when user switches persona or logs in

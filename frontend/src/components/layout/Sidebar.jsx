@@ -35,11 +35,12 @@ export const Sidebar = ({ activeTab, onTabChange, openSentinelFlagsCount = 0, co
     { id: 'settings', label: 'Settings', icon: IconSettings },
   ];
 
-  // Administrative Navigation Items
+  // Administrative Navigation Items (Role-Based Scope)
   const adminRoleNavPermissions = {
     ADMIN: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
-    HR_MANAGER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
     HR_PAYROLL_MANAGER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_PAYROLL_USER: ['dashboard', 'employees', 'schedules', 'salary-structures', 'payroll', 'time-off', 'approvals', 'sentinel', 'taxes', 'reports', 'settings'],
+    HR_MANAGER: ['dashboard', 'employees', 'schedules', 'time-off', 'approvals', 'reports', 'settings'],
   };
 
   const adminNavItems = [

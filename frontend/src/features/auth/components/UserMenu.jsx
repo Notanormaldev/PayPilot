@@ -17,18 +17,20 @@ export const UserMenu = ({ onNavigateTab }) => {
 
   const roleColors = {
     ADMIN: 'blue',
+    HR_PAYROLL_MANAGER: 'indigo',
+    HR_PAYROLL_USER: 'cyan',
     HR_MANAGER: 'teal',
     HR_OFFICER: 'teal',
-    HR_PAYROLL_MANAGER: 'indigo',
     PAYROLL_OFFICER: 'indigo',
     EMPLOYEE: 'gray',
   };
 
   const roleLabels = {
     ADMIN: 'Executive / Administrator',
+    HR_PAYROLL_MANAGER: 'HR Payroll Manager',
+    HR_PAYROLL_USER: 'HR Payroll User',
     HR_MANAGER: 'HR Manager',
     HR_OFFICER: 'HR Officer',
-    HR_PAYROLL_MANAGER: 'Payroll Specialist',
     PAYROLL_OFFICER: 'Payroll Specialist',
     EMPLOYEE: 'Employee Portal',
   };

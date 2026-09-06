@@ -104,7 +104,7 @@ attendanceRouter.post('/punch', authenticate, async (req, res) => {
 });
 
 // PUT /api/attendance/:id/correct - HR manual correction with mandatory reason
-attendanceRouter.put('/:id/correct', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
+attendanceRouter.put('/:id/correct', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -214,7 +214,7 @@ attendanceRouter.put('/:id/correct', authenticate, requireRole('ADMIN', 'HR_MANA
 });
 
 // POST /api/attendance/manual-entry - HR creates missing attendance punch record with mandatory reason
-attendanceRouter.post('/manual-entry', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
+attendanceRouter.post('/manual-entry', authenticate, requireRole('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const {
       employeeId,

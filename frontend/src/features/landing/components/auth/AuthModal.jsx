@@ -182,15 +182,17 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
 
   const roleOptions = adminExists
     ? [
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
         { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
-        { value: 'HR_MANAGER', label: 'HR Manager (Requires Admin Approval)' },
-        { value: 'HR_PAYROLL_MANAGER', label: 'Payroll Specialist (Requires Admin Approval)' },
       ]
     : [
         { value: 'ADMIN', label: 'Executive / Administrator (Initial Setup)' },
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
         { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
-        { value: 'HR_MANAGER', label: 'HR Manager (Requires Admin Approval)' },
-        { value: 'HR_PAYROLL_MANAGER', label: 'Payroll Specialist (Requires Admin Approval)' },
       ];
 
   return (
@@ -264,11 +266,11 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
               </Alert>
             )}
 
-            {/* 1-Click Fast Personas (Sign In mode) */}
+            {/* Quick 1-Click Persona Shortcuts */}
             {!isRegister && (
               <div>
-                <Text size="xs" fw={700} c="#64748B" mb={8} style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Instant 1-Click Demo Personas
+                <Text size="xs" fw={700} c="#09090B" mb={8} style={{ letterSpacing: '0.2px' }}>
+                  ⚡ Quick Demo Personas:
                 </Text>
                 <SimpleGrid cols={2} spacing="xs">
                   <Paper
@@ -298,9 +300,26 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                     <Group gap="xs" wrap="nowrap" align="center">
                       <UserAvatar size={34} radius="xl" name="Neha Gupta" id="neha" />
                       <div style={{ minWidth: 0 }}>
-                        <Badge size="xs" color="indigo" variant="light" mb={2}>PAYROLL</Badge>
+                        <Badge size="xs" color="indigo" variant="light" mb={2}>PAYROLL MGR</Badge>
                         <Text size="11px" fw={700} c="#09090B" truncate>Neha Gupta</Text>
-                        <Text size="9px" c="#71717A" truncate>Payroll Lead</Text>
+                        <Text size="9px" c="#71717A" truncate>Full Payroll Config</Text>
+                      </div>
+                    </Group>
+                  </Paper>
+
+                  <Paper
+                    p="xs"
+                    radius="md"
+                    style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease' }}
+                    onClick={() => handleFastLogin('rahul.sharma@paypilot.internal', 'HR_PAYROLL_USER')}
+                    styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
+                  >
+                    <Group gap="xs" wrap="nowrap" align="center">
+                      <UserAvatar size={34} radius="xl" name="Rahul Sharma" id="rahul" />
+                      <div style={{ minWidth: 0 }}>
+                        <Badge size="xs" color="cyan" variant="light" mb={2}>PAYROLL USER</Badge>
+                        <Text size="11px" fw={700} c="#09090B" truncate>Rahul Sharma</Text>
+                        <Text size="9px" c="#71717A" truncate>HR + Payrun Ops</Text>
                       </div>
                     </Group>
                   </Paper>
@@ -315,7 +334,7 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                     <Group gap="xs" wrap="nowrap" align="center">
                       <UserAvatar size={34} radius="xl" name="Tanvi Kapoor" id="tanvi" />
                       <div style={{ minWidth: 0 }}>
-                        <Badge size="xs" color="teal" variant="light" mb={2}>HR</Badge>
+                        <Badge size="xs" color="teal" variant="light" mb={2}>HR MANAGER</Badge>
                         <Text size="11px" fw={700} c="#09090B" truncate>Tanvi Kapoor</Text>
                         <Text size="9px" c="#71717A" truncate>People Ops</Text>
                       </div>
@@ -325,16 +344,16 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                   <Paper
                     p="xs"
                     radius="md"
-                    style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease' }}
+                    style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'all 0.15s ease', gridColumn: 'span 2' }}
                     onClick={() => handleFastLogin('kartik.kumar@paypilot.internal', 'EMPLOYEE')}
                     styles={{ root: { '&:hover': { borderColor: '#2563EB', backgroundColor: '#EFF6FF' } } }}
                   >
                     <Group gap="xs" wrap="nowrap" align="center">
                       <UserAvatar size={34} radius="xl" name="Kartik Kumar" id="kartik" />
                       <div style={{ minWidth: 0 }}>
-                        <Badge size="xs" color="gray" variant="light" mb={2}>EMPLOYEE</Badge>
+                        <Badge size="xs" color="gray" variant="light" mb={2}>EMPLOYEE PORTAL</Badge>
                         <Text size="11px" fw={700} c="#09090B" truncate>Kartik Kumar</Text>
-                        <Text size="9px" c="#71717A" truncate>Specialist</Text>
+                        <Text size="9px" c="#71717A" truncate>Staff Product Specialist (Self-Service)</Text>
                       </div>
                     </Group>
                   </Paper>

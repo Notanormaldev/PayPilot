@@ -418,8 +418,8 @@ payrunsRouter.post('/:id/validate', authenticate, async (req, res) => {
   }
 });
 
-// POST /api/payruns/:id/mark-paid - Mark payrun & all validated payslips as PAID with transaction ref
-payrunsRouter.post('/:id/mark-paid', authenticate, async (req, res) => {
+// POST /api/payruns/:id/mark-paid - Mark payrun & all validated payslips as PAID with transaction ref (Manager & Admin only)
+payrunsRouter.post('/:id/mark-paid', authenticate, requireRole('ADMIN', 'HR_PAYROLL_MANAGER'), async (req, res) => {
   try {
     const payrunId = req.params.id;
     const payrun = await prisma.payrun.findUnique({

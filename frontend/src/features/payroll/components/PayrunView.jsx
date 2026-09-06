@@ -41,8 +41,12 @@ import { payrollService } from '../services/payrollService';
 import { UserAvatar } from '../../../components/ui';
 import { generatePayslipPdf } from '../../../lib/payslipPdfGenerator';
 import { PayrunCreationWizard } from './PayrunCreationWizard';
+import { useAuthUser } from '../../auth/hooks/useAuthUser';
 
 export const PayrunView = ({ payruns, onRefresh }) => {
+  const { currentRole } = useAuthUser();
+  const canMarkPaid = currentRole === 'ADMIN' || currentRole === 'HR_PAYROLL_MANAGER';
+
   const [wizardOpen, setWizardOpen] = useState(false);
   const [activePayrunId, setActivePayrunId] = useState(null);
 
@@ -118,6 +122,10 @@ export const PayrunView = ({ payruns, onRefresh }) => {
   // 3. MARK AS PAID STEP
   const handleMarkPaid = async (payrunId, e) => {
     if (e) e.stopPropagation();
+    if (!canMarkPaid) {
+      showNotification('error', 'Payment disbursement authorization is restricted to HR Payroll Manager & Admin roles.');
+      return;
+    }
     setPayingId(payrunId);
     setActivePayrunId(payrunId);
     try {
@@ -525,22 +533,35 @@ export const PayrunView = ({ payruns, onRefresh }) => {
               <Text size="11px" c="#64748B" mb="sm" lineClamp={2}>
                 Confirm bank disbursal, generate payout reference and mark slips as Paid.
               </Text>
-              <Button
-                size="xs"
-                fullWidth
-                variant={
-                  currentPayrun.status === 'VALIDATED' || currentPayrun.status === 'PARTIALLY_VALIDATED'
-                    ? 'filled'
-                    : 'outline'
+              <Tooltip
+                label={
+                  !canMarkPaid
+                    ? 'Payment disbursement authorization is restricted to HR Payroll Manager & Admin'
+                    : getLifecycleStep(currentPayrun.status) < 2
+                    ? 'Requires validation step completion'
+                    : 'Disburse payout & mark as paid'
                 }
-                color="teal"
-                leftSection={<IconCreditCard size={13} />}
-                loading={payingId === currentPayrun.id}
-                disabled={getLifecycleStep(currentPayrun.status) < 2}
-                onClick={(e) => handleMarkPaid(currentPayrun.id, e)}
+                disabled={canMarkPaid && getLifecycleStep(currentPayrun.status) >= 2}
               >
-                {currentPayrun.status === 'PAID' ? 'Re-Disburse Payout' : 'Mark as Paid'}
-              </Button>
+                <div>
+                  <Button
+                    size="xs"
+                    fullWidth
+                    variant={
+                      currentPayrun.status === 'VALIDATED' || currentPayrun.status === 'PARTIALLY_VALIDATED'
+                        ? 'filled'
+                        : 'outline'
+                    }
+                    color="teal"
+                    leftSection={<IconCreditCard size={13} />}
+                    loading={payingId === currentPayrun.id}
+                    disabled={!canMarkPaid || getLifecycleStep(currentPayrun.status) < 2}
+                    onClick={(e) => handleMarkPaid(currentPayrun.id, e)}
+                  >
+                    {currentPayrun.status === 'PAID' ? 'Re-Disburse Payout' : 'Mark as Paid'}
+                  </Button>
+                </div>
+              </Tooltip>
             </Paper>
 
             {/* STEP 4: SEND PAYSLIPS */}

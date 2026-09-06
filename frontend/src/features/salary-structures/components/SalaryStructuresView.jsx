@@ -44,9 +44,12 @@ import {
   IconPlayCard,
   IconDeviceFloppy,
   IconX,
+  IconShieldCheck,
+  IconEye,
 } from '@tabler/icons-react';
 import { useSalaryStructures } from '../hooks/useSalaryStructures';
 import { salaryStructureService } from '../services/salaryStructureService';
+import { useAuthUser } from '../../auth/hooks/useAuthUser';
 
 // Category Definitions
 const CATEGORY_OPTIONS = [
@@ -366,6 +369,8 @@ function simulateRulesLocally(wage = 100000, rules = []) {
 
 export const SalaryStructuresView = ({ onRefresh }) => {
   const { structures, loading, fetchStructures } = useSalaryStructures();
+  const { currentRole } = useAuthUser();
+  const isReadOnly = currentRole === 'HR_PAYROLL_USER';
 
   // Builder Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -395,6 +400,7 @@ export const SalaryStructuresView = ({ onRefresh }) => {
 
   // Handle open Create
   const handleOpenCreate = () => {
+    if (isReadOnly) return;
     setEditingStructureId(null);
     setStructureName('Custom Indian Compensation Structure');
     setStructureActive(true);
@@ -403,7 +409,7 @@ export const SalaryStructuresView = ({ onRefresh }) => {
     setModalOpen(true);
   };
 
-  // Handle open Edit
+  // Handle open Edit/View
   const handleOpenEdit = (st) => {
     setEditingStructureId(st.id);
     setStructureName(st.name);
@@ -597,6 +603,24 @@ export const SalaryStructuresView = ({ onRefresh }) => {
 
   return (
     <Stack gap="lg">
+      {/* Read-Only Notice for HR Payroll User */}
+      {isReadOnly && (
+        <Alert
+          icon={<IconShieldCheck size={18} />}
+          color="blue"
+          radius="md"
+          variant="light"
+          title="Role: HR Payroll User (Read-Only Salary Rules)"
+          styles={{
+            root: { border: '1px solid #BFDBFE', backgroundColor: '#EFF6FF' },
+            title: { color: '#1E40AF', fontWeight: 700 },
+            message: { color: '#1E3A8A', fontSize: '12px' },
+          }}
+        >
+          You have view and simulation permissions for salary structures and calculation rules. Configuration changes (adding rules, editing formulas, modifying PF/TDS ratios) are restricted to HR Payroll Managers and Admins to preserve financial calculation integrity.
+        </Alert>
+      )}
+
       {/* Header Section */}
       <Paper
         p="lg"
@@ -617,21 +641,42 @@ export const SalaryStructuresView = ({ onRefresh }) => {
               <Badge size="sm" color="blue" variant="filled">
                 {structures.length} Active Structures
               </Badge>
+              {isReadOnly && (
+                <Badge size="sm" color="cyan" variant="outline">
+                  Read-Only Mode
+                </Badge>
+              )}
             </Group>
             <Text size="xs" c="#64748B">
-              Create, reorder, and configure compensation rules: fixed allowances, percentage scales, and custom mathematical formulas (Basic, HRA, PF, TDS)
+              {isReadOnly
+                ? 'Inspect salary structures, review statutory formulas, and test real-time salary calculations in the live sandbox.'
+                : 'Create, reorder, and configure compensation rules: fixed allowances, percentage scales, and custom mathematical formulas (Basic, HRA, PF, TDS)'}
             </Text>
           </div>
 
           <Group gap="xs">
-            <Button
-              size="sm"
-              color="dark"
-              leftSection={<IconPlus size={16} />}
-              onClick={handleOpenCreate}
-            >
-              Create Salary Structure
-            </Button>
+            {!isReadOnly ? (
+              <Button
+                size="sm"
+                color="dark"
+                leftSection={<IconPlus size={16} />}
+                onClick={handleOpenCreate}
+              >
+                Create Salary Structure
+              </Button>
+            ) : (
+              <Tooltip label="Structure creation is restricted to HR Payroll Manager & Admin">
+                <Button
+                  size="sm"
+                  color="gray"
+                  variant="light"
+                  disabled
+                  leftSection={<IconPlus size={16} />}
+                >
+                  Create Salary Structure
+                </Button>
+              </Tooltip>
+            )}
           </Group>
         </Group>
       </Paper>
@@ -685,10 +730,10 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                     <Menu.Dropdown>
                       <Menu.Label>Structure Actions</Menu.Label>
                       <Menu.Item
-                        leftSection={<IconEdit size={14} />}
+                        leftSection={isReadOnly ? <IconEye size={14} /> : <IconEdit size={14} />}
                         onClick={() => handleOpenEdit(st)}
                       >
-                        Edit Rules & Formulas
+                        {isReadOnly ? 'View Structure & Rules' : 'Edit Rules & Formulas'}
                       </Menu.Item>
                       <Menu.Item
                         leftSection={<IconCalculator size={14} color="#0284C7" />}
@@ -699,23 +744,27 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                       >
                         Live Salary Simulator
                       </Menu.Item>
-                      <Menu.Item
-                        leftSection={<IconCopy size={14} />}
-                        onClick={() => handleDuplicate(st)}
-                      >
-                        Duplicate Structure
-                      </Menu.Item>
-                      <Menu.Divider />
-                      <Menu.Item
-                        color="red"
-                        leftSection={<IconTrash size={14} />}
-                        onClick={() => {
-                          setTargetStructure(st);
-                          setDeleteModalOpen(true);
-                        }}
-                      >
-                        Delete / Deactivate
-                      </Menu.Item>
+                      {!isReadOnly && (
+                        <>
+                          <Menu.Item
+                            leftSection={<IconCopy size={14} />}
+                            onClick={() => handleDuplicate(st)}
+                          >
+                            Duplicate Structure
+                          </Menu.Item>
+                          <Menu.Divider />
+                          <Menu.Item
+                            color="red"
+                            leftSection={<IconTrash size={14} />}
+                            onClick={() => {
+                              setTargetStructure(st);
+                              setDeleteModalOpen(true);
+                            }}
+                          >
+                            Delete / Deactivate
+                          </Menu.Item>
+                        </>
+                      )}
                     </Menu.Dropdown>
                   </Menu>
                 </Group>
@@ -736,7 +785,7 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                         </Group>
 
                         <Group gap={4} wrap="nowrap">
-                          <Badge size="10px" color={CATEGORY_COLORS[r.category] || 'gray'} variant="light">
+                          <Badge size="xs" color={CATEGORY_COLORS[r.category] || 'gray'} variant="dot">
                             {r.category}
                           </Badge>
                           <Text size="10px" c="#64748B" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
@@ -782,10 +831,10 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                     <Button
                       size="xs"
                       variant="default"
-                      leftSection={<IconEdit size={12} />}
+                      leftSection={isReadOnly ? <IconEye size={12} /> : <IconEdit size={12} />}
                       onClick={() => handleOpenEdit(st)}
                     >
-                      Edit Rules
+                      {isReadOnly ? 'View Rules' : 'Edit Rules'}
                     </Button>
                   </Group>
                 </Group>
@@ -795,7 +844,7 @@ export const SalaryStructuresView = ({ onRefresh }) => {
         })}
       </SimpleGrid>
 
-      {/* Interactive Salary Structure Builder Modal */}
+      {/* Interactive Salary Structure Builder / Inspector Modal */}
       <Modal
         opened={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -803,8 +852,17 @@ export const SalaryStructuresView = ({ onRefresh }) => {
           <Group gap="xs">
             <IconCalculator size={20} color="#0284C7" />
             <Text fw={700} size="sm" c="#09090B">
-              {editingStructureId ? 'Edit Salary Structure & Rule Formulas' : 'Create Salary Structure & Rule Engine'}
+              {isReadOnly
+                ? 'Inspect Salary Structure & Rule Formulas (Read-Only)'
+                : editingStructureId
+                ? 'Edit Salary Structure & Rule Formulas'
+                : 'Create Salary Structure & Rule Engine'}
             </Text>
+            {isReadOnly && (
+              <Badge size="xs" color="cyan" variant="filled">
+                Read-Only
+              </Badge>
+            )}
           </Group>
         }
         size="90%"
@@ -815,6 +873,14 @@ export const SalaryStructuresView = ({ onRefresh }) => {
       >
         <form onSubmit={handleSaveStructure}>
           <Stack gap="md">
+            {isReadOnly && (
+              <Alert icon={<IconShieldCheck size={16} />} color="blue" variant="light" py="xs">
+                <Text size="xs" c="#1E40AF" fw={500}>
+                  <b>Read-Only Mode:</b> You can inspect formula expressions and test computations in the live sandbox. Modifying rule formulas is restricted to HR Payroll Managers and Admins.
+                </Text>
+              </Alert>
+            )}
+
             {formError && (
               <Alert color="red" title="Error" icon={<IconAlertTriangle size={16} />}>
                 {formError}
@@ -827,6 +893,8 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                 label="Salary Structure Name"
                 placeholder="e.g. Standard Corporate CTC (50-50 Base & HRA)"
                 required
+                readOnly={isReadOnly}
+                disabled={isReadOnly}
                 style={{ flex: 1 }}
                 value={structureName}
                 onChange={(e) => setStructureName(e.target.value)}
@@ -835,40 +903,43 @@ export const SalaryStructuresView = ({ onRefresh }) => {
               <Switch
                 label="Active Structure"
                 checked={structureActive}
+                disabled={isReadOnly}
                 onChange={(e) => setStructureActive(e.currentTarget.checked)}
                 color="teal"
                 mb={6}
               />
             </Group>
 
-            {/* 1-Click Preset Template Selector */}
-            <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-              <Group justify="space-between" align="center" mb={6}>
-                <Group gap={6}>
-                  <IconSparkles size={16} color="#4F46E5" />
-                  <Text size="xs" fw={700} c="#0F172A">
-                    1-Click Indian Compensation Presets:
+            {/* 1-Click Preset Template Selector (Admin/Manager only) */}
+            {!isReadOnly && (
+              <Paper p="xs" radius="sm" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <Group justify="space-between" align="center" mb={6}>
+                  <Group gap={6}>
+                    <IconSparkles size={16} color="#4F46E5" />
+                    <Text size="xs" fw={700} c="#0F172A">
+                      1-Click Indian Compensation Presets:
+                    </Text>
+                  </Group>
+                  <Text size="11px" c="#64748B">
+                    Auto-populate standard rule sequence & statutory formulas
                   </Text>
                 </Group>
-                <Text size="11px" c="#64748B">
-                  Auto-populate standard rule sequence & statutory formulas
-                </Text>
-              </Group>
 
-              <Group gap="xs" wrap="wrap">
-                {STRUCTURE_PRESETS.map((preset, idx) => (
-                  <Button
-                    key={idx}
-                    size="xs"
-                    variant="light"
-                    color="indigo"
-                    onClick={() => handleApplyPreset(preset)}
-                  >
-                    {preset.name.split(' (')[0]}
-                  </Button>
-                ))}
-              </Group>
-            </Paper>
+                <Group gap="xs" wrap="wrap">
+                  {STRUCTURE_PRESETS.map((preset, idx) => (
+                    <Button
+                      key={idx}
+                      size="xs"
+                      variant="light"
+                      color="indigo"
+                      onClick={() => handleApplyPreset(preset)}
+                    >
+                      {preset.name.split(' (')[0]}
+                    </Button>
+                  ))}
+                </Group>
+              </Paper>
+            )}
 
             {/* Dynamic Rules Table / Rows */}
             <div>
@@ -878,19 +949,21 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                     Configured Salary Rules & Computation Logic:
                   </Text>
                   <Text size="10px" c="#64748B">
-                    Rules execute sequentially in order. Use Up/Down arrows to reorder execution hierarchy.
+                    Rules execute sequentially in order.
                   </Text>
                 </div>
 
-                <Button
-                  size="xs"
-                  variant="light"
-                  color="blue"
-                  leftSection={<IconPlus size={14} />}
-                  onClick={handleAddRule}
-                >
-                  Add Salary Rule
-                </Button>
+                {!isReadOnly && (
+                  <Button
+                    size="xs"
+                    variant="light"
+                    color="blue"
+                    leftSection={<IconPlus size={14} />}
+                    onClick={handleAddRule}
+                  >
+                    Add Salary Rule
+                  </Button>
+                )}
               </Group>
 
               <ScrollArea.Autosize mah="420px">
@@ -916,22 +989,26 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                               </Badge>
 
                               {/* Up / Down Reorder */}
-                              <ActionIcon
-                                size="xs"
-                                variant="subtle"
-                                disabled={index === 0}
-                                onClick={() => handleMoveRule(index, 'up')}
-                              >
-                                <IconArrowUp size={14} />
-                              </ActionIcon>
-                              <ActionIcon
-                                size="xs"
-                                variant="subtle"
-                                disabled={index === rules.length - 1}
-                                onClick={() => handleMoveRule(index, 'down')}
-                              >
-                                <IconArrowDown size={14} />
-                              </ActionIcon>
+                              {!isReadOnly && (
+                                <>
+                                  <ActionIcon
+                                    size="xs"
+                                    variant="subtle"
+                                    disabled={index === 0}
+                                    onClick={() => handleMoveRule(index, 'up')}
+                                  >
+                                    <IconArrowUp size={14} />
+                                  </ActionIcon>
+                                  <ActionIcon
+                                    size="xs"
+                                    variant="subtle"
+                                    disabled={index === rules.length - 1}
+                                    onClick={() => handleMoveRule(index, 'down')}
+                                  >
+                                    <IconArrowDown size={14} />
+                                  </ActionIcon>
+                                </>
+                              )}
                             </Group>
 
                             {/* Name & Code */}
@@ -941,6 +1018,8 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                                 size="xs"
                                 style={{ flex: 1 }}
                                 value={rule.name}
+                                disabled={isReadOnly}
+                                readOnly={isReadOnly}
                                 onChange={(e) => handleUpdateRule(index, 'name', e.target.value)}
                               />
 
@@ -949,6 +1028,8 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                                 size="xs"
                                 style={{ width: '120px' }}
                                 value={rule.code}
+                                disabled={isReadOnly}
+                                readOnly={isReadOnly}
                                 onChange={(e) => handleUpdateRule(index, 'code', e.target.value.toUpperCase())}
                                 styles={{ input: { fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 } }}
                               />
@@ -957,20 +1038,23 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                                 size="xs"
                                 style={{ width: '170px' }}
                                 value={rule.category}
+                                disabled={isReadOnly}
                                 onChange={(val) => handleUpdateRule(index, 'category', val || 'ALLOWANCE')}
                                 data={CATEGORY_OPTIONS}
                               />
                             </Group>
 
                             {/* Delete Rule */}
-                            <ActionIcon
-                              size="xs"
-                              color="red"
-                              variant="subtle"
-                              onClick={() => handleRemoveRule(index)}
-                            >
-                              <IconTrash size={14} />
-                            </ActionIcon>
+                            {!isReadOnly && (
+                              <ActionIcon
+                                size="xs"
+                                color="red"
+                                variant="subtle"
+                                onClick={() => handleRemoveRule(index)}
+                              >
+                                <IconTrash size={14} />
+                              </ActionIcon>
+                            )}
                           </Group>
 
                           {/* Row Bottom: Computation Method & Formula */}
@@ -981,6 +1065,7 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                                 size="xs"
                                 style={{ width: '220px' }}
                                 value={rule.computationMethod}
+                                disabled={isReadOnly}
                                 onChange={(val) => handleUpdateRule(index, 'computationMethod', val || 'FORMULA')}
                                 data={COMPUTATION_METHODS}
                               />
@@ -992,6 +1077,8 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                                   size="xs"
                                   style={{ width: '180px' }}
                                   value={rule.amount}
+                                  disabled={isReadOnly}
+                                  readOnly={isReadOnly}
                                   onChange={(val) => handleUpdateRule(index, 'amount', val)}
                                   placeholder="e.g. 200"
                                 />
@@ -1005,6 +1092,8 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                                     size="xs"
                                     style={{ width: '140px' }}
                                     value={rule.percentageValue}
+                                    disabled={isReadOnly}
+                                    readOnly={isReadOnly}
                                     onChange={(val) => handleUpdateRule(index, 'percentageValue', val)}
                                     placeholder="50"
                                   />
@@ -1013,6 +1102,8 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                                     size="xs"
                                     style={{ width: '150px' }}
                                     value={rule.percentageOf || 'BASIC'}
+                                    disabled={isReadOnly}
+                                    readOnly={isReadOnly}
                                     onChange={(e) => handleUpdateRule(index, 'percentageOf', e.target.value.toUpperCase())}
                                     placeholder="BASIC"
                                   />
@@ -1027,26 +1118,30 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                                     size="xs"
                                     placeholder="e.g. BASIC * 0.5 or min(BASIC * 0.12, 1800)"
                                     value={rule.formulaExpression || ''}
+                                    disabled={isReadOnly}
+                                    readOnly={isReadOnly}
                                     onChange={(e) => handleUpdateRule(index, 'formulaExpression', e.target.value)}
                                     styles={{ input: { fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 } }}
                                   />
-                                  <Group gap={4} mt={4}>
-                                    <Text size="10px" c="#64748B">
-                                      Quick insert:
-                                    </Text>
-                                    {['wage', 'BASIC', 'HRA', 'GROSS', 'SPL_ALW', 'PF', 'min(BASIC * 0.12, 1800)'].map((v) => (
-                                      <Badge
-                                        key={v}
-                                        size="xs"
-                                        variant="outline"
-                                        color="gray"
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={() => handleInsertVariable(index, v)}
-                                      >
-                                        + {v}
-                                      </Badge>
-                                    ))}
-                                  </Group>
+                                  {!isReadOnly && (
+                                    <Group gap={4} mt={4}>
+                                      <Text size="10px" c="#64748B">
+                                        Quick insert:
+                                      </Text>
+                                      {['wage', 'BASIC', 'HRA', 'GROSS', 'SPL_ALW', 'PF', 'min(BASIC * 0.12, 1800)'].map((v) => (
+                                        <Badge
+                                          key={v}
+                                          size="xs"
+                                          variant="outline"
+                                          color="gray"
+                                          style={{ cursor: 'pointer' }}
+                                          onClick={() => handleInsertVariable(index, v)}
+                                        >
+                                          + {v}
+                                        </Badge>
+                                      ))}
+                                    </Group>
+                                  )}
                                 </Box>
                               )}
                             </Group>
@@ -1140,17 +1235,19 @@ export const SalaryStructuresView = ({ onRefresh }) => {
             {/* Modal Actions */}
             <Group justify="flex-end" gap="xs" mt="sm">
               <Button size="xs" variant="default" onClick={() => setModalOpen(false)}>
-                Cancel
+                {isReadOnly ? 'Close' : 'Cancel'}
               </Button>
-              <Button
-                size="xs"
-                color="dark"
-                type="submit"
-                loading={saving}
-                leftSection={<IconDeviceFloppy size={14} />}
-              >
-                {editingStructureId ? 'Save & Update Structure' : 'Create Structure'}
-              </Button>
+              {!isReadOnly && (
+                <Button
+                  size="xs"
+                  color="dark"
+                  type="submit"
+                  loading={saving}
+                  leftSection={<IconDeviceFloppy size={14} />}
+                >
+                  {editingStructureId ? 'Save & Update Structure' : 'Create Structure'}
+                </Button>
+              )}
             </Group>
           </Stack>
         </form>

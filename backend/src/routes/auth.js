@@ -359,6 +359,7 @@ authRouter.post('/login', async (req, res) => {
     const demoEmails = [
       'meera.krishnan@paypilot.internal',
       'neha.gupta@paypilot.internal',
+      'rahul.sharma@paypilot.internal',
       'tanvi.kapoor@paypilot.internal',
       'kartik.kumar@paypilot.internal',
     ];
