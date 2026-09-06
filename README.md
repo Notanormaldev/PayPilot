@@ -19,7 +19,7 @@
 
 <br/>
 
-[**Live Demo**](#-quick-start) · [**Features**](#-features) · [**Tech Stack**](#-tech-stack) · [**API Docs**](#-api-reference) · [**Contributing**](#-contributing)
+ [**Features**](#-features) · [**Tech Stack**](#-tech-stack) · [**API Docs**](#-api-reference) · [**Contributing**](#-contributing)
 
 </div>
 
