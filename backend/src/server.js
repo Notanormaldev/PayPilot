@@ -20,6 +20,9 @@ import { taxRouter } from './routes/tax.js';
 import { schedulesRouter } from './routes/schedules.js';
 import { reportsRouter } from './routes/reports.js';
 
+import helmet from 'helmet';
+import { apiLimiter } from './middleware/rateLimiter.js';
+
 dotenv.config();
 
 const logger = pino({
@@ -32,15 +35,30 @@ const logger = pino({
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Global Middleware
+// Trust reverse proxy if running behind one (standard for rate-limiting)
+app.set('trust proxy', 1);
+
+// Security Headers with Helmet
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false, // Allows flexible API usage across Vite dev servers
+  })
+);
+
+// Global CORS Middleware
 app.use(
   cors({
     origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Global Rate Limiter for all API routes
+app.use('/api', apiLimiter);
 
 // Routes
 app.use('/health', healthRouter);

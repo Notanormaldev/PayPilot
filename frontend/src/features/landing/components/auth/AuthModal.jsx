@@ -15,6 +15,7 @@ import {
   Select,
   UnstyledButton,
   Alert,
+  Progress,
 } from '@mantine/core';
 import {
   IconLock,
@@ -29,11 +30,14 @@ import {
   IconAlertCircle,
   IconHourglassEmpty,
   IconShieldCheck,
+  IconCircleCheckFilled,
+  IconCircleX,
 } from '@tabler/icons-react';
 import { BrandLogo } from '../../../../components/BrandLogo';
 import { useAuthUser } from '../../../auth/hooks/useAuthUser';
 import { authService } from '../../../auth/services/authService';
 import { UserAvatar } from '../../../../components/ui';
+import { getPasswordStrength } from '../../../auth/utils/passwordStrength';
 
 export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSuccess }) => {
   const { login, register, verifyOtp, resendOtp } = useAuthUser();
@@ -109,6 +113,12 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
   const handleRegister = async () => {
     if (!email) {
       setError('Please enter a valid work email address.');
+      return;
+    }
+
+    const pwdStrength = getPasswordStrength(password);
+    if (!pwdStrength.isStrong) {
+      setError('Please create a strong password that meets all 5 security requirements below.');
       return;
     }
 
@@ -530,12 +540,72 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
 
               <PasswordInput
                 label="Security Password"
-                placeholder="••••••••••••"
+                placeholder={isRegister ? 'Min 8 chars, uppercase, number, symbol' : '••••••••••••'}
                 value={password}
                 onChange={(e) => setPassword(e.currentTarget.value)}
                 leftSection={<IconLock size={14} color="#71717A" />}
                 styles={{ input: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' } }}
               />
+
+              {isRegister && password.length > 0 && (() => {
+                const strength = getPasswordStrength(password);
+                return (
+                  <Box
+                    p="xs"
+                    style={{
+                      backgroundColor: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <Group justify="space-between" mb={4}>
+                      <Text size="10.5px" fw={600} c="#64748B">
+                        Password Security Strength:
+                      </Text>
+                      <Badge
+                        size="xs"
+                        variant="filled"
+                        style={{
+                          backgroundColor: strength.color,
+                          fontSize: '9px',
+                          padding: '0 6px',
+                          height: '16px',
+                        }}
+                      >
+                        {strength.strengthLabel}
+                      </Badge>
+                    </Group>
+
+                    <Progress
+                      value={strength.percent}
+                      color={strength.color}
+                      size="xs"
+                      radius="xl"
+                      mb={6}
+                    />
+
+                    <SimpleGrid cols={2} spacing={3}>
+                      {strength.requirements.map((req, idx) => (
+                        <Group key={idx} gap={4} wrap="nowrap" align="center">
+                          {req.met ? (
+                            <IconCircleCheckFilled size={12} color="#10B981" />
+                          ) : (
+                            <IconCircleX size={12} color="#94A3B8" />
+                          )}
+                          <Text
+                            size="9.5px"
+                            c={req.met ? '#10B981' : '#64748B'}
+                            fw={req.met ? 600 : 400}
+                            truncate
+                          >
+                            {req.label}
+                          </Text>
+                        </Group>
+                      ))}
+                    </SimpleGrid>
+                  </Box>
+                );
+              })()}
 
               <Button
                 fullWidth
