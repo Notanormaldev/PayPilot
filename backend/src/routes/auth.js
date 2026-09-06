@@ -5,6 +5,8 @@ import { OAuth2Client } from 'google-auth-library';
 import { prisma } from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
 import { sendOtpEmail } from '../lib/emailService.js';
+import { authLimiter, otpLimiter } from '../middleware/rateLimiter.js';
+import { validateStrongPassword } from '../utils/passwordValidator.js';
 
 export const authRouter = Router();
 
@@ -59,14 +61,24 @@ function generateTokens(user) {
 
 /**
  * POST /api/auth/register
- * Initiate registration: creates pending user state, generates 6-digit OTP code & dispatches email via Brevo API
+ * Initiate registration: validates strong password, creates pending user state, generates 6-digit OTP & dispatches email
  */
-authRouter.post('/register', async (req, res) => {
+authRouter.post('/register', authLimiter, async (req, res) => {
   try {
     const { email, password, name, role = 'EMPLOYEE', department = 'Executive', jobPosition = 'Specialist' } = req.body;
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // 0. Strict Strong Password Requirement
+    const passwordValidation = validateStrongPassword(password);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({
+        error: passwordValidation.error,
+        code: 'WEAK_PASSWORD',
+        requirements: passwordValidation.requirements,
+      });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -134,7 +146,7 @@ authRouter.post('/register', async (req, res) => {
  * POST /api/auth/verify-otp
  * Verify strict 6-digit OTP code sent via Brevo email
  */
-authRouter.post('/verify-otp', async (req, res) => {
+authRouter.post('/verify-otp', authLimiter, async (req, res) => {
   try {
     const { email, otpCode } = req.body;
 
@@ -292,7 +304,7 @@ authRouter.post('/verify-otp', async (req, res) => {
  * POST /api/auth/resend-otp
  * Re-generate and dispatch a fresh 6-digit OTP code via Brevo email
  */
-authRouter.post('/resend-otp', async (req, res) => {
+authRouter.post('/resend-otp', otpLimiter, async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -333,9 +345,9 @@ authRouter.post('/resend-otp', async (req, res) => {
 
 /**
  * POST /api/auth/login
- * Standard email/password login with approval gatekeeping
+ * Standard email/password login with approval gatekeeping & rate-limiting protection
  */
-authRouter.post('/login', async (req, res) => {
+authRouter.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password, role } = req.body;
 
