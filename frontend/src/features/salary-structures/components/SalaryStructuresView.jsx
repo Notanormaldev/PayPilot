@@ -370,7 +370,8 @@ function simulateRulesLocally(wage = 100000, rules = []) {
 export const SalaryStructuresView = ({ onRefresh }) => {
   const { structures, loading, fetchStructures } = useSalaryStructures();
   const { currentRole } = useAuthUser();
-  const isReadOnly = currentRole === 'HR_PAYROLL_USER';
+  const isPayrollManagerOrAdmin = currentRole === 'ADMIN' || currentRole === 'HR_PAYROLL_MANAGER';
+  const isReadOnly = !isPayrollManagerOrAdmin;
 
   // Builder Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -610,7 +611,7 @@ export const SalaryStructuresView = ({ onRefresh }) => {
           color="blue"
           radius="md"
           variant="light"
-          title="Role: HR Payroll User (Read-Only Salary Rules)"
+          title={`Role: ${currentRole ? currentRole.replace(/_/g, ' ') : 'User'} (Read-Only Salary Rules)`}
           styles={{
             root: { border: '1px solid #BFDBFE', backgroundColor: '#EFF6FF' },
             title: { color: '#1E40AF', fontWeight: 700 },
@@ -929,6 +930,7 @@ export const SalaryStructuresView = ({ onRefresh }) => {
                   {STRUCTURE_PRESETS.map((preset, idx) => (
                     <Button
                       key={idx}
+                      type="button"
                       size="xs"
                       variant="light"
                       color="indigo"
@@ -955,13 +957,14 @@ export const SalaryStructuresView = ({ onRefresh }) => {
 
                 {!isReadOnly && (
                   <Button
+                    type="button"
                     size="xs"
                     variant="light"
                     color="blue"
                     leftSection={<IconPlus size={14} />}
                     onClick={handleAddRule}
                   >
-                    Add Salary Rule
+                    + Add Salary Rule
                   </Button>
                 )}
               </Group>
@@ -1234,7 +1237,7 @@ export const SalaryStructuresView = ({ onRefresh }) => {
 
             {/* Modal Actions */}
             <Group justify="flex-end" gap="xs" mt="sm">
-              <Button size="xs" variant="default" onClick={() => setModalOpen(false)}>
+              <Button type="button" size="xs" variant="default" onClick={() => setModalOpen(false)}>
                 {isReadOnly ? 'Close' : 'Cancel'}
               </Button>
               {!isReadOnly && (
