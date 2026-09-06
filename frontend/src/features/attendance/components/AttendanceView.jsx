@@ -25,6 +25,7 @@ import { attendanceService } from '../services/attendanceService';
 import { fetchApi } from '../../../lib/api';
 import { UserAvatar } from '../../../components/ui';
 import { AttendanceCorrectionModal } from './AttendanceCorrectionModal';
+import { TimeOffTypesModal } from './TimeOffTypesModal';
 
 export const AttendanceView = ({
   attendances = [],
@@ -41,6 +42,9 @@ export const AttendanceView = ({
   // Attendance Correction Modal State
   const [correctionModalOpen, setCorrectionModalOpen] = useState(false);
   const [selectedAttendanceForCorrection, setSelectedAttendanceForCorrection] = useState(null);
+
+  // Time Off Types Configuration Modal State (Section 4 A4)
+  const [timeOffTypesModalOpen, setTimeOffTypesModalOpen] = useState(false);
 
   const fetchRequests = async () => {
     try {
@@ -136,6 +140,17 @@ export const AttendanceView = ({
           </Group>
 
           <Group gap="xs">
+            <Button
+              size="xs"
+              variant="filled"
+              color="indigo"
+              onClick={() => setTimeOffTypesModalOpen(true)}
+              leftSection={<IconCalendarCheck size={14} />}
+              style={{ boxShadow: '0 2px 6px rgba(79, 70, 229, 0.25)' }}
+            >
+              Configure Leave Types
+            </Button>
+
             <Button
               size="xs"
               variant="light"
@@ -425,6 +440,16 @@ export const AttendanceView = ({
         attendance={selectedAttendanceForCorrection}
         employees={propEmployees && propEmployees.length > 0 ? propEmployees : attendances.map((a) => a.employee).filter(Boolean)}
         onSuccess={() => {
+          if (onRefresh) onRefresh();
+        }}
+      />
+
+      {/* Time Off Types Policy Management Modal (Section 4 A4) */}
+      <TimeOffTypesModal
+        opened={timeOffTypesModalOpen}
+        onClose={() => setTimeOffTypesModalOpen(false)}
+        onRefresh={() => {
+          fetchRequests();
           if (onRefresh) onRefresh();
         }}
       />

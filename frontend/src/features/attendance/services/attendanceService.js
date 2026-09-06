@@ -29,5 +29,29 @@ export const attendanceService = {
       body: JSON.stringify(payload),
     });
   },
+
+  fetchTimeOffTypes: async () => {
+    return await fetchApi('/time-off/types');
+  },
+
+  createTimeOffType: async (payload) => {
+    return await fetchApi('/time-off/types', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  updateTimeOffType: async (id, payload) => {
+    return await fetchApi(`/time-off/types/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  deleteTimeOffType: async (id) => {
+    return await fetchApi(`/time-off/types/${id}`, {
+      method: 'DELETE',
+    });
+  },
 };
 
