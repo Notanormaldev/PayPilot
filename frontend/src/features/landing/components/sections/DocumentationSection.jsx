@@ -106,7 +106,7 @@ export const DocumentationSection = () => {
               <img
                 src={cards[activeCard].image}
                 alt={cards[activeCard].title}
-                className="w-full h-full object-cover transition-opacity duration-300"
+                className="w-full h-full object-contain object-top bg-white transition-opacity duration-300"
               />
             </div>
           </div>
