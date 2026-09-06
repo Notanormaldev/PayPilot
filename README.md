@@ -54,7 +54,7 @@
 </tr>
 </table>
 
-> 📌 Add more screenshots (e.g. Sentinel Audit Engine, Pay Run wizard, Tax Studio) to `frontend/public/` and drop them into this grid as the product evolves.
+
 
 ---
 
