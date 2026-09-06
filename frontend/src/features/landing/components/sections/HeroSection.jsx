@@ -114,7 +114,7 @@ export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
               <img
                 src={heroTabs[1].image}
                 alt="Sentinel AI Compliance Radar"
-                className="w-full h-full object-cover object-top bg-white"
+                className="w-full h-full object-contain object-top bg-white"
               />
             </div>
 
@@ -127,7 +127,7 @@ export const HeroSection = ({ onLaunchDemo, onOpenAuth }) => {
               <img
                 src={heroTabs[2].image}
                 alt="Workforce Analytics & Telemetry"
-                className="w-full h-full object-cover object-top bg-white"
+                className="w-full h-full object-contain object-top bg-white"
               />
             </div>
           </div>
