@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Group, ActionIcon, Box, Indicator, Menu, Text, Badge, Stack, Button, UnstyledButton, Tooltip } from '@mantine/core';
-import { IconBell, IconChecks, IconCalendarEvent, IconReceipt2, IconSpeakerphone, IconEdit, IconMenu2 } from '@tabler/icons-react';
+import { IconBell, IconChecks, IconCalendarEvent, IconReceipt2, IconSpeakerphone, IconEdit } from '@tabler/icons-react';
 import { BrandLogo } from '../BrandLogo';
 import { UserMenu } from '../../features/auth/components/UserMenu';
 import { useNotifications } from '../../features/employee-portal/hooks/useNotifications';
@@ -39,27 +39,8 @@ export const Header = ({ onOpenCopilot, onViewLanding, onNavigateTab, onToggleSi
           zIndex: 100,
         }}
       >
-        {/* Left: 3-Lines Sidebar Toggle & Brand Logo */}
+        {/* Left: Brand Logo */}
         <Group gap="md">
-          {onToggleSidebar && (
-            <Tooltip label={sidebarCollapsed ? 'Expand Navigation Sidebar' : 'Collapse Navigation Sidebar'} position="bottom" withArrow>
-              <ActionIcon
-                variant="subtle"
-                color="gray"
-                size="md"
-                radius="md"
-                onClick={onToggleSidebar}
-                title="Toggle Sidebar"
-                style={{
-                  border: '1px solid #E2E8F0',
-                  backgroundColor: sidebarCollapsed ? '#F1F5F9' : '#FFFFFF',
-                }}
-              >
-                <IconMenu2 size={18} color="#0F172A" />
-              </ActionIcon>
-            </Tooltip>
-          )}
-
           <div onClick={onViewLanding} title="PayPilot" style={{ cursor: onViewLanding ? 'pointer' : 'default' }}>
             <BrandLogo size={32} />
           </div>

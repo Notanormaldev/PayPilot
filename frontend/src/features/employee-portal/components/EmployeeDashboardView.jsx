@@ -54,6 +54,7 @@ import { attendanceService } from '../../attendance/services/attendanceService';
 import { generatePayslipPdf } from '../../../lib/payslipPdfGenerator';
 import { HolidayCalendarModal } from './HolidayCalendarModal';
 import { getUpcomingIndianHolidays, getHolidayCountdown } from '../data/indianHolidays2026';
+import { ActiveShiftCard } from './ActiveShiftCard';
 import { IconCalendarEvent } from '@tabler/icons-react';
 
 export const EmployeeDashboardView = ({ onNavigate }) => {
@@ -78,20 +79,6 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
   // Dedicated Employee Tax Computation Modal State
   const [taxModalOpen, setTaxModalOpen] = useState(false);
 
-  // Live Shift Attendance State (Synchronized with localStorage)
-  const [checkedIn, setCheckedIn] = useState(() => {
-    const saved = localStorage.getItem('paypilot_shift_checked_in');
-    return saved !== null ? JSON.parse(saved) : true;
-  });
-
-  const [checkInTime, setCheckInTime] = useState(() => {
-    const saved = localStorage.getItem('paypilot_shift_start');
-    return saved ? parseInt(saved, 10) : Date.now() - (3 * 3600 + 44 * 60 + 20) * 1000;
-  });
-
-  const [elapsedSec, setElapsedSec] = useState(0);
-  const [punching, setPunching] = useState(false);
-
   // Modals on Dashboard
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [leaveType, setLeaveType] = useState('Casual Leave');
@@ -103,59 +90,6 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
   const [regularizeModalOpen, setRegularizeModalOpen] = useState(false);
   const [regularizeReason, setRegularizeReason] = useState('');
   const [regularizeSubmitted, setRegularizeSubmitted] = useState(false);
-
-  // Live stopwatch loop
-  useEffect(() => {
-    let interval = null;
-    if (checkedIn && checkInTime) {
-      const updateClock = () => {
-        const diff = Math.max(0, Math.floor((Date.now() - checkInTime) / 1000));
-        setElapsedSec(diff);
-      };
-      updateClock();
-      interval = setInterval(updateClock, 1000);
-    } else {
-      setElapsedSec(0);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [checkedIn, checkInTime]);
-
-  const handleTogglePunch = async () => {
-    setPunching(true);
-    const newCheckedIn = !checkedIn;
-    const now = Date.now();
-
-    try {
-      await attendanceService.recordPunch(userEmpCode, newCheckedIn ? 'CHECK_IN' : 'CHECK_OUT');
-    } catch (e) {
-      console.warn('Punch recording fallback:', e.message);
-    } finally {
-      setPunching(false);
-    }
-
-    setCheckedIn(newCheckedIn);
-    localStorage.setItem('paypilot_shift_checked_in', JSON.stringify(newCheckedIn));
-
-    if (newCheckedIn) {
-      setCheckInTime(now);
-      localStorage.setItem('paypilot_shift_start', now.toString());
-    } else {
-      localStorage.removeItem('paypilot_shift_start');
-    }
-  };
-
-  const formatTimer = (totalSec) => {
-    const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
-    const mins = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
-    const secs = String(totalSec % 60).padStart(2, '0');
-    return `${hrs} : ${mins} : ${secs}`;
-  };
-
-  const checkInDisplayStr = checkInTime && checkedIn
-    ? new Date(checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    : '09:28 AM';
 
   const handleDownloadLatestPayslip = () => {
     generatePayslipPdf(
@@ -198,9 +132,6 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
     }, 1500);
   };
 
-  // Shift target progress (8 hours = 28,800 sec)
-  const shiftPercent = Math.min(100, Math.round((elapsedSec / (8 * 3600)) * 100));
-
   return (
     <Stack gap="lg">
       {/* 1. HERO GREETING & ATTENDANCE WEB PUNCH CARD */}
@@ -233,70 +164,8 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
             </Text>
           </div>
 
-          {/* Web Punch Live Shift Box */}
-          <Paper
-            p="md"
-            radius="md"
-            style={{
-              backgroundColor: '#F8FAFC',
-              border: '1px solid #E2E8F0',
-              minWidth: '320px',
-            }}
-          >
-            <Group justify="space-between" align="center" mb="xs">
-              <Group gap="xs">
-                <ThemeIcon size="sm" color={checkedIn ? 'teal' : 'gray'} variant="light" radius="xl">
-                  {checkedIn ? <IconClockCheck size={14} /> : <IconClockOff size={14} />}
-                </ThemeIcon>
-                <Text size="xs" fw={700} c="#0F172A">
-                  {checkedIn ? 'Active Work Shift' : 'Off Clock / On Break'}
-                </Text>
-              </Group>
-              <Badge size="xs" color={checkedIn ? 'teal' : 'gray'} variant="light">
-                {checkedIn ? `Punched In at ${checkInDisplayStr}` : 'Not Checked In'}
-              </Badge>
-            </Group>
-
-            <Group justify="space-between" align="center" my="xs">
-              <div>
-                <Text size="10px" c="#64748B" fw={700} style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Today's Shift Timer
-                </Text>
-                <Text size="xl" fw={800} c={checkedIn ? '#059669' : '#64748B'} style={{ fontFamily: 'monospace' }}>
-                  {formatTimer(elapsedSec)}
-                </Text>
-              </div>
-
-              <Button
-                size="sm"
-                color={checkedIn ? 'red' : 'teal'}
-                variant="filled"
-                loading={punching}
-                leftSection={checkedIn ? <IconClockOff size={16} /> : <IconClockCheck size={16} />}
-                onClick={handleTogglePunch}
-                style={{
-                  boxShadow: checkedIn
-                    ? '0 4px 12px rgba(239, 68, 68, 0.25)'
-                    : '0 4px 12px rgba(20, 184, 166, 0.25)',
-                }}
-              >
-                {checkedIn ? 'Web Punch Out' : 'Web Punch In'}
-              </Button>
-            </Group>
-
-            {/* Today's Shift Progress Meter */}
-            <div>
-              <Group justify="space-between" mb={2}>
-                <Text size="10px" c="#64748B">
-                  Shift Goal: 8.0 Hrs (09:30 AM – 06:30 PM)
-                </Text>
-                <Text size="10px" fw={700} c="#0F172A">
-                  {shiftPercent}%
-                </Text>
-              </Group>
-              <Progress value={shiftPercent} size="xs" color="teal" radius="xl" animated={checkedIn} />
-            </div>
-          </Paper>
+          {/* Unified Active Shift & Overtime Card */}
+          <ActiveShiftCard employeeCode={userEmpCode} />
         </Group>
       </Paper>
 

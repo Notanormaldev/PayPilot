@@ -32,6 +32,8 @@ import {
   IconHistory,
 } from '@tabler/icons-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { ActiveShiftCard } from './ActiveShiftCard';
+import { useShiftAttendance } from '../hooks/useShiftAttendance';
 
 export const MyAttendanceView = () => {
   const [correctionModalOpen, setCorrectionModalOpen] = useState(false);
@@ -42,44 +44,21 @@ export const MyAttendanceView = () => {
   const [reason, setReason] = useState('');
   const [submittedMessage, setSubmittedMessage] = useState(null);
 
-  // Shift Punch State with Local Storage Persistence
-  const [checkedIn, setCheckedIn] = useState(() => {
-    const saved = localStorage.getItem('paypilot_shift_checked_in');
-    return saved !== null ? JSON.parse(saved) : true;
-  });
+  // Synchronized Shift Attendance State from Central Hook
+  const {
+    checkedIn,
+    checkInTime,
+    checkInDisplayStr,
+    shiftCompleted,
+    regularShiftSec,
+    isOvertimeActive,
+    liveTodayOtSec,
+    totalMonthOtSec,
+  } = useShiftAttendance('EMP-8492');
 
-  const [checkInTime, setCheckInTime] = useState(() => {
-    const saved = localStorage.getItem('paypilot_shift_start');
-    return saved ? parseInt(saved, 10) : Date.now() - (2 * 3600 + 22 * 60 + 53) * 1000;
-  });
-
-  const [shiftCompleted, setShiftCompleted] = useState(() => {
-    const saved = localStorage.getItem('paypilot_shift_today_completed');
-    return saved !== null ? JSON.parse(saved) : false;
-  });
-
-  const [elapsedSec, setElapsedSec] = useState(0);
-
-  // Shift Target: 8 hours = 28,800 seconds
-  const TARGET_SECONDS = 8 * 3600;
-
-  // Relative Time Helper (X Minutes ago / 1 Minute ago / Just Now)
-  const getRelativeTime = (timeMs) => {
-    if (!timeMs) return 'Just Now';
-    const diffSec = Math.max(0, Math.floor((Date.now() - timeMs) / 1000));
-    if (diffSec < 45) return 'Just Now';
-    const diffMins = Math.floor(diffSec / 60);
-    if (diffMins === 1) return '1 Minute ago';
-    if (diffMins < 60) return `${diffMins} Minutes ago`;
-    const diffHours = Math.floor(diffMins / 60);
-    const remMins = diffMins % 60;
-    if (diffHours === 1) return `1 Hour ${remMins}m ago`;
-    return `${diffHours} Hours ${remMins}m ago`;
-  };
-
-  // Dynamic Total Worked Hours (Base 160.5 hrs + Live current shift)
+  // Dynamic Total Worked Hours (Base 160.5 hrs + Live current shift + Overtime)
   const baseMonthlyHrs = 160.5;
-  const liveShiftHoursVal = checkedIn ? elapsedSec / 3600 : 0;
+  const liveShiftHoursVal = checkedIn ? (regularShiftSec + (isOvertimeActive ? liveTodayOtSec : 0)) / 3600 : 0;
   const dynamicTotalWorkedHours = (baseMonthlyHrs + liveShiftHoursVal).toFixed(1);
 
   // Comprehensive Work Breakdown History Dataset
@@ -103,69 +82,6 @@ export const MyAttendanceView = () => {
     { date: 'Aug 29, 2026', checkIn: '09:00 AM', checkOut: '06:00 PM', workedHours: '8.0 hrs', status: 'PRESENT' },
     { date: 'Aug 28, 2026', checkIn: '09:18 AM', checkOut: '06:00 PM', workedHours: '7.7 hrs', status: 'LATE' },
   ]);
-
-  // Live timer loop
-  useEffect(() => {
-    let interval = null;
-    if (checkedIn && checkInTime) {
-      const updateClock = () => {
-        const diff = Math.max(0, Math.floor((Date.now() - checkInTime) / 1000));
-        setElapsedSec(diff);
-      };
-      updateClock();
-      interval = setInterval(updateClock, 1000);
-    } else {
-      setElapsedSec(0);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [checkedIn, checkInTime]);
-
-  const handleToggleCheckIn = () => {
-    const now = Date.now();
-    if (!checkedIn) {
-      // Check In
-      setCheckedIn(true);
-      setCheckInTime(now);
-      setShiftCompleted(false);
-      localStorage.setItem('paypilot_shift_checked_in', 'true');
-      localStorage.setItem('paypilot_shift_start', now.toString());
-      localStorage.setItem('paypilot_shift_today_completed', 'false');
-    } else {
-      // Check Out - complete shift and move to Recent Daily Logs
-      const workedHrsVal = (elapsedSec / 3600).toFixed(1);
-      const checkInStr = new Date(checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const checkOutStr = new Date(now).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-
-      const newLog = {
-        date: todayStr,
-        checkIn: checkInStr,
-        checkOut: checkOutStr,
-        workedHours: `${workedHrsVal} hrs`,
-        status: parseFloat(workedHrsVal) >= 7.5 ? 'PRESENT' : 'HALF_DAY',
-      };
-
-      setAttendanceLogs([newLog, ...attendanceLogs]);
-      setCheckedIn(false);
-      setShiftCompleted(true);
-      localStorage.setItem('paypilot_shift_checked_in', 'false');
-      localStorage.setItem('paypilot_shift_today_completed', 'true');
-      localStorage.removeItem('paypilot_shift_start');
-    }
-  };
-
-  const formatHours = (totalSec) => {
-    const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
-    const mins = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
-    const secs = String(totalSec % 60).padStart(2, '0');
-    return `${hrs} : ${mins} : ${secs}`;
-  };
-
-  const remainingSec = Math.max(0, TARGET_SECONDS - elapsedSec);
-  const remainingHrs = Math.floor(remainingSec / 3600);
-  const remainingMins = Math.floor((remainingSec % 3600) / 60);
 
   const todayFormattedDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -232,7 +148,7 @@ export const MyAttendanceView = () => {
         </Group>
       </Paper>
 
-      {/* TODAY'S LOG & LIVE SHIFT PUNCH CARD */}
+      {/* TODAY'S LOG & UNIFIED LIVE SHIFT PUNCH CARD */}
       <Paper
         p="lg"
         radius="md"
@@ -242,87 +158,32 @@ export const MyAttendanceView = () => {
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.04)',
         }}
       >
-        <Group justify="space-between" align="center" mb="sm">
+        <Group justify="space-between" align="center" mb="md">
           <Group gap="xs">
             <Text fw={800} size="sm" c="#09090B">
               TODAY'S SHIFT LOG ({todayFormattedDate})
             </Text>
             <Badge
               size="xs"
-              color={checkedIn ? 'teal' : shiftCompleted ? 'blue' : 'gray'}
+              color={isOvertimeActive ? 'amber' : checkedIn ? 'teal' : shiftCompleted ? 'blue' : 'gray'}
               variant="filled"
             >
-              {checkedIn
-                ? `ACTIVE SHIFT • Punched in ${getRelativeTime(checkInTime)}`
+              {isOvertimeActive
+                ? '⚡ OVERTIME ACTIVE'
+                : checkedIn
+                ? `ACTIVE SHIFT • Punched in at ${checkInDisplayStr}`
                 : shiftCompleted
                 ? 'SHIFT COMPLETED'
                 : 'NOT CHECKED IN'}
             </Badge>
           </Group>
           <Text size="xs" c="#71717A">
-            Standard Daily Target: <b>08h 00m</b>
+            Standard Daily Target: <b>08h 00m</b> • Monthly Overtime Limit: <b>20.0h</b>
           </Text>
         </Group>
 
-        {/* Live Work Time Dark Card */}
-        <Box
-          p="md"
-          style={{
-            backgroundColor: '#09090B',
-            borderRadius: '12px',
-            color: '#FFFFFF',
-          }}
-        >
-          <Group justify="space-between" align="center" mb="xs">
-            <Text size="11px" fw={700} c="#94A3B8" style={{ letterSpacing: '1px' }}>
-              LIVE WORKED TIME
-            </Text>
-            <Group gap="xs">
-              <Text size="11px" c="#CBD5E1">
-                Check-In:{' '}
-                <b>
-                  {checkInTime && checkedIn
-                    ? `${new Date(checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (${getRelativeTime(checkInTime)})`
-                    : '09:28 AM'}
-                </b>
-              </Text>
-              <Text size="11px" c="#F59E0B" fw={700}>
-                Remaining: {remainingHrs}h {remainingMins}m
-              </Text>
-            </Group>
-          </Group>
-
-          {/* Big Digital Clock */}
-          <Text
-            size="36px"
-            fw={900}
-            c="#F59E0B"
-            style={{
-              fontFamily: 'JetBrains Mono, monospace',
-              textAlign: 'center',
-              letterSpacing: '2px',
-              padding: '8px 0',
-            }}
-          >
-            {checkedIn ? formatHours(elapsedSec) : '00 : 00 : 00'}
-          </Text>
-
-          {/* Action Button */}
-          <Button
-            fullWidth
-            size="md"
-            color={checkedIn ? 'orange' : 'teal'}
-            leftSection={checkedIn ? <IconClockOff size={18} /> : <IconClockCheck size={18} />}
-            onClick={handleToggleCheckIn}
-            style={{
-              fontWeight: 800,
-              fontSize: '14px',
-              borderRadius: '8px',
-            }}
-          >
-            {checkedIn ? 'Check Out of Shift' : 'Check In to Shift'}
-          </Button>
-        </Box>
+        {/* Unified Active Shift & Overtime Card */}
+        <ActiveShiftCard employeeCode="EMP-8492" />
       </Paper>
 
       {submittedMessage && (
