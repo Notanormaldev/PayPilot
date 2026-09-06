@@ -43,7 +43,7 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
   const { login, register, verifyOtp, resendOtp } = useAuthUser();
   const [isRegister, setIsRegister] = useState(initialMode === 'register');
   const [step, setStep] = useState('form'); // 'form' | 'otp' | 'pending_approval'
-
+  
   // Registration / Auth Form fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -192,18 +192,18 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
 
   const roleOptions = adminExists
     ? [
-      { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
-      { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
-      { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
-      { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
-    ]
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
+        { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
+      ]
     : [
-      { value: 'ADMIN', label: 'Executive / Administrator (Initial Setup)' },
-      { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
-      { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
-      { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
-      { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
-    ];
+        { value: 'ADMIN', label: 'Executive / Administrator (Initial Setup)' },
+        { value: 'HR_MANAGER', label: 'HR Manager (HR Operations & Leaves)' },
+        { value: 'HR_PAYROLL_USER', label: 'HR Payroll User (HR + Payrun Operations)' },
+        { value: 'HR_PAYROLL_MANAGER', label: 'HR Payroll Manager (Full Payroll Configuration)' },
+        { value: 'EMPLOYEE', label: 'Employee Self-Service (Instant Access)' },
+      ];
 
   return (
     <Modal
@@ -509,7 +509,7 @@ export const AuthModal = ({ opened, onClose, initialMode = 'signin', onAuthSucce
                   />
 
                   <Select
-                    label="Access Role"
+                    label="Role Permission"
                     description={
                       role === 'EMPLOYEE'
                         ? 'Instant access to employee portal upon email verification.'
