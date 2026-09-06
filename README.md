@@ -6,7 +6,7 @@
 
 **Payroll that explains itself — deterministic calculations, explainable anomaly detection, and live-recomputing payslips, all in one governed pipeline.**
 
-<sub>Built solo, top to bottom, by <a href="https://github.com/Notanormaldev">Harsh Patel</a></sub>
+
 
 <br/>
 
